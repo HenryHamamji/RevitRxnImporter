@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<RevitAddIns>
+<AddIn Type="Application">
+<Name>Revit Reaction Importer</Name>
+<Assembly>RevitReactionImporterApp.dll</Assembly>
+<AddInId>8D83C886-B738-4ACD-C9DB-1BC78F315B2B</AddInId>
+<FullClassName>RevitReactionImporter.RevitReactionImporterApp</FullClassName>
+<VendorId>HFH</VendorId>
+<VendorDescription> RAM SS to Revit Beam Reactions</VendorDescription>
+</AddIn>
+</RevitAddIns>
