@@ -23,6 +23,7 @@ namespace RevitReactionImporter
         {
             try
             {
+                MessageBox.Show("went through");
                 var paneId = RevitReactionImporterApp.GetControlPaneDockableId();
 
                 var controlPane = commandData.Application.GetDockablePane(paneId);
@@ -78,6 +79,8 @@ namespace RevitReactionImporter
             try
             {
                 uiApp.CreateRibbonTab(APP_TAB_NAME);
+                RibbonPanel = uiApp.CreateRibbonPanel(APP_TAB_NAME, "RAM Reaction Importer");
+                AddPushButton(RibbonPanel);
                 //browserPanel = uiApp.CreateRibbonPanel(APP_TAB_NAME, BROWSER_PANEL_NAME);
 
                 uiApp.ControlledApplication.DocumentCreated += DocumentCreatedHandler;
@@ -94,11 +97,10 @@ namespace RevitReactionImporter
                 uiApp.Idling += UiIdlingHandler;
                 NullProperties();
 
-                RibbonPanel = uiApp.CreateRibbonPanel(APP_TAB_NAME, "RAM Reaction Importer");
 
 
                 _assemblyPath = @"C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\RevitReactionImporterApp.dll"; //System.Reflection.Assembly.GetExecutingAssembly().Location;
-                AddPushButton(RibbonPanel);
+
 
 
                 return Result.Succeeded;
