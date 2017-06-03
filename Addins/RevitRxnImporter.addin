@@ -2,8 +2,8 @@
 <RevitAddIns>
 <AddIn Type="Application">
 <Name>Revit Reaction Importer</Name>
-<Assembly>RevitReactionImporterApp.dll</Assembly>
-<AddInId>8D83C886-B738-4ACD-C9DB-1BC78F315B2B</AddInId>
+<Assembly>"C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\RevitReactionImporterApp.dll"</Assembly>
+<AddInId>46e366ec-491c-4fad-906d-51c00f43c9c8</AddInId>
 <FullClassName>RevitReactionImporter.RevitReactionImporterApp</FullClassName>
 <VendorId>HFH</VendorId>
 <VendorDescription> RAM SS to Revit Beam Reactions</VendorDescription>

@@ -23,7 +23,6 @@ namespace RevitReactionImporter
         {
             try
             {
-                MessageBox.Show("went through");
                 var paneId = RevitReactionImporterApp.GetControlPaneDockableId();
 
                 var controlPane = commandData.Application.GetDockablePane(paneId);
@@ -45,8 +44,6 @@ namespace RevitReactionImporter
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            MessageBox.Show("went through");
-
             return Result.Succeeded;
         }
     }
@@ -72,8 +69,6 @@ namespace RevitReactionImporter
 
         public Result OnStartup(UIControlledApplication uiApp)
         {
-            MessageBox.Show("went through");
-
             RevitApplication = uiApp;
 
             try
@@ -189,8 +184,14 @@ namespace RevitReactionImporter
 
             appButton.ToolTip = "Ribbon Button Tooltip";
 
-            appButton.LargeImage = new System.Windows.Media.Imaging.BitmapImage(PathUtils.GetResourceUri("icon.jpg"));
-            appButton.Image = new System.Windows.Media.Imaging.BitmapImage(PathUtils.GetResourceUri("icon.jpg"));
+            System.Windows.Media.Imaging.BitmapImage image = new System.Windows.Media.Imaging.BitmapImage();
+            image.BeginInit();
+            image.UriSource = new Uri(@"C:\dev\RevitRxnImporter\RevitRxnImporter\Resources\icon.jpg");
+            image.DecodePixelHeight = 175;
+            appButton.Image = image;
+            appButton.LargeImage = image;
+            image.EndInit();
+
         }
 
 
