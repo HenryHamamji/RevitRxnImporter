@@ -180,10 +180,8 @@ namespace RevitReactionImporter
 
         private void AddPushButton(Autodesk.Revit.UI.RibbonPanel panel)
         {
-            PushButton appButton = panel.AddItem(new PushButtonData("RAM Reaction Importer", "Ribbon Button", _assemblyPath, "RevitReactionImporter.ControlInterfaceDockingPane")) as PushButton;
-
-            appButton.ToolTip = "Ribbon Button Tooltip";
-
+            PushButton appButton = panel.AddItem(new PushButtonData("RAM Reaction Importer", "Import RAM Reactions", _assemblyPath, "RevitReactionImporter.ControlInterfaceDockingPane")) as PushButton;
+            appButton.ToolTip = "RAM Reaction Importer";
             System.Windows.Media.Imaging.BitmapImage image = new System.Windows.Media.Imaging.BitmapImage();
             image.BeginInit();
             image.UriSource = new Uri(@"C:\dev\RevitRxnImporter\RevitRxnImporter\Resources\icon.jpg");
@@ -191,10 +189,7 @@ namespace RevitReactionImporter
             appButton.Image = image;
             appButton.LargeImage = image;
             image.EndInit();
-
         }
-
-
 
 
         PushButtonData CreatePushButtonData(string id, string text, Type cmd, System.Drawing.Bitmap bitmap = null)
