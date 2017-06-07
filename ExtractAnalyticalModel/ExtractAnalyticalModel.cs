@@ -116,6 +116,8 @@
                     {
                         project.StructuralMembers.Beams.Add(beam);
                     }
+                    System.Windows.Forms.MessageBox.Show(project.StructuralMembers.Beams.ToString());
+
                 }
                 catch (Exception e) { }
             }
