@@ -151,7 +151,7 @@ namespace RevitReactionImporter
         {
             Document = doc;
             _projectId = Document.ProjectInformation.UniqueId;
-            ControlInterfaceViewModel = new ControlInterfaceViewModel(ControlInterfaceView, Document, this);
+            ControlInterfaceViewModel = new ControlInterfaceViewModel(ControlInterfaceView, Document, this, _projectId);
             new DockablePane(_controlPaneId).Hide();
 
             ToolTip = new ToolTip();

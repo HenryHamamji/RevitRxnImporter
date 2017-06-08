@@ -67,3 +67,7 @@ C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporter.csproj.
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporterApp.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporterApp.pdb
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporter.csprojResolveAssemblyReference.cache
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\AnalyticalModel.dll
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\ExtractAnalyticalModel.dll
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\AnalyticalModel.pdb
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\ExtractAnalyticalModel.pdb

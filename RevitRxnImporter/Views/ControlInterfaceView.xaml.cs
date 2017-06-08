@@ -17,8 +17,8 @@ namespace RevitReactionImporter
 
         internal DockablePaneProviderData _paneProviderData = null;
 
-        private ExternalEvent analyzeEvent;
-        private ExternalEvent reportsEvent;
+        private ExternalEvent importRAMReactionsEvent;
+        private ExternalEvent clearReactionsEvent;
 
         internal ObservableCollection<string> ConnectionTypes = new ObservableCollection<string>();
 
@@ -30,13 +30,13 @@ namespace RevitReactionImporter
 
             ViewModel = null;
 
-            //var analyzeHander = new AnalyzeHandler();
-            //analyzeHander.View = this;
-            //analyzeEvent = ExternalEvent.Create(analyzeHander);
+            var importRAMReactionsHandler = new ImportRAMReactionsHandler();
+            importRAMReactionsHandler.View = this;
+            importRAMReactionsEvent = ExternalEvent.Create(importRAMReactionsHandler);
 
-            //var estimateHander = new EstimateHandler();
-            //estimateHander.View = this;
-            //estimateEvent = ExternalEvent.Create(estimateHander);
+            var clearReactionsHandler = new ClearReactionsHandler();
+            clearReactionsHandler.View = this;
+            clearReactionsEvent = ExternalEvent.Create(clearReactionsHandler);
         }
 
         public void SetupDockablePane(DockablePaneProviderData data)
@@ -54,18 +54,18 @@ namespace RevitReactionImporter
 
         private void OnImportBeamReactionsClick(object sender, RoutedEventArgs e)
         {
-            if (analyzeEvent != null)
-                analyzeEvent.Raise();
+            if (importRAMReactionsEvent != null)
+                importRAMReactionsEvent.Raise();
             else
-                MessageBox.Show("AnalyzeEvent event handler is null");
+                MessageBox.Show("ImportRAMReactionsEvent event handler is null");
         }
 
         private void OnResetBeamReactionsClick(object sender, RoutedEventArgs e)
         {
-            if (reportsEvent != null)
-                reportsEvent.Raise();
+            if (clearReactionsEvent != null)
+                clearReactionsEvent.Raise();
             else
-                MessageBox.Show("ReportsEvent event handler is null");
+                MessageBox.Show("ClearReactionsEvent event handler is null");
         }
 
     }

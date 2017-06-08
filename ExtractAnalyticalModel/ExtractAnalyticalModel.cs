@@ -122,6 +122,8 @@
                 catch (Exception e) { }
             }
 
+            System.Windows.Forms.MessageBox.Show("RAM Reaction import button was clicked");
+
             beamInstancedCollectorTransaction.Commit();
             return project;
         }
