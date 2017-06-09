@@ -89,6 +89,11 @@
             var levelInstancedCollector = new FilteredElementCollector(doc);
             ICollection<Element> levelsCollection = levelInstancedCollector.OfClass(typeof(Level)).ToElements();
 
+            // Collect all the instanced grids
+            var gridInstancedCollector = new FilteredElementCollector(doc);
+            ICollection<Element> gridsCollection = gridInstancedCollector.OfClass(typeof(Grid)).ToElements();
+
+            var referencePoint = EstablishReferencePoint(gridsCollection);
             // Convert the list of beams of type "Elements" to a new list of columns of type "FamilyInstances"
             var levelInstancedList = new List<Level>();
             foreach (var levelElement in levelsCollection)
@@ -115,14 +120,19 @@
                     foreach (var beam in beamList)
                     {
                         project.StructuralMembers.Beams.Add(beam);
+                        //System.Windows.Forms.MessageBox.Show(beam.StartReactionTotal);
+                        //System.Windows.Forms.MessageBox.Show(beam.EndReactionTotal);
+
                     }
-                    System.Windows.Forms.MessageBox.Show(project.StructuralMembers.Beams.ToString());
+
 
                 }
+
                 catch (Exception e) { }
             }
-
-            System.Windows.Forms.MessageBox.Show("RAM Reaction import button was clicked");
+            //string testReaction = project.StructuralMembers.Beams[0].StartReactionTotal;
+            //System.Windows.Forms.MessageBox.Show(project.StructuralMembers.Beams[0].StartReactionTotal);
+            //System.Windows.Forms.MessageBox.Show("RAM Reaction import button was clicked");
 
             beamInstancedCollectorTransaction.Commit();
             return project;
@@ -146,7 +156,10 @@
             beam.ElementId = beamInstance.Id.IntegerValue;
             beam.ElementLevel = GetElementLevel(doc, beamInstance.Id);
             beam.Size = beamInstance.Name;
-
+            beam.StartReactionTotal = beamInstance.LookupParameter("Start Reaction - Total") != null ? beamInstance.LookupParameter("Start Reaction - Total").AsValueString(): "";
+            beam.EndReactionTotal = beamInstance.LookupParameter("End Reaction - Total") != null ? beamInstance.LookupParameter("End Reaction - Total").AsValueString() : "";
+            Parameter endReactionTotalParameter = beamInstance.LookupParameter("End Reaction - Total");
+            endReactionTotalParameter.SetValueString("45");
             // Beam Material Properties
             var beamInstanceMaterial = beamInstance.get_Parameter(BuiltInParameter.STRUCTURAL_MATERIAL_PARAM);
             var beamInstanceMaterialId = doc.GetElement(beamInstanceMaterial.AsElementId()) as Material;
@@ -181,6 +194,34 @@
             beams.Add(beam);
 
             return beams;
+        }
+
+        // Defines reference point for model geometry mapping from RAM to Revit. Hard-coded as Grid A-1.
+        public static double[] EstablishReferencePoint(ICollection<Element> gridsCollection)
+        {
+            var referencePoint = new double[3];
+            var gridOrigin = new double[3];
+            var gridDirection = new double[3];
+            foreach (var grid in gridsCollection)
+            {
+                var gridInstance = grid as Grid;
+                if(gridInstance.Name == "A")
+                {
+                    var gridCurve = gridInstance.Curve as Line;
+                    gridOrigin[0] = gridCurve.Origin.X;
+                    gridOrigin[1] = gridCurve.Origin.Y;
+                    gridOrigin[2] = gridCurve.Origin.Z;
+                    gridDirection[0] = gridCurve.Direction.X;
+                    gridDirection[1] = gridCurve.Direction.Y;
+                    gridDirection[2] = gridCurve.Direction.Z;
+                }
+                else if(gridInstance.Name == "1")
+                {
+
+                }
+            }
+
+            return referencePoint;
         }
 
         public static string GetElementId(Document doc, ElementId id)

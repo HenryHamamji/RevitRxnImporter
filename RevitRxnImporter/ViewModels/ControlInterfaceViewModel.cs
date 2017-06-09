@@ -33,7 +33,6 @@ namespace RevitReactionImporter
 
             _view = view;
             _view.ViewModel = this;
-            System.Windows.Forms.MessageBox.Show("view set");
             _document = doc;
             _projectId = projectId;
 
@@ -50,7 +49,7 @@ namespace RevitReactionImporter
         public void ImportBeamReactions()
         {
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
-            System.Windows.Forms.MessageBox.Show("RAM Reaction import button was clicked");
+            //System.Windows.Forms.MessageBox.Show("RAM Reaction import button was clicked");
 
 
         }

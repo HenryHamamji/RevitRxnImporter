@@ -165,6 +165,8 @@ namespace RevitReactionImporter
         public string StructuralUsage { get; set; }
         public double[] StartPoint { get; set; }
         public double[] EndPoint { get; set; }
+        public string StartReactionTotal { get; set; }
+        public string EndReactionTotal { get; set; }
 
         // The CutLength property is the reduced length of beams after subtracting the 
         // cut backs.

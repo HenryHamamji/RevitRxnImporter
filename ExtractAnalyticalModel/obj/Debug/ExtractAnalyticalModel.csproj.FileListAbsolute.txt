@@ -1,4 +1,3 @@
-C:\dev\RevitRxnImporter\ExtractAnalyticalModel\obj\Debug\ExtractAnalyticalModel.csprojResolveAssemblyReference.cache
 C:\dev\RevitRxnImporter\ExtractAnalyticalModel\bin\Debug\ExtractAnalyticalModel.dll
 C:\dev\RevitRxnImporter\ExtractAnalyticalModel\bin\Debug\ExtractAnalyticalModel.pdb
 C:\dev\RevitRxnImporter\ExtractAnalyticalModel\bin\Debug\AnalyticalModel.dll
@@ -62,3 +61,4 @@ C:\dev\RevitRxnImporter\ExtractAnalyticalModel\bin\Debug\zh-CN\AdWindows.resourc
 C:\dev\RevitRxnImporter\ExtractAnalyticalModel\bin\Debug\zh-TW\AdWindows.resources.dll
 C:\dev\RevitRxnImporter\ExtractAnalyticalModel\obj\Debug\ExtractAnalyticalModel.dll
 C:\dev\RevitRxnImporter\ExtractAnalyticalModel\obj\Debug\ExtractAnalyticalModel.pdb
+C:\dev\RevitRxnImporter\ExtractAnalyticalModel\obj\Debug\ExtractAnalyticalModel.csprojResolveAssemblyReference.cache
