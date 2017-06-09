@@ -204,7 +204,7 @@
             var gridDirection = new double[3];
             foreach (var grid in gridsCollection)
             {
-                var gridInstance = grid as Grid;
+                var gridInstance = grid as Autodesk.Revit.DB.Grid;
                 if(gridInstance.Name == "A")
                 {
                     var gridCurve = gridInstance.Curve as Line;

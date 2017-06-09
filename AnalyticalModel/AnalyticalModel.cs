@@ -9,12 +9,15 @@ namespace RevitReactionImporter
     {
         public ProjectInformation ProjectInfo { get; set; }
         public Members StructuralMembers { get; set; }
+        public GridData GridData { get; set; }
         public AnalyticalModel()
         {
             ProjectInfo = new ProjectInformation();
             StructuralMembers = new Members();
+            GridData = new GridData();
         }
 
+ 
         [OnDeserialized]
         public void OnDeserialized(StreamingContext context)
         {
@@ -62,42 +65,21 @@ namespace RevitReactionImporter
         }
     }
 
-    public class BarDeflection
+    public class Grid
     {
-        public double UX { get; set; }
-        public double UY { get; set; }
-        public double UZ { get; set; }
-        public double NetDeflection { get; set; }
+        public string Name { get; set; }
+        public Vector Direction { get; set; }
 
-        public void SetNetDeflection()
+    }
+
+    public class GridData
+    {
+        public List<Grid> Grids { get; set; }
+
+        public GridData()
         {
-            NetDeflection = Math.Sqrt(Math.Pow(UX, 2) + Math.Pow(UY, 2) +
-                    Math.Pow(UZ, 2));
+            Grids = new List<Grid>();
         }
-    }
-
-    /// <summary>
-    /// Stresses on bar ends (ksi)
-    /// </summary>
-    public class BarStresses
-    {
-        public double Smax { get; set; }
-        public double Smin { get; set; }
-        public double SmaxMY { get; set; }
-        public double SmaxMZ { get; set; }
-        public double SminMY { get; set; }
-        public double SminMZ { get; set; }
-        public double FXSX { get; set; }
-    }
-
-    public class AppliedLoad
-    {
-        public string LoadNature { get; set; }
-        public bool IsUniform { get; set; }
-        public double RelativePointRatio { get; set; }
-        public double IntensityX { get; set; }
-        public double IntensityY { get; set; }
-        public double IntensityZ { get; set; }
     }
 
     public enum MemberType
