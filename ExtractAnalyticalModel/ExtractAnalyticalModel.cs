@@ -95,7 +95,7 @@
             project.GridData.Grids = ExtractGrids(gridsCollection);
             CountGrids(project.GridData);
             MeasureGridSpacings(project.GridData);
-            var referencePoint = EstablishReferencePoint(project.GridData);
+            project.ReferencePointDataTransfer = EstablishReferencePoint(project.GridData);
             // Convert the list of beams of type "Elements" to a new list of columns of type "FamilyInstances"
             var levelInstancedList = new List<Level>();
             foreach (var levelElement in levelsCollection)
@@ -106,7 +106,8 @@
             levelInstancedList.Sort((a, b) => { return a.Elevation.CompareTo(b.Elevation); });
             foreach (var level in levelInstancedList)
             {
-                project.LevelInfo[level.Name] = level.Elevation * 12.0;
+                project.LevelInfo.Levels[level.Name] = level.Elevation; // feet.
+                project.LevelInfo.LevelCount++;
             }
 
             // GET BEAM INFO
@@ -127,10 +128,7 @@
                         System.Windows.Forms.MessageBox.Show("Working");
 
                     }
-
-
                 }
-
                 catch (Exception e) { }
             }
             //string testReaction = project.StructuralMembers.Beams[0].StartReactionTotal;

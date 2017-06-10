@@ -1,0 +1,4 @@
+C:\dev\RevitRxnImporter\RAMModel\bin\Debug\RAMModel.dll
+C:\dev\RevitRxnImporter\RAMModel\bin\Debug\RAMModel.pdb
+C:\dev\RevitRxnImporter\RAMModel\obj\Debug\RAMModel.dll
+C:\dev\RevitRxnImporter\RAMModel\obj\Debug\RAMModel.pdb

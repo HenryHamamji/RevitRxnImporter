@@ -10,14 +10,14 @@ namespace RevitReactionImporter
         public ProjectInformation ProjectInfo { get; set; }
         public Members StructuralMembers { get; set; }
         public GridData GridData { get; set; }
-        public Dictionary<string, double> LevelInfo { get; set; }
+        public LevelInfo LevelInfo { get; set; }
         public double[] ReferencePointDataTransfer { get; set; }
         public AnalyticalModel()
         {
             ProjectInfo = new ProjectInformation();
             StructuralMembers = new Members();
             GridData = new GridData();
-            LevelInfo = new Dictionary<string, double>();
+            LevelInfo = new LevelInfo();
         }
 
 
@@ -105,6 +105,17 @@ namespace RevitReactionImporter
             Grids = new List<Grid>();
             VerticalGridSpacings = new Dictionary<string, double>();
             HorizontalGridSpacings = new Dictionary<string, double>();
+        }
+    }
+
+    public class LevelInfo
+    {
+        public int LevelCount { get; set; }
+        public Dictionary<string, double> Levels { get; set; }
+        public LevelInfo()
+        {
+            Levels = new Dictionary<string, double>();
+            LevelCount = 0;
         }
     }
 
