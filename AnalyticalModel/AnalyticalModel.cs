@@ -10,14 +10,17 @@ namespace RevitReactionImporter
         public ProjectInformation ProjectInfo { get; set; }
         public Members StructuralMembers { get; set; }
         public GridData GridData { get; set; }
+        public Dictionary<string, double> LevelInfo { get; set; }
+        public double[] ReferencePointDataTransfer { get; set; }
         public AnalyticalModel()
         {
             ProjectInfo = new ProjectInformation();
             StructuralMembers = new Members();
             GridData = new GridData();
+            LevelInfo = new Dictionary<string, double>();
         }
 
- 
+
         [OnDeserialized]
         public void OnDeserialized(StreamingContext context)
         {
@@ -45,11 +48,9 @@ namespace RevitReactionImporter
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public string City { get; set; }
-        public Dictionary<string, double> FloorInfo { get; set; }
         public string Units { get; set; }
         public ProjectInformation()
         {
-            FloorInfo = new Dictionary<string, double>();
         }
     }
 
@@ -69,16 +70,24 @@ namespace RevitReactionImporter
     {
         public string Name { get; set; }
         public Vector Direction { get; set; }
+        public double[] Origin { get; set; }
 
     }
 
     public class GridData
     {
         public List<Grid> Grids { get; set; }
+        public int VerticalGridCount { get; set; }
+        public int HorizontalGridCount { get; set; }
+        public Dictionary<string, double> VerticalGridSpacings { get; set; }
+        public Dictionary<string, double> HorizontalGridSpacings { get; set; }
+
 
         public GridData()
         {
             Grids = new List<Grid>();
+            VerticalGridSpacings = new Dictionary<string, double>();
+            HorizontalGridSpacings = new Dictionary<string, double>();
         }
     }
 

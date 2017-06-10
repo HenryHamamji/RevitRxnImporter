@@ -104,7 +104,7 @@
             levelInstancedList.Sort((a, b) => { return a.Elevation.CompareTo(b.Elevation); });
             foreach (var level in levelInstancedList)
             {
-                project.ProjectInfo.FloorInfo[level.Name] = level.Elevation * 12.0;
+                project.LevelInfo[level.Name] = level.Elevation * 12.0;
             }
 
             // GET BEAM INFO
