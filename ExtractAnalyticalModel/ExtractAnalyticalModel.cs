@@ -91,7 +91,7 @@
 
             // Collect all the instanced grids
             var gridInstancedCollector = new FilteredElementCollector(doc);
-            ICollection<Element> gridsCollection = gridInstancedCollector.OfClass(typeof(Grid)).ToElements();
+            ICollection<Element> gridsCollection = gridInstancedCollector.OfClass(typeof(Autodesk.Revit.DB.Grid)).ToElements();
 
             var referencePoint = EstablishReferencePoint(gridsCollection);
             // Convert the list of beams of type "Elements" to a new list of columns of type "FamilyInstances"
@@ -122,6 +122,7 @@
                         project.StructuralMembers.Beams.Add(beam);
                         //System.Windows.Forms.MessageBox.Show(beam.StartReactionTotal);
                         //System.Windows.Forms.MessageBox.Show(beam.EndReactionTotal);
+                        System.Windows.Forms.MessageBox.Show("Working");
 
                     }
 
@@ -156,10 +157,10 @@
             beam.ElementId = beamInstance.Id.IntegerValue;
             beam.ElementLevel = GetElementLevel(doc, beamInstance.Id);
             beam.Size = beamInstance.Name;
-            beam.StartReactionTotal = beamInstance.LookupParameter("Start Reaction - Total") != null ? beamInstance.LookupParameter("Start Reaction - Total").AsValueString(): "";
-            beam.EndReactionTotal = beamInstance.LookupParameter("End Reaction - Total") != null ? beamInstance.LookupParameter("End Reaction - Total").AsValueString() : "";
-            Parameter endReactionTotalParameter = beamInstance.LookupParameter("End Reaction - Total");
-            endReactionTotalParameter.SetValueString("45");
+           // beam.StartReactionTotal = beamInstance.LookupParameter("Start Reaction - Total") != null ? beamInstance.LookupParameter("Start Reaction - Total").AsValueString(): "";
+           // beam.EndReactionTotal = beamInstance.LookupParameter("End Reaction - Total") != null ? beamInstance.LookupParameter("End Reaction - Total").AsValueString() : "";
+           // Parameter endReactionTotalParameter = beamInstance.LookupParameter("End Reaction - Total");
+            //endReactionTotalParameter.SetValueString("45");
             // Beam Material Properties
             var beamInstanceMaterial = beamInstance.get_Parameter(BuiltInParameter.STRUCTURAL_MATERIAL_PARAM);
             var beamInstanceMaterialId = doc.GetElement(beamInstanceMaterial.AsElementId()) as Material;
@@ -195,6 +196,25 @@
 
             return beams;
         }
+
+
+        public static void ExtractGrids(ICollection<Element> gridsCollection)
+        {
+            foreach (var gridElement in gridsCollection)
+            {
+                var analyticalGrid = new Grid();
+                var gridInstance = gridElement as Autodesk.Revit.DB.Grid;
+                var gridCurve = gridInstance.Curve as Line;
+                analyticalGrid.Origin[0] = gridCurve.Origin.X;
+                analyticalGrid.Origin[1] = gridCurve.Origin.Y;
+                analyticalGrid.Origin[2] = gridCurve.Origin.Z;
+                analyticalGrid.Direction.X = gridCurve.Direction.X;
+                analyticalGrid.Direction.Y = gridCurve.Direction.Y;
+                analyticalGrid.Direction.Z = gridCurve.Direction.Z;
+                analyticalGrid.Name = gridInstance.Name;
+            }
+        }
+
 
         // Defines reference point for model geometry mapping from RAM to Revit. Hard-coded as Grid A-1.
         public static double[] EstablishReferencePoint(ICollection<Element> gridsCollection)

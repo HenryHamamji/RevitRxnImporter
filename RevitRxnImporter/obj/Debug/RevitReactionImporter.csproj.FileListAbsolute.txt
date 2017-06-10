@@ -2,6 +2,8 @@ C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\RevitReactionImporterApp.dll.
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\RevitReactionImporterApp.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\RevitReactionImporterApp.pdb
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\AdWindows.dll
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\AnalyticalModel.dll
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\ExtractAnalyticalModel.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\RevitAPI.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\RevitAPIUI.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\ManagedMC3.dll
@@ -43,6 +45,8 @@ C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\AddInManager.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\RevitUIAPI.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\BuildingSystemsUIAPI.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\UIFrameworkServices.dll
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\AnalyticalModel.pdb
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\ExtractAnalyticalModel.pdb
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\RevitAPI.xml
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\RevitAPIUI.xml
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\cs-CZ\AdWindows.resources.dll
@@ -58,6 +62,7 @@ C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\pt-BR\AdWindows.resources.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\ru-RU\AdWindows.resources.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\zh-CN\AdWindows.resources.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\zh-TW\AdWindows.resources.dll
+C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporter.csprojResolveAssemblyReference.cache
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\ControlInterfaceView.baml
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\ControlInterfaceView.g.cs
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporterApp_MarkupCompile.cache
@@ -66,8 +71,3 @@ C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporter.Propert
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporter.csproj.GenerateResource.Cache
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporterApp.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporterApp.pdb
-C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporter.csprojResolveAssemblyReference.cache
-C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\AnalyticalModel.dll
-C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\ExtractAnalyticalModel.dll
-C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\AnalyticalModel.pdb
-C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\ExtractAnalyticalModel.pdb
