@@ -71,7 +71,22 @@ namespace RevitReactionImporter
         public string Name { get; set; }
         public Vector Direction { get; set; }
         public double[] Origin { get; set; }
+        public GridOrientationClassification GridOrientation {get; set;}
 
+        public Grid()
+        {
+            Origin = new double[3];
+            GridOrientation = GridOrientationClassification.None;
+            Direction = new Vector(0,0,0);
+        }
+
+    }
+    public enum GridOrientationClassification
+    {
+        Vertical,
+        Horizontal,
+        Other,
+        None
     }
 
     public class GridData
@@ -79,6 +94,8 @@ namespace RevitReactionImporter
         public List<Grid> Grids { get; set; }
         public int VerticalGridCount { get; set; }
         public int HorizontalGridCount { get; set; }
+        public int OtherGridCount { get; set; }
+        public int TotalGridCount { get; set; }
         public Dictionary<string, double> VerticalGridSpacings { get; set; }
         public Dictionary<string, double> HorizontalGridSpacings { get; set; }
 

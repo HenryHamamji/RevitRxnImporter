@@ -92,8 +92,10 @@
             // Collect all the instanced grids
             var gridInstancedCollector = new FilteredElementCollector(doc);
             ICollection<Element> gridsCollection = gridInstancedCollector.OfClass(typeof(Autodesk.Revit.DB.Grid)).ToElements();
-
-            var referencePoint = EstablishReferencePoint(gridsCollection);
+            project.GridData.Grids = ExtractGrids(gridsCollection);
+            CountGrids(project.GridData);
+            MeasureGridSpacings(project.GridData);
+            var referencePoint = EstablishReferencePoint(project.GridData);
             // Convert the list of beams of type "Elements" to a new list of columns of type "FamilyInstances"
             var levelInstancedList = new List<Level>();
             foreach (var levelElement in levelsCollection)
@@ -198,8 +200,9 @@
         }
 
 
-        public static void ExtractGrids(ICollection<Element> gridsCollection)
+        public static List<Grid> ExtractGrids(ICollection<Element> gridsCollection)
         {
+            var analyticalGrids = new List<Grid>();
             foreach (var gridElement in gridsCollection)
             {
                 var analyticalGrid = new Grid();
@@ -212,35 +215,97 @@
                 analyticalGrid.Direction.Y = gridCurve.Direction.Y;
                 analyticalGrid.Direction.Z = gridCurve.Direction.Z;
                 analyticalGrid.Name = gridInstance.Name;
+                ClassifyGridOrientation(analyticalGrid);
+                analyticalGrids.Add(analyticalGrid);
+            }
+            return analyticalGrids;
+        }
+
+        public static void ClassifyGridOrientation(Grid analyticalGrid)
+        {
+            double epsilon = 0.000000001;
+            if(Math.Abs(analyticalGrid.Direction.X - 0) < epsilon && Math.Abs(analyticalGrid.Direction.Z - 0) < epsilon && Math.Abs(analyticalGrid.Direction.Y + 1) < epsilon)
+            {
+                analyticalGrid.GridOrientation = GridOrientationClassification.Vertical;
+            }
+            else if (Math.Abs(analyticalGrid.Direction.X + 1) < epsilon && Math.Abs(analyticalGrid.Direction.Y - 0) < epsilon && Math.Abs(analyticalGrid.Direction.Z - 0) < epsilon)
+            {
+                analyticalGrid.GridOrientation = GridOrientationClassification.Horizontal;
+            }
+            else
+            {
+                analyticalGrid.GridOrientation = GridOrientationClassification.Other;
             }
         }
 
-
-        // Defines reference point for model geometry mapping from RAM to Revit. Hard-coded as Grid A-1.
-        public static double[] EstablishReferencePoint(ICollection<Element> gridsCollection)
+        public static void CountGrids(GridData gridData)
         {
-            var referencePoint = new double[3];
-            var gridOrigin = new double[3];
-            var gridDirection = new double[3];
-            foreach (var grid in gridsCollection)
+            foreach (var analyticalGrid in gridData.Grids)
             {
-                var gridInstance = grid as Autodesk.Revit.DB.Grid;
-                if(gridInstance.Name == "A")
+                if(analyticalGrid.GridOrientation == GridOrientationClassification.Horizontal)
                 {
-                    var gridCurve = gridInstance.Curve as Line;
-                    gridOrigin[0] = gridCurve.Origin.X;
-                    gridOrigin[1] = gridCurve.Origin.Y;
-                    gridOrigin[2] = gridCurve.Origin.Z;
-                    gridDirection[0] = gridCurve.Direction.X;
-                    gridDirection[1] = gridCurve.Direction.Y;
-                    gridDirection[2] = gridCurve.Direction.Z;
+                    gridData.HorizontalGridCount++;
                 }
-                else if(gridInstance.Name == "1")
+                else if (analyticalGrid.GridOrientation == GridOrientationClassification.Vertical)
                 {
+                    gridData.VerticalGridCount++;
+                }
+                else
+                {
+                    gridData.OtherGridCount++;
+                }
+            }
+            gridData.TotalGridCount = gridData.HorizontalGridCount + gridData.VerticalGridCount + gridData.OtherGridCount;
+        }
 
+        public static void MeasureGridSpacings(GridData gridData)
+        {
+            List<Grid> horizontalGrids = new List<Grid>();
+            List<Grid> verticalGrids = new List<Grid>();
+            List<Grid> otherGrids = new List<Grid>();
+
+            foreach ( var analyticalGrid in gridData.Grids)
+            {
+                if(analyticalGrid.GridOrientation == GridOrientationClassification.Vertical)
+                {
+                    verticalGrids.Add(analyticalGrid);
+                }
+                else if (analyticalGrid.GridOrientation == GridOrientationClassification.Horizontal)
+                {
+                    horizontalGrids.Add(analyticalGrid);
+                }
+                else
+                {
+                    otherGrids.Add(analyticalGrid);
                 }
             }
 
+            horizontalGrids = horizontalGrids.OrderByDescending(a => a.Origin[1]).ToList();
+            verticalGrids = verticalGrids.OrderBy(b => b.Origin[0]).ToList();
+
+            for (int i= 0; i < horizontalGrids.Count-1; i++)
+            {
+                var analyticalGridStart = horizontalGrids[i];
+                var analyticalGridEnd = horizontalGrids[i+1];
+                string verticalSpacingName = analyticalGridStart.Name + '-' + analyticalGridEnd.Name;
+                gridData.VerticalGridSpacings[verticalSpacingName] = Math.Abs(analyticalGridEnd.Origin[1] - analyticalGridStart.Origin[1]);
+            }
+            for (int j = 0; j < verticalGrids.Count - 1; j++)
+            {
+                var analyticalGridStart = verticalGrids[j];
+                var analyticalGridEnd = verticalGrids[j + 1];
+                string horizontalSpacingName = analyticalGridStart.Name + '-' + analyticalGridEnd.Name;
+                gridData.HorizontalGridSpacings[horizontalSpacingName] = Math.Abs(analyticalGridEnd.Origin[0] - analyticalGridStart.Origin[0]);
+            }
+        }
+
+        // Defines reference point for model geometry mapping from RAM to Revit. Hard-coded as Grid A-1.
+        public static double[] EstablishReferencePoint(GridData gridData)
+        {
+            var referencePoint = new double[3];
+            referencePoint[0] = gridData.Grids.First(item => item.Name == "A").Origin[0];
+            referencePoint[1] = gridData.Grids.First(item => item.Name == "1").Origin[1];
+            referencePoint[2] = 0;
             return referencePoint;
         }
 
