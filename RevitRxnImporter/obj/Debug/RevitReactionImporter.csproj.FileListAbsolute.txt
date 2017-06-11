@@ -71,3 +71,8 @@ C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporter.Propert
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporter.csproj.GenerateResource.Cache
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporterApp.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporterApp.pdb
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\RAMModel.dll
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\RAMModel.pdb
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\PythonExecute.exe
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\PythonExecute.pdb
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\PythonExecute.exe.config

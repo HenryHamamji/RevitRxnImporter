@@ -1,0 +1,5 @@
+C:\dev\RevitRxnImporter\PythonExecute\bin\Debug\PythonExecute.exe.config
+C:\dev\RevitRxnImporter\PythonExecute\bin\Debug\PythonExecute.exe
+C:\dev\RevitRxnImporter\PythonExecute\bin\Debug\PythonExecute.pdb
+C:\dev\RevitRxnImporter\PythonExecute\obj\Debug\PythonExecute.exe
+C:\dev\RevitRxnImporter\PythonExecute\obj\Debug\PythonExecute.pdb

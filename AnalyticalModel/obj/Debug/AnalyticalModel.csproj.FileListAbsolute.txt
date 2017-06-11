@@ -1,5 +1,4 @@
 C:\dev\RevitRxnImporter\AnalyticalModel\bin\Debug\AnalyticalModel.dll
 C:\dev\RevitRxnImporter\AnalyticalModel\bin\Debug\AnalyticalModel.pdb
-C:\dev\RevitRxnImporter\AnalyticalModel\obj\Debug\AnalyticalModel.csprojResolveAssemblyReference.cache
 C:\dev\RevitRxnImporter\AnalyticalModel\obj\Debug\AnalyticalModel.dll
 C:\dev\RevitRxnImporter\AnalyticalModel\obj\Debug\AnalyticalModel.pdb

@@ -7,18 +7,18 @@ using System.Diagnostics;
 
 namespace RevitReactionImporter
 {
-    public class RAMModel
+    public class PythonExecute
     {
-        public static void ExecutePythonScript()
+        public static void Main()
         {
+            //string[] args
             string python = @"C:\Program Files\Anaconda3\python.exe";
             Process process = new Process();
             ProcessStartInfo startInfo = new ProcessStartInfo(python);
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-           // startInfo.FileName = @"C:\Program Files\Anaconda3\python.exe";
-            startInfo.FileName = @"C:\Program Files\Python36";
-            startInfo.Arguments = @"C:\dev\RAM Reaction Importer\RAM-Reaction-Importer\hello.py";
-            //startInfo.Arguments = "hello.py";
+            startInfo.FileName = @"C:\Program Files\Anaconda3\python.exe";
+            //startInfo.Arguments = @"C:\dev\RAM Reaction Importer\RAM-Reaction-Importer\hello.py";
+            startInfo.Arguments = "hello.py";
             startInfo.UseShellExecute = false;
             startInfo.RedirectStandardError = true;
             startInfo.RedirectStandardOutput = true;
@@ -31,9 +31,6 @@ namespace RevitReactionImporter
 
             Console.ReadLine();
             process.Close();
-            
         }
-
-
     }
 }

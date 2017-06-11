@@ -121,6 +121,14 @@
       <Project>{c4f076a1-475e-466b-be58-4f8fffa9c08a}</Project>
       <Name>ExtractAnalyticalModel</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PythonExecute\PythonExecute.csproj">
+      <Project>{2c35299a-4111-4dc2-946a-b42c26e69c84}</Project>
+      <Name>PythonExecute</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RAMModel\RAMModel.csproj">
+      <Project>{7579ccca-0a51-41e7-85ec-9aaca38a1f1e}</Project>
+      <Name>RAMModel</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
