@@ -92,10 +92,14 @@
             // Collect all the instanced grids
             var gridInstancedCollector = new FilteredElementCollector(doc);
             ICollection<Element> gridsCollection = gridInstancedCollector.OfClass(typeof(Autodesk.Revit.DB.Grid)).ToElements();
-            project.GridData.Grids = ExtractGrids(gridsCollection);
-            CountGrids(project.GridData);
-            MeasureGridSpacings(project.GridData);
-            project.ReferencePointDataTransfer = EstablishReferencePoint(project.GridData);
+            if(gridsCollection.Count!=0)
+            {
+                project.GridData.Grids = ExtractGrids(gridsCollection);
+                CountGrids(project.GridData);
+                MeasureGridSpacings(project.GridData);
+                project.ReferencePointDataTransfer = EstablishReferencePoint(project.GridData);
+            }
+
             // Convert the list of beams of type "Elements" to a new list of columns of type "FamilyInstances"
             var levelInstancedList = new List<Level>();
             foreach (var levelElement in levelsCollection)
