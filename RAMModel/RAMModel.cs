@@ -14,11 +14,13 @@ namespace RevitReactionImporter
         public double[] OriginRAM { get; set; }
         public int LevelCount { get; set; }
         public List<Story> Stories { get; set; }
+        public List<RAMGrid> Grids { get; set; }
         public RAMModel()
         {
             RamBeams = new List<RAMBeam>();
             OriginRAM = new double[3];
             Stories = new List<Story>();
+            Grids = new List<RAMGrid>();
         }
 
         public class Story
@@ -37,6 +39,27 @@ namespace RevitReactionImporter
                 Height = height;
                 Elevation = elevation;
             }
+        }
+
+        public class RAMGrid
+        {
+            public string Name { get; set; }
+            public double Location { get; set; }
+            public GridTypeNamingClassification GridTypeNaming { get; set; }
+            public RAMGrid (string name, double location)
+            {
+                Name = name;
+                Location = location;
+                GridTypeNaming = GridTypeNamingClassification.None;
+            }
+
+            public enum GridTypeNamingClassification
+            {
+                Lettered,
+                Numbered,
+                None
+            }
+
         }
 
         public class RAMBeam
@@ -139,6 +162,7 @@ namespace RevitReactionImporter
                 RAMModel.RamBeams.Add(ramBeam);
                 }
             DeserializeRAMStoryData(RAMModel);
+            DeserializeRAMGridData(RAMModel);
 
         }
 
@@ -160,7 +184,78 @@ namespace RevitReactionImporter
                 Story ramStory = new Story(Convert.ToInt32(storyProperties[0]), storyProperties[1], storyProperties[2], Convert.ToDouble(storyProperties[3]), Convert.ToDouble(storyProperties[4]));
                 ramModel.Stories.Add(ramStory);
             }
+        }
 
+        public static void DeserializeRAMGridData(RAMModel ramModel)
+        {
+            string pathX = @"C:\dev\RAM Reaction Importer\RAM-Reaction-Importer\xGridData.txt";
+            string pathY = @"C:\dev\RAM Reaction Importer\RAM-Reaction-Importer\yGridData.txt";
+
+            string xGridDataString = "";
+            string yGridDataString = "";
+            Char lineDelimiter = ';';
+            Char propertyDelimiter = ',';
+            using (StreamReader sr = new StreamReader(pathX))
+            {
+                // Read the stream to a string.
+                xGridDataString = sr.ReadToEnd();
+            }
+            String[] allXGridData = xGridDataString.Split(lineDelimiter);
+            foreach (var singleXGridData in allXGridData)
+            {
+                string[] xGridProperties = singleXGridData.Split(propertyDelimiter);
+                RAMGrid ramXGrid = new RAMGrid(xGridProperties[0], Convert.ToDouble(xGridProperties[1]));
+                ClassifyGridNameType(ramXGrid);
+                ramModel.Grids.Add(ramXGrid);
+            }
+
+            using (StreamReader sr = new StreamReader(pathY))
+            {
+                // Read the stream to a string.
+                yGridDataString = sr.ReadToEnd();
+            }
+            String[] allYGridData = yGridDataString.Split(lineDelimiter);
+            foreach (var singleYGridData in allYGridData)
+            {
+                string[] yGridProperties = singleYGridData.Split(propertyDelimiter);
+                RAMGrid ramYGrid = new RAMGrid(yGridProperties[0], Convert.ToDouble(yGridProperties[1]));
+                ClassifyGridNameType(ramYGrid);
+                ramModel.Grids.Add(ramYGrid);
+            }
+        }
+
+        public static void ClassifyGridNameType(RAMGrid ramGrid)
+        {
+            Char gridNameDelimiter = '.';
+            string gridName = ramGrid.Name;
+            bool gridNameContainsPeriod = gridName.Contains(gridNameDelimiter);
+            if(gridNameContainsPeriod)
+            {
+                string[] gridNameComponents = gridName.Split(gridNameDelimiter);
+                int n;
+                bool isNumeric = int.TryParse(gridNameComponents[0], out n);
+                if (isNumeric)
+                {
+                    ramGrid.GridTypeNaming = RAMGrid.GridTypeNamingClassification.Numbered;
+                }
+                else
+                {
+                    ramGrid.GridTypeNaming = RAMGrid.GridTypeNamingClassification.Lettered;
+                }
+            }
+            else
+            {
+                int n;
+                bool isNumeric = int.TryParse(gridName, out n);
+                if(isNumeric)
+                {
+                    ramGrid.GridTypeNaming = RAMGrid.GridTypeNamingClassification.Numbered;
+                }
+                else
+                {
+                    ramGrid.GridTypeNaming = RAMGrid.GridTypeNamingClassification.Lettered;
+                }
+            }
 
         }
 
