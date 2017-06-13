@@ -10,10 +10,33 @@ namespace RevitReactionImporter
 {
     public class RAMModel
     {
-        public static List<RAMBeam> RamBeams {get; set;}
+        public List<RAMBeam> RamBeams {get; set;}
+        public double[] OriginRAM { get; set; }
+        public int LevelCount { get; set; }
+        public List<Story> Stories { get; set; }
         public RAMModel()
         {
             RamBeams = new List<RAMBeam>();
+            OriginRAM = new double[3];
+            Stories = new List<Story>();
+        }
+
+        public class Story
+        {
+            public int Level { get; set; }
+            public string StoryLabel { get; set; }
+            public string LayoutType { get; set; }
+            public double Height { get; set; }
+            public double Elevation { get; set; }
+
+            public Story(int level, string storyLabel, string layoutType, double height, double elevation)
+            {
+                Level = level;
+                StoryLabel = storyLabel;
+                LayoutType = layoutType;
+                Height = height;
+                Elevation = elevation;
+            }
         }
 
         public class RAMBeam
@@ -74,15 +97,16 @@ namespace RevitReactionImporter
         }
 
 
-        public static void DeserializeRAMBeamData()
+        public static void DeserializeRAMModel()
         {
             var RAMModel = new RAMModel();
+
+            // TODO: Beam Data in its own function
             string path = @"C:\dev\RAM Reaction Importer\RAM-Reaction-Importer\beamData.txt";
             string beamDataString = "";
             Char lineDelimiter = ';';
             Char propertyDelimiter = ',';
 
-            List<string> beamDataStringList = new List<string>();
             using (StreamReader sr = new StreamReader(path))
             {
                 // Read the stream to a string.
@@ -114,8 +138,53 @@ namespace RevitReactionImporter
                 ramBeam.IsCantilevered = isCantilevered;
                 RAMModel.RamBeams.Add(ramBeam);
                 }
+            DeserializeRAMStoryData(RAMModel);
 
         }
+
+        public static void DeserializeRAMStoryData(RAMModel ramModel)
+        {
+            string path = @"C:\dev\RAM Reaction Importer\RAM-Reaction-Importer\RAMStoryData.txt";
+            string storyDataString = "";
+            Char lineDelimiter = ';';
+            Char propertyDelimiter = ',';
+            using (StreamReader sr = new StreamReader(path))
+            {
+                // Read the stream to a string.
+                storyDataString = sr.ReadToEnd();
+            }
+            String[] allStoryData = storyDataString.Split(lineDelimiter);
+            foreach (var singleStoryData in allStoryData)
+            {
+                string[] storyProperties = singleStoryData.Split(propertyDelimiter);
+                Story ramStory = new Story(Convert.ToInt32(storyProperties[0]), storyProperties[1], storyProperties[2], Convert.ToDouble(storyProperties[3]), Convert.ToDouble(storyProperties[4]));
+                ramModel.Stories.Add(ramStory);
+            }
+
+
+        }
+
+        //public static void DeserializeRAMOrigin(RAMModel ramModel)
+        //{
+        //    string path = @"C:\dev\RAM Reaction Importer\RAM-Reaction-Importer\RAMStoryData.txt";
+        //    string storyDataString = "";
+        //    Char lineDelimiter = ';';
+        //    Char propertyDelimiter = ',';
+        //    using (StreamReader sr = new StreamReader(path))
+        //    {
+        //        // Read the stream to a string.
+        //        storyDataString = sr.ReadToEnd();
+        //    }
+        //    String[] allStoryData = storyDataString.Split(lineDelimiter);
+        //    foreach (var singleStoryData in allStoryData)
+        //    {
+        //        string[] storyProperties = singleStoryData.Split(propertyDelimiter);
+        //        Story ramStory = new Story(Convert.ToInt32(storyProperties[0]), storyProperties[1], storyProperties[2], Convert.ToDouble(storyProperties[3]), Convert.ToDouble(storyProperties[4]));
+        //        ramModel.Stories.Add(ramStory);
+        //    }
+
+
+        //}
 
 
     }

@@ -49,7 +49,7 @@ namespace RevitReactionImporter
         public void ImportBeamReactions()
         {
             RAMModel.ExecutePythonScript();
-            RAMModel.DeserializeRAMBeamData();
+            RAMModel.DeserializeRAMModel();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
             //System.Windows.Forms.MessageBox.Show("RAM Reaction import button was clicked");
 
