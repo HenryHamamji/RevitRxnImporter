@@ -134,15 +134,17 @@
                         project.StructuralMembers.Beams.Add(beam);
                         //System.Windows.Forms.MessageBox.Show(beam.StartReactionTotal);
                         //System.Windows.Forms.MessageBox.Show(beam.EndReactionTotal);
-                        System.Windows.Forms.MessageBox.Show("Working");
 
                     }
+
                 }
                 catch (Exception e) { }
             }
             //string testReaction = project.StructuralMembers.Beams[0].StartReactionTotal;
             //System.Windows.Forms.MessageBox.Show(project.StructuralMembers.Beams[0].StartReactionTotal);
             //System.Windows.Forms.MessageBox.Show("RAM Reaction import button was clicked");
+
+            System.Windows.Forms.MessageBox.Show("Analytical Model Extracted");
 
             beamInstancedCollectorTransaction.Commit();
             return project;

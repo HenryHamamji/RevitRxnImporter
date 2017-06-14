@@ -52,7 +52,7 @@ namespace RevitReactionImporter
             RAMModel ramModel = RAMModel.DeserializeRAMModel();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
             ModelCompare.CompareModels(ramModel, _analyticalModel);
-            //System.Windows.Forms.MessageBox.Show("RAM Reaction import button was clicked");
+            System.Windows.Forms.MessageBox.Show("Model Compare Working");
 
 
         }
