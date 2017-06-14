@@ -110,8 +110,13 @@
             levelInstancedList.Sort((a, b) => { return a.Elevation.CompareTo(b.Elevation); });
             foreach (var level in levelInstancedList)
             {
-                project.LevelInfo.Levels[level.Name] = level.Elevation; // feet.
+                var levelFloor = new LevelFloor();
+                levelFloor.ElementId = level.Id.IntegerValue;
+                levelFloor.Name = level.Name;
+                levelFloor.Elevation = level.Elevation; // feet.
+                project.LevelInfo.Levels.Add(levelFloor);
                 project.LevelInfo.LevelCount++;
+                levelFloor.LevelNumber = project.LevelInfo.LevelCount;
             }
 
             // GET BEAM INFO

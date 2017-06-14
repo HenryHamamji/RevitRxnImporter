@@ -111,11 +111,26 @@ namespace RevitReactionImporter
     public class LevelInfo
     {
         public int LevelCount { get; set; }
-        public Dictionary<string, double> Levels { get; set; }
+        public List<LevelFloor> Levels { get; set; }
         public LevelInfo()
         {
-            Levels = new Dictionary<string, double>();
+            Levels = new List<LevelFloor>();
             LevelCount = 0;
+        }
+    }
+
+    public class LevelFloor
+    {
+        public int ElementId { get; set; }
+        public int LevelNumber { get; set; }
+        public string Name { get; set; }
+        public string MappedRAMLayoutType { get; set; }
+        public double Elevation { get; set; }
+        public int MappingConfidence { get; set; } // Highest = 1.
+        public LevelFloor()
+        {
+            MappedRAMLayoutType = "None";
+            MappingConfidence = 0; // Un-mapped.
         }
     }
 

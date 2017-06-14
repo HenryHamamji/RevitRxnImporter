@@ -73,3 +73,5 @@ C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporterApp.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporterApp.pdb
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\RAMModel.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\RAMModel.pdb
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\ModelCompare.dll
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\ModelCompare.pdb

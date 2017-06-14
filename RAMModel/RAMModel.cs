@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace RevitReactionImporter
 {
@@ -120,9 +118,9 @@ namespace RevitReactionImporter
         }
 
 
-        public static void DeserializeRAMModel()
+        public static RAMModel DeserializeRAMModel()
         {
-            var RAMModel = new RAMModel();
+            var ramModel = new RAMModel();
 
             // TODO: Beam Data in its own function
             string path = @"C:\dev\RAM Reaction Importer\RAM-Reaction-Importer\beamData.txt";
@@ -159,11 +157,12 @@ namespace RevitReactionImporter
                 RAMBeam ramBeam = new RAMBeam(beamProperties[0], beamProperties[1], Convert.ToDouble(beamProperties[2]), Convert.ToDouble(beamProperties[3]),
                     Convert.ToDouble(beamProperties[4]), Convert.ToDouble(beamProperties[5]), Convert.ToDouble(beamProperties[6]), Convert.ToDouble(beamProperties[7]));
                 ramBeam.IsCantilevered = isCantilevered;
-                RAMModel.RamBeams.Add(ramBeam);
+                ramModel.RamBeams.Add(ramBeam);
                 }
-            DeserializeRAMStoryData(RAMModel);
-            DeserializeRAMGridData(RAMModel);
+            DeserializeRAMStoryData(ramModel);
+            DeserializeRAMGridData(ramModel);
 
+            return ramModel;
         }
 
         public static void DeserializeRAMStoryData(RAMModel ramModel)

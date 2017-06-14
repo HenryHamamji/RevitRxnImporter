@@ -121,6 +121,10 @@
       <Project>{c4f076a1-475e-466b-be58-4f8fffa9c08a}</Project>
       <Name>ExtractAnalyticalModel</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ModelCompare\ModelCompare.csproj">
+      <Project>{8468d0f4-67bc-47a9-89c1-bc6fa9f17f77}</Project>
+      <Name>ModelCompare</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PythonExecute\PythonExecute.csproj">
       <Project>{2c35299a-4111-4dc2-946a-b42c26e69c84}</Project>
       <Name>PythonExecute</Name>
