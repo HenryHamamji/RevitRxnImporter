@@ -18,6 +18,8 @@ namespace RevitReactionImporter
         public Dictionary<int, string> LevelElevationMapping { get; set; }
         public Dictionary<int, string> LevelOrderMapping { get; set; }
         public Dictionary<int, string> LevelMapping { get; set; }
+        public Dictionary<int, double> LevelsRAMSpacings { get; set; }
+        public Dictionary<int, double> LevelsRevitSpacings { get; set; }
 
         public ModelCompare(RAMModel ramModel, AnalyticalModel revitModel)
         {
@@ -39,16 +41,28 @@ namespace RevitReactionImporter
         public static void CompareModels(RAMModel ramModel, AnalyticalModel revitModel)
         {
             var modelCompare = new ModelCompare(ramModel, revitModel);
-            PerformLevelMapping(ramModel.Stories, revitModel.LevelInfo.Levels, modelCompare.LevelNameMapping, modelCompare.LevelElevationMapping, modelCompare.LevelOrderMapping, modelCompare.LevelMapping);
+            PerformLevelMapping(ramModel.Stories, revitModel.LevelInfo.Levels, modelCompare.LevelNameMapping, modelCompare.LevelElevationMapping, modelCompare.LevelOrderMapping, modelCompare.LevelMapping, revitModel.LevelInfo.BaseReferenceElevation);
         }
 
         public static bool CompareLevelNames(string levelNameRAM, string levelNameRevit)
         {
+            bool levelNamesMatching = false;
             var levelNameRAMLowerCase = levelNameRAM.ToLower();
             var levelNameRevitLowerCase = levelNameRevit.ToLower();
             if (levelNameRAMLowerCase == levelNameRevitLowerCase)
             {
-                return true;
+                levelNamesMatching = true;
+                return levelNamesMatching;
+            }
+            if (levelNameRAMLowerCase.Contains(levelNameRevitLowerCase)) 
+            {
+                levelNamesMatching = true;
+                return levelNamesMatching;
+            }
+            if (levelNameRevitLowerCase.Contains(levelNameRAMLowerCase))
+            {
+                levelNamesMatching = true;
+                return levelNamesMatching;
             }
             return false;
         }
@@ -67,10 +81,10 @@ namespace RevitReactionImporter
         }
 
 
-        public static bool CompareLevelElevations(double levelElevationRAM, double levelElevationRevit)
+        public static bool CompareLevelElevations(double levelElevationRAM, double levelElevationRevit, double revitBaseLevelReference)
         {
             double epsilon = 1.0; // feet
-            double deltaElevation = Math.Abs(levelElevationRAM - levelElevationRevit);
+            double deltaElevation = Math.Abs((levelElevationRAM + revitBaseLevelReference) - levelElevationRevit);
             if (deltaElevation < epsilon)
             {
                 return true;
@@ -78,9 +92,9 @@ namespace RevitReactionImporter
             return false;
         }
 
-        public static void PerformLevelElevationMapping(RAMModel.Story levelRAM, LevelFloor levelRevit, Dictionary<int, string> levelMappingDict)
+        public static void PerformLevelElevationMapping(RAMModel.Story levelRAM, LevelFloor levelRevit, Dictionary<int, string> levelMappingDict, double revitBaseLevelReference)
         {
-            bool doMapping = ModelCompare.CompareLevelElevations(levelRAM.Elevation, levelRevit.Elevation);
+            bool doMapping = ModelCompare.CompareLevelElevations(levelRAM.Elevation, levelRevit.Elevation, revitBaseLevelReference);
             if (doMapping)
             {
                 levelMappingDict[levelRevit.ElementId] = levelRAM.LayoutType;
@@ -111,7 +125,7 @@ namespace RevitReactionImporter
             }
         }
 
-        public static void PerformLevelMapping(List<RAMModel.Story> levelsRAM, List<LevelFloor> levelsRevit, Dictionary<int, string> levelNameMappingDict, Dictionary<int, string> levelElevationMappingDict, Dictionary<int, string> levelOrderMappingDict, Dictionary<int, string> levelMappingDict)
+        public static void PerformLevelMapping(List<RAMModel.Story> levelsRAM, List<LevelFloor> levelsRevit, Dictionary<int, string> levelNameMappingDict, Dictionary<int, string> levelElevationMappingDict, Dictionary<int, string> levelOrderMappingDict, Dictionary<int, string> levelMappingDict, double revitBaseLevelReference)
         {
             PerformLevelOrderMapping(levelsRAM, levelsRevit, levelOrderMappingDict);
             for (int i = 0; i < levelsRevit.Count; i++)
@@ -126,7 +140,7 @@ namespace RevitReactionImporter
             {
                 for (int j = 0; j < levelsRAM.Count; j++)
                 {
-                    PerformLevelElevationMapping(levelsRAM[j], levelsRevit[i], levelElevationMappingDict);
+                    PerformLevelElevationMapping(levelsRAM[j], levelsRevit[i], levelElevationMappingDict, revitBaseLevelReference);
                 }
             }
 

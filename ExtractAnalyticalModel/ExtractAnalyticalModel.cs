@@ -119,6 +119,10 @@
                 levelFloor.LevelNumber = project.LevelInfo.LevelCount;
             }
 
+            // Get the base reference elevation.
+            List<LevelFloor> levelsSortedByElevation = project.LevelInfo.Levels.OrderBy(p => p.Elevation).ToList();
+            project.LevelInfo.BaseReferenceElevation = levelsSortedByElevation.First().Elevation;
+
             // GET BEAM INFO
             var beamInstancedCollectorTransaction = new Transaction(doc, "Get Instanced Beams");
             beamInstancedCollectorTransaction.Start();
