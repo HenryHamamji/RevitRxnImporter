@@ -46,12 +46,14 @@ namespace RevitReactionImporter
         public static void CompareModels(RAMModel ramModel, AnalyticalModel revitModel)
         {
             var modelCompare = new ModelCompare(ramModel, revitModel);
-            PerformLevelMapping(ramModel.Stories, revitModel.LevelInfo, modelCompare.LevelNameMapping, modelCompare.LevelElevationMapping, modelCompare.LevelOrderMapping, modelCompare.LevelMapping, revitModel.LevelInfo.BaseReferenceElevation);
+            FilterLevelStoryData(ramModel, revitModel);
+            PerformLevelMapping(ramModel.Stories, revitModel.LevelInfo, modelCompare.LevelNameMapping, modelCompare.LevelElevationMapping, modelCompare.LevelOrderMapping, modelCompare.LevelMapping, modelCompare.LevelSpacingMapping, revitModel.LevelInfo.BaseReferenceElevation);
         }
 
-        public static void FilterLevelStoryData(RAMModel ramModel, AnalyticalModel revitModel, Dictionary<int, string> levelMappingDict)
+        public static void FilterLevelStoryData(RAMModel ramModel, AnalyticalModel revitModel)
         {
             var levelInfo = revitModel.LevelInfo;
+            // if story counts are matching and all spacings are almost equal then perform mapping
             bool levelStoryCountsMatch = IsLevelStoryCountMatching(revitModel.LevelInfo.LevelCount, ramModel.StoryCount);
             if (levelStoryCountsMatch)
             {
@@ -64,12 +66,13 @@ namespace RevitReactionImporter
                     double ramLevelSpacing = ramModel.Stories[i].Height;
                     if (CompareLevelSpacings(ramLevelSpacing, revitLevelSpacing))
                     {
-                        levelMappingDict[levelInfo.Levels[i].ElementId] = ramModel.Stories[i].LayoutType;
+                        //levelMappingDict[levelInfo.Levels[i].ElementId] = ramModel.Stories[i].LayoutType;
+                        ramModel.Stories[i].MapRevitLevelToThis = true;
+
                     }
                     else
                     {
                         ramModel.Stories[i].MapRevitLevelToThis = false;
-                        levelMappingDict[levelInfo.Levels[i].ElementId] = "None";
                     }
                     // TODO: Check if spacing = sum of spacings of more than 1 level.
 
@@ -77,6 +80,26 @@ namespace RevitReactionImporter
             }
             else if(levelInfo.LevelsRevitSpacings.Count < ramModel.Stories.Count) // Not all RAM Levels will be mapped.
             {
+                for (int i = 0; i < levelInfo.LevelsRevitSpacings.Count; i++)
+                {
+                    int revitBaseLevelNumber = levelInfo.Levels[i].LevelNumber;
+                    int revitTopLevelNumber = levelInfo.Levels[i + 1].LevelNumber;
+
+                    double revitLevelSpacing = levelInfo.LevelsRevitSpacings[revitBaseLevelNumber.ToString() + '-' + revitTopLevelNumber.ToString()];
+                    double ramLevelSpacing = ramModel.Stories[i].Height;
+                    if (CompareLevelSpacings(ramLevelSpacing, revitLevelSpacing))
+                    {
+                        //levelMappingDict[levelInfo.Levels[i].ElementId] = ramModel.Stories[i].LayoutType;
+                        ramModel.Stories[i].MapRevitLevelToThis = true;
+                    }
+                    else
+                    {
+                        ramModel.Stories[i].MapRevitLevelToThis = false;
+                    }
+                    // TODO: Check if spacing = sum of spacings of more than 1 level.
+
+                }
+                FilterStoryList(ramModel.Stories);
 
             }
 
@@ -89,6 +112,13 @@ namespace RevitReactionImporter
                 throw new Exception("Invalid RAM and Revit Level Spacing Count Compaison");
             }
 
+
+
+        }
+
+        public static void FilterStoryList(List<RAMModel.Story> ramStories)
+        {
+            var resultList = ramStories.RemoveAll(r => !r.MapRevitLevelToThis);
         }
 
         public static bool CompareLevelSpacings(double levelSpacingRAM, double levelSpacingRevit)
@@ -136,6 +166,10 @@ namespace RevitReactionImporter
             }
             return false;
         }
+
+        //public static void PerformLevelSpacingMappingEqualStoryCount(RAMModel.Story levelRAM, LevelFloor levelRevit, Dictionary<int, string> levelMappingDict)
+        //{
+        //}
 
         public static void PerformLevelNameMapping(RAMModel.Story levelRAM, LevelFloor levelRevit, Dictionary<int, string> levelMappingDict)
         {
@@ -195,7 +229,7 @@ namespace RevitReactionImporter
             }
         }
 
-        public static void PerformLevelMapping(List<RAMModel.Story> levelsRAM, LevelInfo levelInfoRevit, Dictionary<int, string> levelNameMappingDict, Dictionary<int, string> levelElevationMappingDict, Dictionary<int, string> levelOrderMappingDict, Dictionary<int, string> levelMappingDict, double revitBaseLevelReference)
+        public static void PerformLevelMapping(List<RAMModel.Story> levelsRAM, LevelInfo levelInfoRevit, Dictionary<int, string> levelNameMappingDict, Dictionary<int, string> levelElevationMappingDict, Dictionary<int, string> levelOrderMappingDict, Dictionary<int, string> levelMappingDict, Dictionary<int, string> levelSpacingMappingDict, double revitBaseLevelReference)
         {
             var levelsRevit = levelInfoRevit.Levels;
             PerformLevelOrderMapping(levelsRAM, levelsRevit, levelOrderMappingDict);
