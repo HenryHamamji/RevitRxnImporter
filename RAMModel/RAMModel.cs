@@ -10,7 +10,7 @@ namespace RevitReactionImporter
     {
         public List<RAMBeam> RamBeams {get; set;}
         public double[] OriginRAM { get; set; }
-        public int LevelCount { get; set; }
+        public int StoryCount { get; set; }
         public List<Story> Stories { get; set; }
         public List<RAMGrid> Grids { get; set; }
         public RAMModel()
@@ -28,6 +28,7 @@ namespace RevitReactionImporter
             public string LayoutType { get; set; }
             public double Height { get; set; }
             public double Elevation { get; set; }
+            public bool MapRevitLevelToThis { get; set; }
 
             public Story(int level, string storyLabel, string layoutType, double height, double elevation)
             {
@@ -36,6 +37,7 @@ namespace RevitReactionImporter
                 LayoutType = layoutType;
                 Height = height;
                 Elevation = elevation;
+                MapRevitLevelToThis = true;
             }
         }
 

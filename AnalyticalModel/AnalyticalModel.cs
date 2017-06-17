@@ -113,10 +113,13 @@ namespace RevitReactionImporter
         public int LevelCount { get; set; }
         public List<LevelFloor> Levels { get; set; }
         public double BaseReferenceElevation { get; set; }
+        public Dictionary<string, double> LevelsRevitSpacings { get; set; }
+
         public LevelInfo()
         {
             Levels = new List<LevelFloor>();
             LevelCount = 0;
+            LevelsRevitSpacings = new Dictionary<string, double>();
         }
     }
 

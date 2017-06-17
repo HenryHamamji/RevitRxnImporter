@@ -100,7 +100,6 @@
                 project.ReferencePointDataTransfer = EstablishReferencePoint(project.GridData);
             }
 
-            // Convert the list of beams of type "Elements" to a new list of columns of type "FamilyInstances"
             var levelInstancedList = new List<Level>();
             foreach (var levelElement in levelsCollection)
             {
@@ -108,15 +107,20 @@
                 levelInstancedList.Add(levelInstance);
             }
             levelInstancedList.Sort((a, b) => { return a.Elevation.CompareTo(b.Elevation); });
-            foreach (var level in levelInstancedList)
+            for (int i= 0; i < levelInstancedList.Count; i++)
             {
                 var levelFloor = new LevelFloor();
-                levelFloor.ElementId = level.Id.IntegerValue;
-                levelFloor.Name = level.Name;
-                levelFloor.Elevation = level.Elevation; // feet.
+                levelFloor.ElementId = levelInstancedList[i].Id.IntegerValue;
+                levelFloor.Name = levelInstancedList[i].Name;
+                levelFloor.Elevation = levelInstancedList[i].Elevation; // feet.
                 project.LevelInfo.Levels.Add(levelFloor);
                 project.LevelInfo.LevelCount++;
                 levelFloor.LevelNumber = project.LevelInfo.LevelCount;
+                if(i !=0)
+                {
+                    project.LevelInfo.LevelsRevitSpacings[project.LevelInfo.Levels[i - 1].LevelNumber.ToString() + '-' + project.LevelInfo.Levels[i].LevelNumber.ToString()] = project.LevelInfo.Levels[i].Elevation - project.LevelInfo.Levels[i - 1].Elevation;
+
+                }
             }
 
             // Get the base reference elevation.
