@@ -21,10 +21,12 @@ namespace RevitReactionImporter
 
         //private readonly JsonSerializerSettings jsonSettings;
         private AnalyticalModel _analyticalModel = null;
+        private RAMModel _ramModel = null;
 
         private ControlInterfaceView _view = null; // TODO: replace this connection with data binding
         private Document _document;
         public AnalyticalModel AnalyticalModel { get { return _analyticalModel; } }
+        public RAMModel RAMModel { get { return _ramModel; } }
 
         public ControlInterfaceViewModel(ControlInterfaceView view, Document doc,
             RevitReactionImporterApp rria, string projectId)
@@ -49,9 +51,9 @@ namespace RevitReactionImporter
         public void ImportBeamReactions()
         {
             RAMModel.ExecutePythonScript();
-            RAMModel ramModel = RAMModel.DeserializeRAMModel();
+            RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
-            ModelCompare.CompareModels(ramModel, _analyticalModel);
+            ModelCompare.CompareModels(_ramModel, _analyticalModel);
             System.Windows.Forms.MessageBox.Show("Model Compare Working");
 
 

@@ -316,7 +316,7 @@
             }
         }
 
-        // Defines reference point for model geometry mapping from RAM to Revit. Hard-coded as Grid A-1.
+        // Defines Revit reference point for model geometry mapping from RAM to Revit. Hard-coded as Grid A-1.
         public static double[] EstablishReferencePoint(GridData gridData)
         {
             var referencePoint = new double[3];

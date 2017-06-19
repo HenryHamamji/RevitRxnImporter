@@ -72,15 +72,36 @@ namespace RevitReactionImporter
         public Vector Direction { get; set; }
         public double[] Origin { get; set; }
         public GridOrientationClassification GridOrientation {get; set;}
+        public GridDirectionalityClassification DirectionalityClassification { get; set; }
+        public GridTypeNamingClassification GridTypeNaming { get; set; }
 
         public Grid()
         {
             Origin = new double[3];
             GridOrientation = GridOrientationClassification.None;
             Direction = new Vector(0,0,0);
+            DirectionalityClassification = GridDirectionalityClassification.None;
+            GridTypeNaming = GridTypeNamingClassification.None;
+
+        }
+
+        public enum GridTypeNamingClassification
+        {
+            None,
+            Lettered,
+            Numbered
+        }
+
+
+        public enum GridDirectionalityClassification
+        {
+            None,
+            Increasing,
+            Decreasing
         }
 
     }
+
     public enum GridOrientationClassification
     {
         Vertical,
@@ -106,7 +127,11 @@ namespace RevitReactionImporter
             VerticalGridSpacings = new Dictionary<string, double>();
             HorizontalGridSpacings = new Dictionary<string, double>();
         }
+
+
     }
+
+
 
     public class LevelInfo
     {
@@ -216,6 +241,7 @@ namespace RevitReactionImporter
         {
         }
     }
+
 
     public class Vector
     {

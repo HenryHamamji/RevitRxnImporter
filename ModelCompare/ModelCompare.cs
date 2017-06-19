@@ -13,6 +13,7 @@ namespace RevitReactionImporter
         //public List<RAMModel.Story> LevelsRAM {get { return levelsRAM;  } }
         //public List<LevelFloor> LevelsRevit { get { return levelsRevit; } }
         public List<RAMModel.Story> StoriesRAM { get; set; }
+        public List<RAMModel.RAMBeam> Beams { get; set; }
         //public List<LevelFloor> LevelsRevit { get; set; }
         public LevelInfo RevitLevelInfo { get; set; }
         public Dictionary<int, string> LevelNameMapping { get; set; }
@@ -25,6 +26,7 @@ namespace RevitReactionImporter
         public ModelCompare(RAMModel ramModel, AnalyticalModel revitModel)
         {
             StoriesRAM = ramModel.Stories;
+            Beams = ramModel.RamBeams;
             RevitLevelInfo = revitModel.LevelInfo;
             //LevelsRevit = revitModel.LevelInfo.Levels;
             LevelNameMapping = new Dictionary<int, string>();
@@ -46,9 +48,18 @@ namespace RevitReactionImporter
         public static void CompareModels(RAMModel ramModel, AnalyticalModel revitModel)
         {
             var modelCompare = new ModelCompare(ramModel, revitModel);
+            // Grid Mapping.
+            foreach (var revitGrid in revitModel.GridData.Grids)
+            {
+                ClassifyGridNameType(revitGrid);
+
+            }
+            ClassifyGridDirectionalities(revitModel.GridData.Grids);
             FilterLevelStoryData(ramModel, revitModel);
             PerformLevelMapping(ramModel.Stories, revitModel.LevelInfo, modelCompare.LevelNameMapping, modelCompare.LevelElevationMapping, modelCompare.LevelOrderMapping, modelCompare.LevelMapping, modelCompare.LevelSpacingMapping, revitModel.LevelInfo.BaseReferenceElevation);
         }
+
+        // LEVEL MAPPING.
 
         public static void FilterLevelStoryData(RAMModel ramModel, AnalyticalModel revitModel)
         {
@@ -295,6 +306,121 @@ namespace RevitReactionImporter
                 }
 
             }
+        }
+
+        // GRID MAPPING
+
+        public static void ClassifyGridNameType(Grid grid)
+        {
+            Char gridNameDelimiter = '.';
+            string gridName = grid.Name;
+            bool gridNameContainsPeriod = gridName.Contains(gridNameDelimiter);
+            if (gridNameContainsPeriod)
+            {
+                string[] gridNameComponents = gridName.Split(gridNameDelimiter);
+                int n;
+                bool isNumeric = int.TryParse(gridNameComponents[0], out n);
+                if (isNumeric)
+                {
+                    grid.GridTypeNaming = Grid.GridTypeNamingClassification.Numbered;
+                }
+                else
+                {
+                    grid.GridTypeNaming = Grid.GridTypeNamingClassification.Lettered;
+                }
+            }
+            else
+            {
+                int n;
+                bool isNumeric = int.TryParse(gridName, out n);
+                if (isNumeric)
+                {
+                    grid.GridTypeNaming = Grid.GridTypeNamingClassification.Numbered;
+                }
+                else
+                {
+                    grid.GridTypeNaming = Grid.GridTypeNamingClassification.Lettered;
+                }
+            }
+
+        }
+        public static void ClassifyGridDirectionalities(List<Grid> grids)
+        {
+            var letteredGrids = new List<Grid>();
+            var numberedGrids = new List<Grid>();
+
+            foreach (var grid in grids)
+            {
+                if (grid.GridTypeNaming == Grid.GridTypeNamingClassification.Lettered)
+                {
+                    letteredGrids.Add(grid);
+                }
+                else if (grid.GridTypeNaming == Grid.GridTypeNamingClassification.Numbered)
+                {
+                    numberedGrids.Add(grid);
+                }
+                else
+                {
+                    throw new Exception("Grid does not have proper GridTypeClassification");
+                }
+            }
+
+            ClassifyGridDirectionality(letteredGrids, "A", "B");
+            ClassifyGridDirectionality(numberedGrids, "1", "2");
+
+        }
+
+        public static void ClassifyGridDirectionality(List<Grid> grids, string gridName1, string gridName2)
+        {
+            int coordinateInt;
+            if (grids[0].GridOrientation == GridOrientationClassification.Horizontal)
+            {
+                coordinateInt = 1;
+            }
+            else if (grids[0].GridOrientation == GridOrientationClassification.Vertical)
+            {
+                coordinateInt = 0;
+
+            }
+            else
+            {
+                throw new Exception("Grid Orientation has not been assigned or other case error.");
+            }
+            if (grids.Count > 1)
+            {
+                var locationA = grids.First(item => item.Name == gridName1).Origin[coordinateInt];
+                var locationB = grids.First(item => item.Name == gridName2).Origin[coordinateInt];
+                if (locationA < locationB)
+                {
+                    foreach (var grid in grids)
+                    {
+                        grid.DirectionalityClassification = Grid.GridDirectionalityClassification.Increasing;
+                    }
+                }
+                else if (locationA > locationB)
+                {
+                    foreach (var grid in grids)
+                    {
+                        grid.DirectionalityClassification = Grid.GridDirectionalityClassification.Decreasing;
+                    }
+                }
+                else
+                {
+                    throw new Exception("Comparing overlapping Grids error");
+                }
+            }
+            else
+            {
+                throw new Exception("Only 1 RAM grid in that direction found error");
+            }
+        }
+
+
+        // BEAM MAPPING.
+
+        public static void PerformBeamMapping()
+        {
+
         }
     }
 }
