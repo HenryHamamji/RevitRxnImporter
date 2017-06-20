@@ -73,7 +73,7 @@ namespace RevitReactionImporter
         {
             var levelInfo = revitModel.LevelInfo;
             // If Revit Level & RAM Story counts are matching and all spacings are almost equal then return true (do mapping).
-            bool levelStoryCountsMatch = IsLevelStoryCountMatching(revitModel.LevelInfo.LevelCount, ramModel.StoryCount);
+            bool levelStoryCountsMatch = IsLevelStoryCountMatching(revitModel.LevelInfo.LevelCount, ramModel.Stories.Count);
             bool allSpacingsAreEqual = true;
             var revitSpacingsMappingStatus = new Dictionary<string, bool>();
             if (levelStoryCountsMatch)
@@ -173,20 +173,21 @@ namespace RevitReactionImporter
                         numSolutions += 1;
                         indexesToRemove = key;
                     }
-                    if (numSolutions > 1)
-                    {
-                        throw new Exception("More than one Level Spacing Mapping solution possible");
-                    }
-                    if (numSolutions == 0)
-                    {
-                        throw new Exception("No Level Spacing Mapping soluton found");
-                    }
+                }
+                if (numSolutions > 1)
+                {
+                    throw new Exception("More than one Level Spacing Mapping solution possible");
+                }
+                if (numSolutions == 0)
+                {
+                    throw new Exception("No Level Spacing Mapping soluton found");
                 }
 
                 for (int i = 0; i < indexesToRemove.Count; i++)
                 {
                     ramModel.Stories.RemoveAt(i);
                 }
+                RegenerateRAMElevations(ramModel.Stories);
             }
 
             else if (levelInfo.LevelsRevitSpacings.Count > ramModel.Stories.Count) // Not all Revit Levels will be mapped.
@@ -201,6 +202,23 @@ namespace RevitReactionImporter
             else
             {
                 throw new Exception("Invalid RAM and Revit Level Spacing Count Compaison");
+            }
+        }
+
+        public static void RegenerateRAMElevations(List<RAMModel.Story> ramStories)
+        {
+            double totalPreviousElevation = 0.0;
+            // Reset all Elevations and level numbers.
+            for (int i = 0; i < ramStories.Count; i++)
+            {
+                ramStories[i].Elevation = 0.0;
+                ramStories[i].Level = i + 1;
+            }
+
+            for (int i=0; i< ramStories.Count; i++)
+            {
+                ramStories[i].Elevation = ramStories[i].Height + totalPreviousElevation;
+                totalPreviousElevation = ramStories[i].Elevation;
             }
         }
 
@@ -355,10 +373,10 @@ namespace RevitReactionImporter
                 }
             }
 
-            ModelCompare.PerformLevelMappingCrossChecking(levelNameMappingDict, levelElevationMappingDict, levelOrderMappingDict, levelMappingDict, levelsRevit);
+            ModelCompare.PerformLevelMappingCrossChecking(levelNameMappingDict, levelElevationMappingDict, levelOrderMappingDict, levelMappingDict, levelsRevit, levelSpacingMappingDict);
         }
 
-        public static void PerformLevelMappingCrossChecking(Dictionary<int, string> levelNameMappingDict, Dictionary<int, string> levelElevationMappingDict, Dictionary<int, string> levelOrderMappingDict, Dictionary<int, string> levelMappingDict, List<LevelFloor> levelsRevit)
+        public static void PerformLevelMappingCrossChecking(Dictionary<int, string> levelNameMappingDict, Dictionary<int, string> levelElevationMappingDict, Dictionary<int, string> levelOrderMappingDict, Dictionary<int, string> levelMappingDict, List<LevelFloor> levelsRevit, Dictionary<int, string> levelSpacingMappingDict)
         {
             for (int i = 0; i < levelsRevit.Count; i++)
             {
@@ -366,31 +384,33 @@ namespace RevitReactionImporter
                 string layoutTypeByName = levelNameMappingDict[revitLevelId];
                 string layoutTypeByElevation = levelElevationMappingDict[revitLevelId];
                 string layoutTypeByOrder = levelOrderMappingDict[revitLevelId];
+                //string layoutTypeBySpacing = levelSpacingMappingDict[revitLevelId];
+
                 var allEqual = new[] { layoutTypeByName, layoutTypeByElevation, layoutTypeByOrder }.Distinct().Count() == 1;
                 var allNotEqual = new[] { layoutTypeByName, layoutTypeByElevation, layoutTypeByOrder }.Distinct().Count() == 3;
 
-                if (allEqual && layoutTypeByName != "None")
+                if (allEqual)
                 {
                     levelsRevit[i].MappingConfidence = 1;
                     levelMappingDict[revitLevelId] = layoutTypeByName;
                 }
-                else if((layoutTypeByName == layoutTypeByElevation) &&  (layoutTypeByElevation != "None"))
+                else if((layoutTypeByName == layoutTypeByElevation))
                 {
                     levelsRevit[i].MappingConfidence = 2;
                     levelMappingDict[revitLevelId] = layoutTypeByElevation;
                 }
-                else if ((layoutTypeByName == layoutTypeByOrder) && (layoutTypeByName != "None"))
+                else if ((layoutTypeByName == layoutTypeByOrder))
                 {
                     levelsRevit[i].MappingConfidence = 3;
                     levelMappingDict[revitLevelId] = layoutTypeByName;
                 }
-                else if(allNotEqual && (layoutTypeByElevation != "None"))
+                else if(allNotEqual)
                 {
                     levelsRevit[i].MappingConfidence = 4;
                     levelMappingDict[revitLevelId] = layoutTypeByElevation;
                 }
 
-                else if (allNotEqual && (layoutTypeByElevation == "None"))
+                else if (allNotEqual)
                 {
                     levelsRevit[i].MappingConfidence = 5;
                     levelMappingDict[revitLevelId] = layoutTypeByOrder;

@@ -240,8 +240,8 @@
 
         public static void ClassifyGridOrientation(Grid analyticalGrid)
         {
-            double epsilon = 0.000000001;
-            if(Math.Abs(analyticalGrid.Direction.X - 0) < epsilon && Math.Abs(analyticalGrid.Direction.Z - 0) < epsilon && Math.Abs(analyticalGrid.Direction.Y + 1) < epsilon)
+            double epsilon = 0.00000001;
+            if(Math.Abs(analyticalGrid.Direction.X - 0) < epsilon && Math.Abs(analyticalGrid.Direction.Z - 0) < epsilon && Math.Abs(analyticalGrid.Direction.Y - 1) < epsilon)
             {
                 analyticalGrid.GridOrientation = GridOrientationClassification.Vertical;
             }
