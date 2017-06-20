@@ -155,11 +155,23 @@ namespace RevitReactionImporter
         public string Name { get; set; }
         public string MappedRAMLayoutType { get; set; }
         public double Elevation { get; set; }
+        public bool MapRAMLayoutTypeToThis { get; set; }
         public int MappingConfidence { get; set; } // Highest = 1.
         public LevelFloor()
         {
             MappedRAMLayoutType = "None";
             MappingConfidence = 0; // Un-mapped.
+            MapRAMLayoutTypeToThis = false; // Do not map.
+
+        }
+    }
+
+    public class RevitStory
+    {
+        public double Height { get; set; }
+
+        public RevitStory()
+        {
         }
     }
 
