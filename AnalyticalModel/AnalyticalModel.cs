@@ -187,6 +187,7 @@ namespace RevitReactionImporter
         public string Id { get; set; }
         public int ElementId { get; set; }
         public string ElementLevel { get; set; }
+        public int ElementLevelId { get; set; }
         public string Symbol { get; set; }
         public double Width { get; set; }
         public double Depth { get; set; }
@@ -242,6 +243,7 @@ namespace RevitReactionImporter
         public double[] EndPoint { get; set; }
         public string StartReactionTotal { get; set; }
         public string EndReactionTotal { get; set; }
+        public string RAMFloorLayoutType { get; set; }
 
         // The CutLength property is the reduced length of beams after subtracting the 
         // cut backs.

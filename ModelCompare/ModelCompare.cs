@@ -64,6 +64,10 @@ namespace RevitReactionImporter
             }
             PerformLevelSpacingMappingEqualStoryCount(ramModel, revitModel, modelCompare.LevelSpacingMapping);
             PerformLevelMapping(ramModel.Stories, revitModel.LevelInfo, modelCompare.LevelNameMapping, modelCompare.LevelElevationMapping, modelCompare.LevelOrderMapping, modelCompare.LevelMapping, modelCompare.LevelSpacingMapping, revitModel.LevelInfo.BaseReferenceElevation);
+
+            // Beam Mapping.
+            PerformBeamMapping(ramModel.RamBeams, revitModel.StructuralMembers.Beams, modelCompare.LevelMapping);
+
         }
 
         // LEVEL MAPPING.
@@ -533,9 +537,59 @@ namespace RevitReactionImporter
 
         // BEAM MAPPING.
 
-        public static void PerformBeamMapping()
+        public static void PerformBeamMapping(List<RAMModel.RAMBeam> ramBeams, List<Beam> revitBeams, Dictionary<int, string> levelMappingDict)
         {
+            var ramBeamToLayoutMapping = GenerateRAMBeamToLayoutMapping(ramBeams);
+            var revitBeamToLayoutMapping = GenerateRevitBeamToLayoutMapping(revitBeams, levelMappingDict);
+            // Loop over RAM Layout Type Keys (Layout Type).
+            foreach(var layoutType in ramBeamToLayoutMapping.Keys)
+            {
+                var ramBeamList = ramBeamToLayoutMapping[layoutType];
+                var revitBeamList = revitBeamToLayoutMapping[layoutType];
+            }
+
+            // Offset RAM Beam X & Y based on Reference Point.
+            // Compare RAM Beam and Revit Beam Start & End X & Y Coordinates.
+            // If coordinates matching then assign Revit Beam with coresponding reactions.
 
         }
+
+        // Generate RAM Layout Type to RAM Beam Mapping.
+        public static Dictionary<string, List<RAMModel.RAMBeam>> GenerateRAMBeamToLayoutMapping(List<RAMModel.RAMBeam> ramBeams)
+        {
+            Dictionary<string, List<RAMModel.RAMBeam>> beamToLayoutMapping = new Dictionary<string, List<RAMModel.RAMBeam>>();
+            List<RAMModel.RAMBeam> beamList = null;
+            foreach (var beam in ramBeams)
+            {
+                var layoutType = beam.FloorLayoutType;
+
+                if (!beamToLayoutMapping.TryGetValue(beam.FloorLayoutType, out beamList))
+                    beamToLayoutMapping.Add(beam.FloorLayoutType, beamList = new List<RAMModel.RAMBeam>());
+                beamList.Add(beam);
+            }
+            return beamToLayoutMapping;
+
+        }
+
+        // Generate Revit Layout Type to Revit Beam Mapping.
+        public static Dictionary<string, List<Beam>> GenerateRevitBeamToLayoutMapping(List<Beam> revitBeams, Dictionary<int, string> levelMappingDict)
+        {
+            Dictionary<string, List<Beam>> beamToLayoutMapping = new Dictionary<string, List<Beam>>();
+            List<Beam> beamList = null;
+            foreach (var beam in revitBeams)
+            {
+                var beamRevitLevelId = beam.ElementLevelId;
+                beam.RAMFloorLayoutType = levelMappingDict[beamRevitLevelId];
+
+                if (!beamToLayoutMapping.TryGetValue(beam.RAMFloorLayoutType, out beamList))
+                    beamToLayoutMapping.Add(beam.RAMFloorLayoutType, beamList = new List<Beam>());
+                beamList.Add(beam);
+            }
+            return beamToLayoutMapping;
+
+        }
+
+
+
     }
 }

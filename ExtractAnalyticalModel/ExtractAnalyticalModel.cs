@@ -176,6 +176,7 @@
             beam.ElementId = beamInstance.Id.IntegerValue;
             beam.ElementLevel = GetElementLevel(doc, beamInstance.Id);
             beam.Size = beamInstance.Name;
+            beam.ElementLevelId = GetElementLevelId(doc, beamInstance.Id);
            // beam.StartReactionTotal = beamInstance.LookupParameter("Start Reaction - Total") != null ? beamInstance.LookupParameter("Start Reaction - Total").AsValueString(): "";
            // beam.EndReactionTotal = beamInstance.LookupParameter("End Reaction - Total") != null ? beamInstance.LookupParameter("End Reaction - Total").AsValueString() : "";
            // Parameter endReactionTotalParameter = beamInstance.LookupParameter("End Reaction - Total");
@@ -343,6 +344,26 @@
             else if (elem.Category.Name == "Structural Framing")
             {
                 level = doc.GetElement(elem.LookupParameter("Reference Level").AsElementId()).Name;
+            }
+
+            return level;
+        }
+
+        public static int GetElementLevelId(Document doc, ElementId id)
+        {
+            int level = 0;
+            var elem = doc.GetElement(id) as FamilyInstance;
+
+            if (elem.Category.Name == "Structural Columns")
+            {
+                var levelElement =  doc.GetElement(elem.LookupParameter("Base Level").AsElementId());
+                level = levelElement.Id.IntegerValue;
+            }
+            else if (elem.Category.Name == "Structural Framing")
+            {
+                var levelElement = doc.GetElement(elem.LookupParameter("Reference Level").AsElementId());
+                level = levelElement.Id.IntegerValue;
+
             }
 
             return level;

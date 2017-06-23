@@ -83,6 +83,7 @@ namespace RevitReactionImporter
             public double[] EndPoint { get; set; }
             public double StartTotalReactionPositive { get; set; }
             public double EndTotalReactionPositive { get; set; }
+            public int Id { get; set; }
 
             public RAMBeam(string floorLayoutType, string size, double startPointX, double startPointY, double endPointX, double endPointY, double startReactionTotalPositive, double endReactionTotalPositive )
             {
@@ -165,7 +166,7 @@ namespace RevitReactionImporter
             }
             String[] allBeamData = beamDataString.Split(lineDelimiter);
             allBeamData = allBeamData.Take(allBeamData.Length - 1).ToArray();
-
+            var id = 1;
             foreach (var singleBeamData in allBeamData)
             {
                 bool isCantilevered = false;
@@ -187,6 +188,8 @@ namespace RevitReactionImporter
                 RAMBeam ramBeam = new RAMBeam(beamProperties[0], beamProperties[1], Convert.ToDouble(beamProperties[2]), Convert.ToDouble(beamProperties[3]),
                     Convert.ToDouble(beamProperties[4]), Convert.ToDouble(beamProperties[5]), Convert.ToDouble(beamProperties[6]), Convert.ToDouble(beamProperties[7]));
                 ramBeam.IsCantilevered = isCantilevered;
+                ramBeam.Id = id;
+                id += 1;
                 ramModel.RamBeams.Add(ramBeam);
                 }
             DeserializeRAMStoryData(ramModel);
