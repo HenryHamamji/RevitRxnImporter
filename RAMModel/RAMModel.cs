@@ -185,8 +185,8 @@ namespace RevitReactionImporter
                     beamProperties[7] = "0";
                     isCantilevered = true;
                 }
-                RAMBeam ramBeam = new RAMBeam(beamProperties[0], beamProperties[1], Convert.ToDouble(beamProperties[2]), Convert.ToDouble(beamProperties[3]),
-                    Convert.ToDouble(beamProperties[4]), Convert.ToDouble(beamProperties[5]), Convert.ToDouble(beamProperties[6]), Convert.ToDouble(beamProperties[7]));
+                RAMBeam ramBeam = new RAMBeam(beamProperties[0], beamProperties[1], Convert.ToDouble(beamProperties[2])*12.0, Convert.ToDouble(beamProperties[3])*12.0,
+                    Convert.ToDouble(beamProperties[4])*12.0, Convert.ToDouble(beamProperties[5])*12.0, Convert.ToDouble(beamProperties[6]), Convert.ToDouble(beamProperties[7]));
                 ramBeam.IsCantilevered = isCantilevered;
                 ramBeam.Id = id;
                 id += 1;
@@ -236,7 +236,7 @@ namespace RevitReactionImporter
             foreach (var singleXGridData in allXGridData)
             {
                 string[] xGridProperties = singleXGridData.Split(propertyDelimiter);
-                RAMGrid ramXGrid = new RAMGrid(xGridProperties[0], Convert.ToDouble(xGridProperties[1]));
+                RAMGrid ramXGrid = new RAMGrid(xGridProperties[0], Convert.ToDouble(xGridProperties[1])*12.0); // Convert feet to inches.
                 ClassifyGridNameType(ramXGrid);
                 ramModel.Grids.Add(ramXGrid);
             }
@@ -250,7 +250,7 @@ namespace RevitReactionImporter
             foreach (var singleYGridData in allYGridData)
             {
                 string[] yGridProperties = singleYGridData.Split(propertyDelimiter);
-                RAMGrid ramYGrid = new RAMGrid(yGridProperties[0], Convert.ToDouble(yGridProperties[1]));
+                RAMGrid ramYGrid = new RAMGrid(yGridProperties[0], Convert.ToDouble(yGridProperties[1])*12.0); // Convert feet to inches.
                 ClassifyGridNameType(ramYGrid);
                 ramModel.Grids.Add(ramYGrid);
             }

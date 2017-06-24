@@ -22,6 +22,7 @@ namespace RevitReactionImporter
         public Dictionary<int, string> LevelSpacingMapping { get; set; }
         public Dictionary<int, string> LevelMapping { get; set; }
         public Dictionary<string, double> LevelsRevitSpacings { get; set; }
+        public int MappedBeamsCount { get; set; }
 
         public ModelCompare(RAMModel ramModel, AnalyticalModel revitModel)
         {
@@ -539,21 +540,43 @@ namespace RevitReactionImporter
 
         public static void PerformBeamMapping(RAMModel ramModel, AnalyticalModel revitModel, Dictionary<int, string> levelMappingDict)
         {
-            var ramBeamToLayoutMapping = GenerateRAMBeamToLayoutMapping(ramModel.RamBeams);
-            var revitBeamToLayoutMapping = GenerateRevitBeamToLayoutMapping(revitModel.StructuralMembers.Beams, levelMappingDict);
-            // Loop over RAM Layout Type Keys (Layout Type).
-            foreach(var layoutType in ramBeamToLayoutMapping.Keys)
-            {
-                var ramBeamList = ramBeamToLayoutMapping[layoutType];
-                var revitBeamList = revitBeamToLayoutMapping[layoutType];
-            }
-
+            int numMappedBeams = 0;
             // Offset RAM Beam X & Y based on Reference Point.
             var offset = MapReferencePoints(ramModel.ReferencePointDataTransfer, revitModel.ReferencePointDataTransfer);
             var directionalityFactors = DetermineDirectionalityFactors(revitModel.GridData, ramModel.Grids);
             OffsetRamBeamCoordinates(ramModel.RamBeams, offset, directionalityFactors);
-            // Compare RAM Beam and Revit Beam Start & End X & Y Coordinates.
-            // If coordinates matching then assign Revit Beam with coresponding reactions.
+
+            var ramBeamToLayoutMapping = GenerateRAMBeamToLayoutMapping(ramModel.RamBeams);
+            var revitBeamToLayoutMapping = GenerateRevitBeamToLayoutMapping(revitModel.StructuralMembers.Beams, levelMappingDict);
+            List<RAMModel.RAMBeam> ramBeamList = new List<RAMModel.RAMBeam>();
+            List<Beam> revitBeamList = new List<Beam>();
+            // Loop over RAM Layout Type Keys (Layout Type).
+            foreach(var layoutType in ramBeamToLayoutMapping.Keys)
+            {
+                ramBeamList = ramBeamToLayoutMapping[layoutType];
+                revitBeamList = revitBeamToLayoutMapping[layoutType];
+                revitBeamList = FilterRevitBeamListByType(revitBeamList);
+                // Compare RAM Beam and Revit Beam Start & End X & Y Coordinates.
+                // If coordinates matching then assign Revit Beam with coresponding reactions.
+                foreach (var ramBeam in ramBeamList)
+                {
+                    foreach(var revitBeam in revitBeamList)
+                    {
+                        if(ComparePoints(ramBeam.StartPoint, revitBeam.StartPoint) && ComparePoints(ramBeam.EndPoint, revitBeam.EndPoint))
+                        {
+                            revitBeam.StartReactionTotal = ramBeam.StartTotalReactionPositive.ToString();
+                            revitBeam.EndReactionTotal = ramBeam.EndTotalReactionPositive.ToString();
+                            numMappedBeams += 1;
+                        }
+                        if (ComparePoints(ramBeam.StartPoint, revitBeam.EndPoint) && ComparePoints(ramBeam.EndPoint, revitBeam.StartPoint))
+                        {
+                            revitBeam.StartReactionTotal = ramBeam.EndTotalReactionPositive.ToString();
+                            revitBeam.EndReactionTotal = ramBeam.StartTotalReactionPositive.ToString();
+                            numMappedBeams += 1;
+                        }
+                    }
+                }
+            }       
 
         }
 
@@ -590,6 +613,22 @@ namespace RevitReactionImporter
             }
             return beamToLayoutMapping;
 
+        }
+
+        public static List<Beam> FilterRevitBeamListByType(List<Beam> revitBeamList)
+        {
+            List<Beam> filteredRevitBeamList = new List<Beam>();
+            foreach (var beam in revitBeamList)
+            {
+                string section = beam.Section;
+                char sectionSymbol = section[0];
+                if(sectionSymbol == 'W')
+                {
+                    filteredRevitBeamList.Add(beam);
+                }
+
+            }
+            return filteredRevitBeamList;
         }
 
         // Reference Point Mapping.
@@ -682,6 +721,19 @@ namespace RevitReactionImporter
                 throw new Exception("Unrecognized grid classification combination");
             }
             return factors;
+        }
+
+        public static bool ComparePoints(double[] point1, double[] point2)
+        {
+            double tolerance = 4.0; // inches.
+            if(Math.Abs(point1[0] - point2[0]) < tolerance && Math.Abs(point1[1] - point2[1]) < tolerance)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
 
