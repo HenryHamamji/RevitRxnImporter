@@ -113,7 +113,7 @@ namespace RevitReactionImporter
 
         public static void PopulateAdditionalRAMModelInfo(RAMModel ramModel)
         {
-            EstablishReferencePoint(ramModel.Grids);
+            ramModel.ReferencePointDataTransfer = EstablishReferencePoint(ramModel.Grids);
             ClassifyGridDirectionalities(ramModel.Grids);
         }
 

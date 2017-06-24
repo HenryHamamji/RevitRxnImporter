@@ -66,7 +66,7 @@ namespace RevitReactionImporter
             PerformLevelMapping(ramModel.Stories, revitModel.LevelInfo, modelCompare.LevelNameMapping, modelCompare.LevelElevationMapping, modelCompare.LevelOrderMapping, modelCompare.LevelMapping, modelCompare.LevelSpacingMapping, revitModel.LevelInfo.BaseReferenceElevation);
 
             // Beam Mapping.
-            PerformBeamMapping(ramModel.RamBeams, revitModel.StructuralMembers.Beams, modelCompare.LevelMapping);
+            PerformBeamMapping(ramModel, revitModel, modelCompare.LevelMapping);
 
         }
 
@@ -537,10 +537,10 @@ namespace RevitReactionImporter
 
         // BEAM MAPPING.
 
-        public static void PerformBeamMapping(List<RAMModel.RAMBeam> ramBeams, List<Beam> revitBeams, Dictionary<int, string> levelMappingDict)
+        public static void PerformBeamMapping(RAMModel ramModel, AnalyticalModel revitModel, Dictionary<int, string> levelMappingDict)
         {
-            var ramBeamToLayoutMapping = GenerateRAMBeamToLayoutMapping(ramBeams);
-            var revitBeamToLayoutMapping = GenerateRevitBeamToLayoutMapping(revitBeams, levelMappingDict);
+            var ramBeamToLayoutMapping = GenerateRAMBeamToLayoutMapping(ramModel.RamBeams);
+            var revitBeamToLayoutMapping = GenerateRevitBeamToLayoutMapping(revitModel.StructuralMembers.Beams, levelMappingDict);
             // Loop over RAM Layout Type Keys (Layout Type).
             foreach(var layoutType in ramBeamToLayoutMapping.Keys)
             {
@@ -549,6 +549,9 @@ namespace RevitReactionImporter
             }
 
             // Offset RAM Beam X & Y based on Reference Point.
+            var offset = MapReferencePoints(ramModel.ReferencePointDataTransfer, revitModel.ReferencePointDataTransfer);
+            var directionalityFactors = DetermineDirectionalityFactors(revitModel.GridData, ramModel.Grids);
+            OffsetRamBeamCoordinates(ramModel.RamBeams, offset, directionalityFactors);
             // Compare RAM Beam and Revit Beam Start & End X & Y Coordinates.
             // If coordinates matching then assign Revit Beam with coresponding reactions.
 
@@ -581,12 +584,104 @@ namespace RevitReactionImporter
                 var beamRevitLevelId = beam.ElementLevelId;
                 beam.RAMFloorLayoutType = levelMappingDict[beamRevitLevelId];
 
-                if (!beamToLayoutMapping.TryGetValue(beam.RAMFloorLayoutType, out beamList))
-                    beamToLayoutMapping.Add(beam.RAMFloorLayoutType, beamList = new List<Beam>());
+                if (!beamToLayoutMapping.TryGetValue("Floor Type: " + beam.RAMFloorLayoutType, out beamList))
+                    beamToLayoutMapping.Add("Floor Type: " + beam.RAMFloorLayoutType, beamList = new List<Beam>());
                 beamList.Add(beam);
             }
             return beamToLayoutMapping;
 
+        }
+
+        // Reference Point Mapping.
+        public static double[] MapReferencePoints(double[] ramReferencePoint, double[] revitReferencePoint)
+        {
+            var offset = new double[3];
+            offset[0] = ramReferencePoint[0] - revitReferencePoint[0];
+            offset[1] = ramReferencePoint[1] - revitReferencePoint[1];
+            offset[2] = ramReferencePoint[2] - revitReferencePoint[2];
+            return offset;
+        }
+
+        // Offset RAM Beam X & Y based on Reference Point.
+        public static void OffsetRamBeamCoordinates(List<RAMModel.RAMBeam> ramBeams, double[] offset, int[] directionalityFactors)
+        {
+            foreach (var beam in ramBeams)
+            {
+                beam.StartPoint[0] += offset[0];
+                beam.StartPoint[1] += offset[1];
+                //beam.StartPoint[2] += offset[2];
+
+                beam.EndPoint[0] += offset[0];
+                beam.EndPoint[1] += offset[1];
+               //beam.EndPoint[2] += offset[2];
+            }
+        }
+
+        public static int[] DetermineDirectionalityFactors(GridData revitGridData, List<RAMModel.RAMGrid> ramGrids)
+        {
+            var factors = new int[2]; // 0 --> lettered. 1 --> numbered.
+            Grid revitGridLettered = revitGridData.Grids.Where(i => i.GridTypeNaming == Grid.GridTypeNamingClassification.Lettered).FirstOrDefault();
+            var revitGridLetteredDirectionality = revitGridLettered.DirectionalityClassification;
+            Grid revitGridNumbered = revitGridData.Grids.Where(i => i.GridTypeNaming == Grid.GridTypeNamingClassification.Numbered).FirstOrDefault();
+            var revitGridNumberedDirectionality = revitGridNumbered.DirectionalityClassification;
+
+            RAMModel.RAMGrid ramGridLettered = ramGrids.Where(i => i.GridTypeNaming == RAMModel.RAMGrid.GridTypeNamingClassification.Lettered).FirstOrDefault();
+            var ramGridLetteredDirectionality = ramGridLettered.DirectionalityClassification;
+            RAMModel.RAMGrid ramGridNumbered = ramGrids.Where(i => i.GridTypeNaming == RAMModel.RAMGrid.GridTypeNamingClassification.Numbered).FirstOrDefault();
+            var ramGridNumberedDirectionality = ramGridNumbered.DirectionalityClassification;
+
+            if(revitGridLetteredDirectionality == Grid.GridDirectionalityClassification.Increasing && ramGridLetteredDirectionality == RAMModel.GridDirectionalityClassification.Increasing)
+            {
+                factors[0] = 1;
+            }
+            else if (revitGridLetteredDirectionality == Grid.GridDirectionalityClassification.Decreasing && ramGridLetteredDirectionality == RAMModel.GridDirectionalityClassification.Decreasing)
+            {
+                factors[0] = 1;
+            }
+            else if (revitGridLetteredDirectionality == Grid.GridDirectionalityClassification.Increasing && ramGridLetteredDirectionality == RAMModel.GridDirectionalityClassification.Decreasing)
+            {
+                factors[0] = -1;
+            }
+            else if (revitGridLetteredDirectionality == Grid.GridDirectionalityClassification.Decreasing && ramGridLetteredDirectionality == RAMModel.GridDirectionalityClassification.Increasing)
+            {
+                factors[0] = -1;
+            }
+            else if (revitGridLetteredDirectionality == Grid.GridDirectionalityClassification.None || ramGridLetteredDirectionality == RAMModel.GridDirectionalityClassification.None)
+            {
+                throw new Exception("Grid Directionality not classfified");
+            }
+            else
+            {
+                throw new Exception("Unrecognized grid classification combination");
+            }
+
+
+
+            if (revitGridNumberedDirectionality == Grid.GridDirectionalityClassification.Increasing && ramGridNumberedDirectionality == RAMModel.GridDirectionalityClassification.Increasing)
+            {
+                factors[1] = 1;
+            }
+            else if (revitGridNumberedDirectionality == Grid.GridDirectionalityClassification.Decreasing && ramGridNumberedDirectionality == RAMModel.GridDirectionalityClassification.Decreasing)
+            {
+                factors[1] = 1;
+            }
+            else if (revitGridNumberedDirectionality == Grid.GridDirectionalityClassification.Increasing && ramGridNumberedDirectionality == RAMModel.GridDirectionalityClassification.Decreasing)
+            {
+                factors[1] = -1;
+            }
+            else if (revitGridNumberedDirectionality == Grid.GridDirectionalityClassification.Decreasing && ramGridNumberedDirectionality == RAMModel.GridDirectionalityClassification.Increasing)
+            {
+                factors[1] = -1;
+            }
+            else if (revitGridNumberedDirectionality == Grid.GridDirectionalityClassification.None || ramGridNumberedDirectionality == RAMModel.GridDirectionalityClassification.None)
+            {
+                throw new Exception("Grid Directionality not classfified");
+            }
+            else
+            {
+                throw new Exception("Unrecognized grid classification combination");
+            }
+            return factors;
         }
 
 
