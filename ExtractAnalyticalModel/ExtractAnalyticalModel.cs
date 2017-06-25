@@ -321,8 +321,8 @@
         public static double[] EstablishReferencePoint(GridData gridData)
         {
             var referencePoint = new double[3];
-            referencePoint[0] = gridData.Grids.First(item => item.Name == "A").Origin[0];
-            referencePoint[1] = gridData.Grids.First(item => item.Name == "1").Origin[1];
+            referencePoint[0] = gridData.Grids.First(item => item.Name == "A").Origin[1]*12.0;
+            referencePoint[1] = gridData.Grids.First(item => item.Name == "1").Origin[0]*12.0;
             referencePoint[2] = 0;
             return referencePoint;
         }

@@ -540,7 +540,7 @@ namespace RevitReactionImporter
 
         public static void PerformBeamMapping(RAMModel ramModel, AnalyticalModel revitModel, Dictionary<int, string> levelMappingDict)
         {
-            int numMappedBeams = 0;
+            int numMappedBeamsTotal = 0;
             // Offset RAM Beam X & Y based on Reference Point.
             var offset = MapReferencePoints(ramModel.ReferencePointDataTransfer, revitModel.ReferencePointDataTransfer);
             var directionalityFactors = DetermineDirectionalityFactors(revitModel.GridData, ramModel.Grids);
@@ -553,6 +553,7 @@ namespace RevitReactionImporter
             // Loop over RAM Layout Type Keys (Layout Type).
             foreach(var layoutType in ramBeamToLayoutMapping.Keys)
             {
+                int numMappedBeamsPerFloor = 0;
                 ramBeamList = ramBeamToLayoutMapping[layoutType];
                 revitBeamList = revitBeamToLayoutMapping[layoutType];
                 revitBeamList = FilterRevitBeamListByType(revitBeamList);
@@ -566,18 +567,20 @@ namespace RevitReactionImporter
                         {
                             revitBeam.StartReactionTotal = ramBeam.StartTotalReactionPositive.ToString();
                             revitBeam.EndReactionTotal = ramBeam.EndTotalReactionPositive.ToString();
-                            numMappedBeams += 1;
+                            numMappedBeamsPerFloor += 1;
+                            //continue;
                         }
                         if (ComparePoints(ramBeam.StartPoint, revitBeam.EndPoint) && ComparePoints(ramBeam.EndPoint, revitBeam.StartPoint))
                         {
                             revitBeam.StartReactionTotal = ramBeam.EndTotalReactionPositive.ToString();
                             revitBeam.EndReactionTotal = ramBeam.StartTotalReactionPositive.ToString();
-                            numMappedBeams += 1;
+                            numMappedBeamsPerFloor += 1;
+                            //continue;
                         }
                     }
                 }
-            }       
-
+                numMappedBeamsTotal += numMappedBeamsPerFloor;
+            }
         }
 
         // Generate RAM Layout Type to RAM Beam Mapping.
@@ -635,9 +638,9 @@ namespace RevitReactionImporter
         public static double[] MapReferencePoints(double[] ramReferencePoint, double[] revitReferencePoint)
         {
             var offset = new double[3];
-            offset[0] = ramReferencePoint[0] - revitReferencePoint[0];
-            offset[1] = ramReferencePoint[1] - revitReferencePoint[1];
-            offset[2] = ramReferencePoint[2] - revitReferencePoint[2];
+            offset[1] = revitReferencePoint[0] - ramReferencePoint[0];
+            offset[0] = revitReferencePoint[1] - ramReferencePoint[1];
+            offset[2] = revitReferencePoint[2] - ramReferencePoint[2];
             return offset;
         }
 
@@ -646,12 +649,12 @@ namespace RevitReactionImporter
         {
             foreach (var beam in ramBeams)
             {
-                beam.StartPoint[0] += offset[0];
                 beam.StartPoint[1] += offset[1];
+                beam.StartPoint[0] += offset[0];
                 //beam.StartPoint[2] += offset[2];
 
-                beam.EndPoint[0] += offset[0];
                 beam.EndPoint[1] += offset[1];
+                beam.EndPoint[0] += offset[0];
                //beam.EndPoint[2] += offset[2];
             }
         }
@@ -725,7 +728,7 @@ namespace RevitReactionImporter
 
         public static bool ComparePoints(double[] point1, double[] point2)
         {
-            double tolerance = 4.0; // inches.
+            double tolerance = 24.0; // inches.
             if(Math.Abs(point1[0] - point2[0]) < tolerance && Math.Abs(point1[1] - point2[1]) < tolerance)
             {
                 return true;
