@@ -56,7 +56,6 @@ namespace RevitReactionImporter
             ModelCompare.CompareModels(_ramModel, _analyticalModel);
             System.Windows.Forms.MessageBox.Show("Model Compare Working");
 
-
         }
 
 
