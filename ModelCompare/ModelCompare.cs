@@ -24,6 +24,22 @@ namespace RevitReactionImporter
         public Dictionary<string, double> LevelsRevitSpacings { get; set; }
         public int MappedBeamsCount { get; set; }
 
+        public class Results
+        {
+            public Dictionary<int, string> LevelMapping { get; set; }
+            public int TotalMappedBeamCount { get; set; }
+            public Dictionary<string, string> RAMMappingResultsByFloor { get; set; }
+            public Dictionary<string, string> RevitMappingResultsByFloor { get; set; }
+
+
+            public Results(Dictionary<int, string> levelMapping, Dictionary<string, string> ramMappingResultsByFloor, Dictionary<string, string> revitMappingResultsByFloor)
+            {
+                LevelMapping = levelMapping;
+                RAMMappingResultsByFloor = ramMappingResultsByFloor;
+                RevitMappingResultsByFloor = revitMappingResultsByFloor;
+            }
+        }
+
         public ModelCompare(RAMModel ramModel, AnalyticalModel revitModel)
         {
             StoriesRAM = ramModel.Stories;
@@ -46,7 +62,7 @@ namespace RevitReactionImporter
             }
         }
 
-        public static void CompareModels(RAMModel ramModel, AnalyticalModel revitModel)
+        public static Results CompareModels(RAMModel ramModel, AnalyticalModel revitModel)
         {
             var modelCompare = new ModelCompare(ramModel, revitModel);
             // Grid Mapping.
@@ -67,7 +83,9 @@ namespace RevitReactionImporter
             PerformLevelMapping(ramModel.Stories, revitModel.LevelInfo, modelCompare.LevelNameMapping, modelCompare.LevelElevationMapping, modelCompare.LevelOrderMapping, modelCompare.LevelMapping, modelCompare.LevelSpacingMapping, revitModel.LevelInfo.BaseReferenceElevation);
 
             // Beam Mapping.
-            PerformBeamMapping(ramModel, revitModel, modelCompare.LevelMapping);
+            var results = PerformBeamMapping(ramModel, revitModel, modelCompare.LevelMapping);
+
+            return results;
 
         }
 
@@ -535,11 +553,24 @@ namespace RevitReactionImporter
             }
         }
 
+        public static string GetRevitLevelNameFromId(int levelId, List<LevelFloor> revitLevels)
+        {
+            return revitLevels.First(item => item.ElementId == levelId).Name;
+        }
 
+        public static int GetRevitLevelIdFromRAMLayoutType(Dictionary<int, string> levelMappingDict, string ramLayoutType)
+        {
+            return levelMappingDict.FirstOrDefault(x => "Floor Type: " + x.Value == ramLayoutType).Key;
+
+        }
         // BEAM MAPPING.
 
-        public static void PerformBeamMapping(RAMModel ramModel, AnalyticalModel revitModel, Dictionary<int, string> levelMappingDict)
+        public static Results PerformBeamMapping(RAMModel ramModel, AnalyticalModel revitModel, Dictionary<int, string> levelMappingDict)
         {
+            Dictionary<string, string> beamRevitMappingByLevelResults = new Dictionary<string, string>();
+            Dictionary<string, string> beamRamMappingByLevelResults = new Dictionary<string, string>();
+            Dictionary<string, string> revitLevelToRAMLevelMappingResults = new Dictionary<string, string>();
+
             int numMappedBeamsTotal = 0;
             // Offset RAM Beam X & Y based on Reference Point.
             var offset = MapReferencePoints(ramModel.ReferencePointDataTransfer, revitModel.ReferencePointDataTransfer);
@@ -553,6 +584,9 @@ namespace RevitReactionImporter
             // Loop over RAM Layout Type Keys (Layout Type).
             foreach(var layoutType in ramBeamToLayoutMapping.Keys)
             {
+                int revitLevelId = GetRevitLevelIdFromRAMLayoutType(levelMappingDict, layoutType);
+                string revitLevelName = GetRevitLevelNameFromId(revitLevelId, revitModel.LevelInfo.Levels);
+                revitLevelToRAMLevelMappingResults[revitLevelName] = layoutType;
                 int numMappedBeamsPerFloor = 0;
                 ramBeamList = ramBeamToLayoutMapping[layoutType];
                 revitBeamList = revitBeamToLayoutMapping[layoutType];
@@ -579,8 +613,15 @@ namespace RevitReactionImporter
                         }
                     }
                 }
+                string proportionRamBeamsMappedPerFloor = numMappedBeamsPerFloor.ToString() + "/" + ramBeamList.Count.ToString();
+                string proportionRevitBeamsMappedPerFloor = numMappedBeamsPerFloor.ToString() + "/" + revitBeamList.Count.ToString();
+                beamRamMappingByLevelResults[layoutType] = proportionRamBeamsMappedPerFloor;
+                beamRevitMappingByLevelResults[revitLevelName] = proportionRevitBeamsMappedPerFloor;
                 numMappedBeamsTotal += numMappedBeamsPerFloor;
             }
+
+            var results = new Results(levelMappingDict, beamRamMappingByLevelResults, beamRevitMappingByLevelResults);
+            return results;
         }
 
         // Generate RAM Layout Type to RAM Beam Mapping.

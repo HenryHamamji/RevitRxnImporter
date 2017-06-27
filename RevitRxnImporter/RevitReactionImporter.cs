@@ -150,7 +150,8 @@ namespace RevitReactionImporter
         private void DocumentHandler(Document doc)
         {
             Document = doc;
-            _projectId = Document.ProjectInformation.UniqueId;
+            //_projectId = Document.ProjectInformation.UniqueId;
+            _projectId = Document.Title;
             ControlInterfaceViewModel = new ControlInterfaceViewModel(ControlInterfaceView, Document, this, _projectId);
             new DockablePane(_controlPaneId).Hide();
 

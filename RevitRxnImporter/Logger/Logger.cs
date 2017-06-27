@@ -13,7 +13,10 @@ namespace RevitReactionImporter
     public class Logger
     {
         public static string ProjectId { get; set; }
-
+        public Logger(string projectId)
+        {
+            ProjectId = projectId;
+        }
         public static void LocalLog()
         {
             var file = PathUtils.GetLogFile(ProjectId);
@@ -21,6 +24,10 @@ namespace RevitReactionImporter
 
             var result = "test stirng to append";
             File.AppendAllText(file, result + Environment.NewLine);
+        }
+
+        public static void LogLevelToLayoutMappingData()
+        {
         }
 
     }
