@@ -63,20 +63,20 @@ namespace RevitReactionImporter
             return Path.Combine(dir, string.Format("Project-{0}.log", projectId));
         }
 
-        //internal static string GetUserFreandlyLogFile(string projectId)
-        //{
-        //    var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        //    var dir = Path.Combine(folder, @"RevitRxnImporter\logs");
-        //    if (!Directory.Exists(dir))
-        //        Directory.CreateDirectory(dir);
+        internal static string GetUserFreandlyLogFile(string projectId)
+        {
+            var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var dir = Path.Combine(folder, @"RevitRxnImporter\logs");
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
 
-        //    var path = Path.Combine(dir, string.Format("Project-{0}.csv", projectId));
+            var path = Path.Combine(dir, string.Format("Project-{0}.csv", projectId));
 
-        //    if (!File.Exists(path))
-        //        File.WriteAllText(path, Properties.Resources.LOGGER_USER_FILE_HEADER + Environment.NewLine);
+            if (!File.Exists(path))
+                File.WriteAllText(path, Properties.Resources.RAM_REACTION_IMPORTER_LOG_HEADER + Environment.NewLine);
 
-        //    return path;
-        //}
+            return path;
+        }
 
         //internal static string GetChangesLogFile(string projectId)
         //{

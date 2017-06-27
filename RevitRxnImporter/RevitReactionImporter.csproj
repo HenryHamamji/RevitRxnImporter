@@ -72,6 +72,7 @@
     <Compile Include="ExternalEvents\BaseIdleHandler.cs" />
     <Compile Include="ExternalEvents\ClearReactionsHandler.cs" />
     <Compile Include="ExternalEvents\ImportRAMReactionsHandler.cs" />
+    <Compile Include="Logger\Logger.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

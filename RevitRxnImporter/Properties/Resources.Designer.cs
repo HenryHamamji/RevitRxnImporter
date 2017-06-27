@@ -71,6 +71,15 @@ namespace RevitReactionImporter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to test string resource.
+        /// </summary>
+        internal static string RAM_REACTION_IMPORTER_LOG_HEADER {
+            get {
+                return ResourceManager.GetString("RAM_REACTION_IMPORTER_LOG_HEADER", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap reset {

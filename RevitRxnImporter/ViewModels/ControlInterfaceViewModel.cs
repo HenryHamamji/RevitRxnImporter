@@ -55,6 +55,7 @@ namespace RevitReactionImporter
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
             ModelCompare.CompareModels(_ramModel, _analyticalModel);
             System.Windows.Forms.MessageBox.Show("Model Compare Working");
+            Logger.LocalLog();
 
         }
 
