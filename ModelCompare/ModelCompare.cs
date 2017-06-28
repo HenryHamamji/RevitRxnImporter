@@ -529,8 +529,8 @@ namespace RevitReactionImporter
             }
             if (grids.Count > 1)
             {
-                var locationA = grids.First(item => item.Name == gridName1).Origin[coordinateInt];
-                var locationB = grids.First(item => item.Name == gridName2).Origin[coordinateInt];
+                var locationA = grids.First(item => item.Name == gridName1 || item.Name == "01").Origin[coordinateInt];
+                var locationB = grids.First(item => item.Name == gridName2 || item.Name == "02").Origin[coordinateInt];
                 if (locationA < locationB)
                 {
                     foreach (var grid in grids)
@@ -605,6 +605,7 @@ namespace RevitReactionImporter
                             revitBeam.StartReactionTotal = ramBeam.StartTotalReactionPositive.ToString();
                             revitBeam.EndReactionTotal = ramBeam.EndTotalReactionPositive.ToString();
                             numMappedBeamsPerFloor += 1;
+                            revitBeam.IsMapped = true;
                             //continue;
                         }
                         if (ComparePoints(ramBeam.StartPoint, revitBeam.EndPoint) && ComparePoints(ramBeam.EndPoint, revitBeam.StartPoint))
@@ -612,6 +613,7 @@ namespace RevitReactionImporter
                             revitBeam.StartReactionTotal = ramBeam.EndTotalReactionPositive.ToString();
                             revitBeam.EndReactionTotal = ramBeam.StartTotalReactionPositive.ToString();
                             numMappedBeamsPerFloor += 1;
+                            revitBeam.IsMapped = true;
                             //continue;
                         }
                     }
@@ -779,7 +781,7 @@ namespace RevitReactionImporter
 
         public static bool ComparePoints(double[] point1, double[] point2)
         {
-            double tolerance = 16.0; // inches.
+            double tolerance = 26.0; // inches.
             if(Math.Abs(point1[0] - point2[0]) < tolerance && Math.Abs(point1[1] - point2[1]) < tolerance)
             {
                 return true;

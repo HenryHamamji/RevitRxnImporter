@@ -326,7 +326,7 @@
             int letteredGridIndex = -1;
             int numberedGridIndex = -1;
             var letteredGrid = grids.First(item => item.Name == "A");
-            var numberedGrid = grids.First(item => item.Name == "1");
+            var numberedGrid = grids.First(item => item.Name == "1" || item.Name == "01");
 
             if (letteredGrid.GridOrientation == GridOrientationClassification.Horizontal)
             {
