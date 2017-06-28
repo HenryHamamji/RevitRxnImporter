@@ -72,8 +72,7 @@ namespace RevitReactionImporter
 
             var path = Path.Combine(dir, string.Format("Project-{0}.csv", projectId));
 
-            if (!File.Exists(path))
-                File.WriteAllText(path, Properties.Resources.RAM_REACTION_IMPORTER_LOG_HEADER + Environment.NewLine);
+            //if (!File.Exists(path))
 
             return path;
         }

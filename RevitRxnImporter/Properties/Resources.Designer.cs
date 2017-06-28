@@ -71,7 +71,7 @@ namespace RevitReactionImporter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to test string resource.
+        ///   Looks up a localized string similar to RAM REACTION IMPORTER LOG RESULTS.
         /// </summary>
         internal static string RAM_REACTION_IMPORTER_LOG_HEADER {
             get {

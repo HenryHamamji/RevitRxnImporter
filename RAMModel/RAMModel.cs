@@ -56,13 +56,25 @@ namespace RevitReactionImporter
             public double Location { get; set; }
             public GridTypeNamingClassification GridTypeNaming { get; set; }
             public GridDirectionalityClassification DirectionalityClassification {get; set;}
+            public GridOrientationClassification GridOrientation { get; set; }
+
             public RAMGrid (string name, double location)
             {
                 Name = name;
                 Location = location;
                 GridTypeNaming = GridTypeNamingClassification.None;
                 DirectionalityClassification = GridDirectionalityClassification.None;
+                GridOrientation = GridOrientationClassification.None;
 
+
+            }
+
+            public enum GridOrientationClassification
+            {
+                None,
+                Vertical,
+                Horizontal,
+                Other
             }
 
             public enum GridTypeNamingClassification
@@ -105,9 +117,47 @@ namespace RevitReactionImporter
         public static double[] EstablishReferencePoint(List<RAMGrid> grids)
         {
             var referencePoint = new double[3];
-            referencePoint[0] = grids.First(item => item.Name == "A").Location;
-            referencePoint[1] = grids.First(item => item.Name == "1").Location;
-            referencePoint[2] = 0;
+            int letteredGridIndex = -1;
+            int numberedGridIndex = -1;
+            var letteredGrid = grids.First(item => item.Name == "A");
+            var numberedGrid = grids.First(item => item.Name == "1");
+
+            if (letteredGrid.GridOrientation == RAMGrid.GridOrientationClassification.Horizontal)
+            {
+                letteredGridIndex = 1;
+            }
+            else if (letteredGrid.GridOrientation == RAMGrid.GridOrientationClassification.Vertical)
+            {
+                letteredGridIndex = 0;
+            }
+            else
+            {
+                throw new Exception("TODO: Other Lettered Grid Classification");
+            }
+
+            if (numberedGrid.GridOrientation == RAMGrid.GridOrientationClassification.Horizontal)
+            {
+                numberedGridIndex = 1;
+            }
+            else if (numberedGrid.GridOrientation == RAMGrid.GridOrientationClassification.Vertical)
+            {
+                numberedGridIndex = 0;
+            }
+            else
+            {
+                throw new Exception("TODO: Other Numbered Grid Classification");
+            }
+            if(numberedGridIndex == letteredGridIndex)
+            {
+                throw new Exception("Numbered & Lettered Grids are parallel");
+            }
+
+            referencePoint[letteredGridIndex] = letteredGrid.Location;
+            referencePoint[numberedGridIndex] = numberedGrid.Location;
+
+            //referencePoint[0] = grids.First(item => item.Name == "A").Location;
+            //referencePoint[1] = grids.First(item => item.Name == "1").Location;
+            referencePoint[2] = 0.0;
             return referencePoint;
         }
 
@@ -238,6 +288,7 @@ namespace RevitReactionImporter
                 string[] xGridProperties = singleXGridData.Split(propertyDelimiter);
                 RAMGrid ramXGrid = new RAMGrid(xGridProperties[0], Convert.ToDouble(xGridProperties[1])*12.0); // Convert feet to inches.
                 ClassifyGridNameType(ramXGrid);
+                ramXGrid.GridOrientation = RAMGrid.GridOrientationClassification.Vertical;
                 ramModel.Grids.Add(ramXGrid);
             }
 
@@ -252,6 +303,7 @@ namespace RevitReactionImporter
                 string[] yGridProperties = singleYGridData.Split(propertyDelimiter);
                 RAMGrid ramYGrid = new RAMGrid(yGridProperties[0], Convert.ToDouble(yGridProperties[1])*12.0); // Convert feet to inches.
                 ClassifyGridNameType(ramYGrid);
+                ramYGrid.GridOrientation = RAMGrid.GridOrientationClassification.Horizontal;
                 ramModel.Grids.Add(ramYGrid);
             }
         }

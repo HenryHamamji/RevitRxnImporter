@@ -53,9 +53,9 @@ namespace RevitReactionImporter
             RAMModel.ExecutePythonScript();
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
-            ModelCompare.CompareModels(_ramModel, _analyticalModel);
+            ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel);
             System.Windows.Forms.MessageBox.Show("Model Compare Working");
-            var logger = new Logger(_projectId);
+            var logger = new Logger(_projectId, results);
             Logger.LocalLog();
 
         }

@@ -320,10 +320,49 @@
         // Defines Revit reference point for model geometry mapping from RAM to Revit. Hard-coded as Grid A-1.
         public static double[] EstablishReferencePoint(GridData gridData)
         {
+            var grids = gridData.Grids;
             var referencePoint = new double[3];
-            referencePoint[0] = gridData.Grids.First(item => item.Name == "A").Origin[1]*12.0;
-            referencePoint[1] = gridData.Grids.First(item => item.Name == "1").Origin[0]*12.0;
-            referencePoint[2] = 0;
+
+            int letteredGridIndex = -1;
+            int numberedGridIndex = -1;
+            var letteredGrid = grids.First(item => item.Name == "A");
+            var numberedGrid = grids.First(item => item.Name == "1");
+
+            if (letteredGrid.GridOrientation == GridOrientationClassification.Horizontal)
+            {
+                letteredGridIndex = 1;
+            }
+            else if (letteredGrid.GridOrientation == GridOrientationClassification.Vertical)
+            {
+                letteredGridIndex = 0;
+            }
+            else
+            {
+                throw new Exception("TODO: Other Lettered Grid Classification");
+            }
+
+            if (numberedGrid.GridOrientation == GridOrientationClassification.Horizontal)
+            {
+                numberedGridIndex = 1;
+            }
+            else if (numberedGrid.GridOrientation == GridOrientationClassification.Vertical)
+            {
+                numberedGridIndex = 0;
+            }
+            else
+            {
+                throw new Exception("TODO: Other Numbered Grid Classification");
+            }
+            if (numberedGridIndex == letteredGridIndex)
+            {
+                throw new Exception("Numbered & Lettered Grids are parallel");
+            }
+
+            referencePoint[letteredGridIndex] = letteredGrid.Origin[letteredGridIndex]*12.0;
+            referencePoint[numberedGridIndex] = numberedGrid.Origin[numberedGridIndex]*12.0;
+            //referencePoint[0] = gridData.Grids.First(item => item.Name == "A").Origin[1]*12.0;
+            //referencePoint[1] = gridData.Grids.First(item => item.Name == "1").Origin[0]*12.0;
+            referencePoint[2] = 0.0;
             return referencePoint;
         }
 

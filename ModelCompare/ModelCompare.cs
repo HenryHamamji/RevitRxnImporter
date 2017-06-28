@@ -30,13 +30,15 @@ namespace RevitReactionImporter
             public int TotalMappedBeamCount { get; set; }
             public Dictionary<string, string> RAMMappingResultsByFloor { get; set; }
             public Dictionary<string, string> RevitMappingResultsByFloor { get; set; }
+            public Dictionary<string, string> RevitLevelToRAMFloorLayoutTypeMapping { get; set; }
 
 
-            public Results(Dictionary<int, string> levelMapping, Dictionary<string, string> ramMappingResultsByFloor, Dictionary<string, string> revitMappingResultsByFloor)
+            public Results(Dictionary<int, string> levelMapping)
             {
                 LevelMapping = levelMapping;
-                RAMMappingResultsByFloor = ramMappingResultsByFloor;
-                RevitMappingResultsByFloor = revitMappingResultsByFloor;
+                //RAMMappingResultsByFloor = ramMappingResultsByFloor;
+                //RevitMappingResultsByFloor = revitMappingResultsByFloor;
+                //, Dictionary<string, string> ramMappingResultsByFloor, Dictionary<string, string> revitMappingResultsByFloor
             }
         }
 
@@ -83,7 +85,8 @@ namespace RevitReactionImporter
             PerformLevelMapping(ramModel.Stories, revitModel.LevelInfo, modelCompare.LevelNameMapping, modelCompare.LevelElevationMapping, modelCompare.LevelOrderMapping, modelCompare.LevelMapping, modelCompare.LevelSpacingMapping, revitModel.LevelInfo.BaseReferenceElevation);
 
             // Beam Mapping.
-            var results = PerformBeamMapping(ramModel, revitModel, modelCompare.LevelMapping);
+            var results = new Results(modelCompare.LevelMapping);
+            PerformBeamMapping(ramModel, revitModel, modelCompare.LevelMapping, results);
 
             return results;
 
@@ -565,7 +568,7 @@ namespace RevitReactionImporter
         }
         // BEAM MAPPING.
 
-        public static Results PerformBeamMapping(RAMModel ramModel, AnalyticalModel revitModel, Dictionary<int, string> levelMappingDict)
+        public static Results PerformBeamMapping(RAMModel ramModel, AnalyticalModel revitModel, Dictionary<int, string> levelMappingDict, Results results)
         {
             Dictionary<string, string> beamRevitMappingByLevelResults = new Dictionary<string, string>();
             Dictionary<string, string> beamRamMappingByLevelResults = new Dictionary<string, string>();
@@ -620,7 +623,12 @@ namespace RevitReactionImporter
                 numMappedBeamsTotal += numMappedBeamsPerFloor;
             }
 
-            var results = new Results(levelMappingDict, beamRamMappingByLevelResults, beamRevitMappingByLevelResults);
+            // Populate results.
+            results.RAMMappingResultsByFloor = beamRamMappingByLevelResults;
+            results.RevitMappingResultsByFloor = beamRevitMappingByLevelResults;
+            results.RevitLevelToRAMFloorLayoutTypeMapping = revitLevelToRAMLevelMappingResults;
+            results.TotalMappedBeamCount = numMappedBeamsTotal;
+
             return results;
         }
 
@@ -679,8 +687,10 @@ namespace RevitReactionImporter
         public static double[] MapReferencePoints(double[] ramReferencePoint, double[] revitReferencePoint)
         {
             var offset = new double[3];
-            offset[1] = revitReferencePoint[0] - ramReferencePoint[0];
-            offset[0] = revitReferencePoint[1] - ramReferencePoint[1];
+            //offset[1] = revitReferencePoint[0] - ramReferencePoint[0];
+            //offset[0] = revitReferencePoint[1] - ramReferencePoint[1];
+            offset[0] = revitReferencePoint[0] - ramReferencePoint[0];
+            offset[1] = revitReferencePoint[1] - ramReferencePoint[1];
             offset[2] = revitReferencePoint[2] - ramReferencePoint[2];
             return offset;
         }
@@ -769,7 +779,7 @@ namespace RevitReactionImporter
 
         public static bool ComparePoints(double[] point1, double[] point2)
         {
-            double tolerance = 24.0; // inches.
+            double tolerance = 16.0; // inches.
             if(Math.Abs(point1[0] - point2[0]) < tolerance && Math.Abs(point1[1] - point2[1]) < tolerance)
             {
                 return true;
