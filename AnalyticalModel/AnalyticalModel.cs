@@ -236,6 +236,7 @@ namespace RevitReactionImporter
     public class Beam : WideFlange
     {
         public double EndLevelOffset { get; set; }
+        public double StartLevelOffset { get; set; }
         public string StartConnectionParameter { get; set; }
         public string EndConnectionParameter { get; set; }
         public string StructuralUsage { get; set; }
@@ -245,16 +246,26 @@ namespace RevitReactionImporter
         public string EndReactionTotal { get; set; }
         public string RAMFloorLayoutType { get; set; }
         public bool IsMapped { get; set; }
+        public BeamOrientationRelativeToGrid OrientationRelativeToGrid { get; set; }
 
         // The CutLength property is the reduced length of beams after subtracting the 
         // cut backs.
         public double CutLength { get; set; }
         public double[] TopFlangeNormal { get { return new double[] { 0, 0, 1.0 }; } }
+        public double ZOffsetValue { get; set; }
 
 
         public Beam()
         {
             IsMapped = false;
+        }
+
+        public enum BeamOrientationRelativeToGrid
+        {
+            None,
+            ParallelToHorizontalGrids,
+            ParallelToVerticalGrids,
+            Other
         }
     }
 

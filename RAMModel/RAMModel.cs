@@ -13,6 +13,9 @@ namespace RevitReactionImporter
         public int StoryCount { get; set; }
         public List<Story> Stories { get; set; }
         public List<RAMGrid> Grids { get; set; }
+        public List<RAMGrid> HorizontalGrids { get; set; }
+        public List<RAMGrid> VerticalGrids { get; set; }
+        public List<RAMGrid> OtherGrids { get; set; }
         public double[] ReferencePointDataTransfer { get; set; }
 
         public RAMModel()
@@ -21,6 +24,9 @@ namespace RevitReactionImporter
             OriginRAM = new double[3];
             Stories = new List<Story>();
             Grids = new List<RAMGrid>();
+            HorizontalGrids = new List<RAMGrid>();
+            VerticalGrids = new List<RAMGrid>();
+            OtherGrids = new List<RAMGrid>();
         }
 
         public enum GridDirectionalityClassification
@@ -289,6 +295,7 @@ namespace RevitReactionImporter
                 RAMGrid ramXGrid = new RAMGrid(xGridProperties[0], Convert.ToDouble(xGridProperties[1])*12.0); // Convert feet to inches.
                 ClassifyGridNameType(ramXGrid);
                 ramXGrid.GridOrientation = RAMGrid.GridOrientationClassification.Vertical;
+                ramModel.VerticalGrids.Add(ramXGrid);
                 ramModel.Grids.Add(ramXGrid);
             }
 
@@ -304,6 +311,7 @@ namespace RevitReactionImporter
                 RAMGrid ramYGrid = new RAMGrid(yGridProperties[0], Convert.ToDouble(yGridProperties[1])*12.0); // Convert feet to inches.
                 ClassifyGridNameType(ramYGrid);
                 ramYGrid.GridOrientation = RAMGrid.GridOrientationClassification.Horizontal;
+                ramModel.HorizontalGrids.Add(ramYGrid);
                 ramModel.Grids.Add(ramYGrid);
             }
         }

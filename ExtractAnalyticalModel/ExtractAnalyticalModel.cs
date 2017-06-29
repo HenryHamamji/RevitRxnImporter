@@ -171,7 +171,11 @@
             beam.EndConnectionParameter = endConn;
             beam.StructuralUsage = beamInstance.LookupParameter("Structural Usage") != null ? beamInstance.LookupParameter("Structural Usage").AsValueString() : "";
             beam.StructuralMaterial = beamInstance.LookupParameter("Structural Material") != null ? beamInstance.LookupParameter("Structural Material").AsValueString() : "";
-            beam.CutLength = beamInstance.LookupParameter("Cut Length") != null ? beamInstance.LookupParameter("Cut Length").AsDouble() * 12 : 0;
+            beam.CutLength = beamInstance.LookupParameter("Cut Length") != null ? beamInstance.LookupParameter("Cut Length").AsDouble() * 12.0 : 0;
+            beam.ZOffsetValue = beamInstance.LookupParameter("z Offset Value") != null ? beamInstance.LookupParameter("z Offset Value").AsDouble() * 12.0 : 0; // inches.
+            beam.StartLevelOffset = beamInstance.LookupParameter("Start Level Offset") != null ? beamInstance.LookupParameter("Start Level Offset").AsDouble() * 12.0 : 0; // inches.
+            beam.EndLevelOffset = beamInstance.LookupParameter("End Level Offset") != null ? beamInstance.LookupParameter("End Level Offset").AsDouble() * 12.0 : 0; // inches.
+
             beam.Id = beamInstance.UniqueId;
             beam.ElementId = beamInstance.Id.IntegerValue;
             beam.ElementLevel = GetElementLevel(doc, beamInstance.Id);
@@ -197,6 +201,7 @@
             beam.BottomFlangeThickness = beamSymbol.LookupParameter("tf") != null ? beamSymbol.LookupParameter("tf").AsDouble() * 12 : 0;
             beam.WebThickness = beamSymbol.LookupParameter("tw") != null ? beamSymbol.LookupParameter("tw").AsDouble() * 12 : 0;
             beam.Width = beamSymbol.LookupParameter("bf") != null ? beamSymbol.LookupParameter("bf").AsDouble() * 12 : 0;
+
 
             var start = new double[3];
             var locCurve = (LocationCurve)beamInstance.Location;

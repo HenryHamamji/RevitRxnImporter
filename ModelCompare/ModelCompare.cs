@@ -86,7 +86,8 @@ namespace RevitReactionImporter
 
             // Beam Mapping.
             var results = new Results(modelCompare.LevelMapping);
-            PerformBeamMapping(ramModel, revitModel, modelCompare.LevelMapping, results);
+            var tolerances = DetermineTolerances(revitModel.GridData, ramModel.HorizontalGrids, ramModel.VerticalGrids);
+            PerformBeamMapping(ramModel, revitModel, modelCompare.LevelMapping, results, tolerances);
 
             return results;
 
@@ -556,6 +557,51 @@ namespace RevitReactionImporter
             }
         }
 
+        public static Dictionary<Beam.BeamOrientationRelativeToGrid, double> DetermineTolerances(GridData gridData, List<RAMModel.RAMGrid> horizontalRAMGrids, List<RAMModel.RAMGrid> verticalRAMGrids)
+        {
+            var tolerances = new Dictionary<Beam.BeamOrientationRelativeToGrid, double>();
+            // Measure Revit maximum grid to grid spacing Horizontal.
+            double revitMaxVerticalSpacing = Math.Abs(DetermineRevitMaximumGridToGridSpacing(gridData.VerticalGridSpacings)*12.0); // feet to inches.
+            // Measure Revit maximum grid to grid spacing Vertical.
+            double revitMaxHorizontalSpacing = Math.Abs(DetermineRevitMaximumGridToGridSpacing(gridData.HorizontalGridSpacings)*12.0); // feet to inches.
+
+            // Measure RAM maximum grid to grid spacing Horizontal.
+            double ramMaxVerticalSpacing = Math.Abs(DetermineRAMMaximumGridToGridSpacing(horizontalRAMGrids));
+            // Measure RAM maximum grid to grid spacing Vertical.
+            double ramMaxHorizontalSpacing = Math.Abs(DetermineRAMMaximumGridToGridSpacing(verticalRAMGrids));
+
+            // Calculate Horizontal Tolerance.
+            double horizontalTolerance = Math.Abs(revitMaxHorizontalSpacing - ramMaxHorizontalSpacing);
+            // Calculate Vertical Tolerance.
+            double verticalTolerance = Math.Abs(revitMaxVerticalSpacing - ramMaxVerticalSpacing);
+
+            tolerances[Beam.BeamOrientationRelativeToGrid.ParallelToHorizontalGrids] = horizontalTolerance;
+            tolerances[Beam.BeamOrientationRelativeToGrid.ParallelToVerticalGrids] = verticalTolerance;
+
+            return tolerances;
+
+
+        }
+
+        public static double DetermineRAMMaximumGridToGridSpacing(List<RAMModel.RAMGrid> ramGrids)
+        {
+            double maximumSpacing = 0.0;
+            List<RAMModel.RAMGrid> sortedGrids = ramGrids.OrderBy(o => o.Location).ToList();
+            maximumSpacing = sortedGrids.First().Location - sortedGrids.Last().Location;
+            return maximumSpacing;
+        }
+
+        public static double DetermineRevitMaximumGridToGridSpacing(Dictionary<string, double> gridSpacingsDict)
+        {
+            double maximumSpacing = 0.0;
+
+            foreach (KeyValuePair<string, double> entry in gridSpacingsDict)
+            {
+                maximumSpacing += entry.Value;
+            }
+            return maximumSpacing;
+        }
+
         public static string GetRevitLevelNameFromId(int levelId, List<LevelFloor> revitLevels)
         {
             return revitLevels.First(item => item.ElementId == levelId).Name;
@@ -568,7 +614,7 @@ namespace RevitReactionImporter
         }
         // BEAM MAPPING.
 
-        public static Results PerformBeamMapping(RAMModel ramModel, AnalyticalModel revitModel, Dictionary<int, string> levelMappingDict, Results results)
+        public static Results PerformBeamMapping(RAMModel ramModel, AnalyticalModel revitModel, Dictionary<int, string> levelMappingDict, Results results, Dictionary<Beam.BeamOrientationRelativeToGrid, double> tolerances)
         {
             Dictionary<string, string> beamRevitMappingByLevelResults = new Dictionary<string, string>();
             Dictionary<string, string> beamRamMappingByLevelResults = new Dictionary<string, string>();
@@ -593,6 +639,7 @@ namespace RevitReactionImporter
                 int numMappedBeamsPerFloor = 0;
                 ramBeamList = ramBeamToLayoutMapping[layoutType];
                 revitBeamList = revitBeamToLayoutMapping[layoutType];
+                revitBeamList = FilterOutNonRAMBeamsFromRevitBeamList(revitBeamList);
                 revitBeamList = FilterRevitBeamListByType(revitBeamList);
                 // Compare RAM Beam and Revit Beam Start & End X & Y Coordinates.
                 // If coordinates matching then assign Revit Beam with coresponding reactions.
@@ -600,7 +647,7 @@ namespace RevitReactionImporter
                 {
                     foreach(var revitBeam in revitBeamList)
                     {
-                        if(ComparePoints(ramBeam.StartPoint, revitBeam.StartPoint) && ComparePoints(ramBeam.EndPoint, revitBeam.EndPoint))
+                        if(ComparePoints(ramBeam.StartPoint, revitBeam.StartPoint, tolerances) && ComparePoints(ramBeam.EndPoint, revitBeam.EndPoint, tolerances))
                         {
                             revitBeam.StartReactionTotal = ramBeam.StartTotalReactionPositive.ToString();
                             revitBeam.EndReactionTotal = ramBeam.EndTotalReactionPositive.ToString();
@@ -608,7 +655,7 @@ namespace RevitReactionImporter
                             revitBeam.IsMapped = true;
                             //continue;
                         }
-                        if (ComparePoints(ramBeam.StartPoint, revitBeam.EndPoint) && ComparePoints(ramBeam.EndPoint, revitBeam.StartPoint))
+                        if (ComparePoints(ramBeam.StartPoint, revitBeam.EndPoint,tolerances) && ComparePoints(ramBeam.EndPoint, revitBeam.StartPoint, tolerances))
                         {
                             revitBeam.StartReactionTotal = ramBeam.EndTotalReactionPositive.ToString();
                             revitBeam.EndReactionTotal = ramBeam.StartTotalReactionPositive.ToString();
@@ -779,10 +826,17 @@ namespace RevitReactionImporter
             return factors;
         }
 
-        public static bool ComparePoints(double[] point1, double[] point2)
+        public static bool ComparePoints(double[] point1, double[] point2, Dictionary<Beam.BeamOrientationRelativeToGrid, double> tolerances)
         {
-            double tolerance = 26.0; // inches.
-            if(Math.Abs(point1[0] - point2[0]) < tolerance && Math.Abs(point1[1] - point2[1]) < tolerance)
+            double toleranceX = tolerances[Beam.BeamOrientationRelativeToGrid.ParallelToVerticalGrids];
+            double toleranceY = tolerances[Beam.BeamOrientationRelativeToGrid.ParallelToHorizontalGrids];
+            double miniumTolerance = 14.0; // inches.
+            double bufferTolerance = 2.0; // inches.
+            toleranceY = Math.Max(miniumTolerance, toleranceY);
+            toleranceX = Math.Max(miniumTolerance, toleranceX);
+            //toleranceY = 24.0;
+            //toleranceX = 24.0;
+            if (Math.Abs(point1[0] - point2[0]) < toleranceY + bufferTolerance && Math.Abs(point1[1] - point2[1]) < toleranceX + bufferTolerance)
             {
                 return true;
             }
@@ -790,6 +844,33 @@ namespace RevitReactionImporter
             {
                 return false;
             }
+        }
+
+        public static List<Beam>FilterOutNonRAMBeamsFromRevitBeamList(List<Beam> revitBeams)
+        {
+            List<Beam> revitBeamsToRemove = new List<Beam>();
+            var deepestBeam = revitBeams.OrderByDescending(i => i.Depth).FirstOrDefault();
+            double maxDepth = deepestBeam.Depth; // inches.
+            double tolerance = 2.0 * maxDepth;
+
+            foreach (var revitBeam in revitBeams)
+            {
+                double zOffsetValueMagnitude = Math.Abs(revitBeam.ZOffsetValue); // inches.
+                double startLevelOffsetMagnitude = Math.Abs(revitBeam.StartLevelOffset);
+                double endLevelOffsetMagnitude = Math.Abs(revitBeam.EndLevelOffset);
+
+                if (zOffsetValueMagnitude > tolerance || startLevelOffsetMagnitude > tolerance || endLevelOffsetMagnitude > tolerance )
+                {
+                    revitBeamsToRemove.Add(revitBeam);
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            var filteredRevitBeamList = revitBeams.Except(revitBeamsToRemove).ToList();
+
+            return filteredRevitBeamList;
         }
 
 
