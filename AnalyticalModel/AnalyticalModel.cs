@@ -245,7 +245,8 @@ namespace RevitReactionImporter
         public string StartReactionTotal { get; set; }
         public string EndReactionTotal { get; set; }
         public string RAMFloorLayoutType { get; set; }
-        public bool IsMapped { get; set; }
+        public bool IsMappedToRAMBeam { get; set; }
+        public double ToleranceForSuccessFulMapping { get; set; }
         public BeamOrientationRelativeToGrid OrientationRelativeToGrid { get; set; }
 
         // The CutLength property is the reduced length of beams after subtracting the 
@@ -257,7 +258,7 @@ namespace RevitReactionImporter
 
         public Beam()
         {
-            IsMapped = false;
+            IsMappedToRAMBeam = false;
         }
 
         public enum BeamOrientationRelativeToGrid

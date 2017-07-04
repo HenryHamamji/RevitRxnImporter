@@ -102,6 +102,7 @@ namespace RevitReactionImporter
             public double StartTotalReactionPositive { get; set; }
             public double EndTotalReactionPositive { get; set; }
             public int Id { get; set; }
+            public bool IsMappedToRevitBeam { get; set; }
 
             public RAMBeam(string floorLayoutType, string size, double startPointX, double startPointY, double endPointX, double endPointY, double startReactionTotalPositive, double endReactionTotalPositive )
             {
@@ -116,6 +117,7 @@ namespace RevitReactionImporter
                 StartTotalReactionPositive = startReactionTotalPositive;
                 EndTotalReactionPositive = endReactionTotalPositive;
                 IsCantilevered = false;
+                IsMappedToRevitBeam = false;
             }
         }
 

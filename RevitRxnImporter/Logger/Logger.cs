@@ -38,9 +38,9 @@ namespace RevitReactionImporter
                     LogStringToStringMappingData(Results.RAMMappingResultsByFloor, writer);
                     writer.Write("Revit Mapping Results by Floor:" + Environment.NewLine);
                     LogStringToStringMappingData(Results.RevitMappingResultsByFloor, writer);
-                    writer.Write("Total Number of Mapped Beams: " + Results.TotalMappedBeamCount.ToString() + Environment.NewLine);
-
-
+                    writer.Write("Total Number of Mapped Beams:" + Results.TotalMappedBeamCount.ToString() + Environment.NewLine);
+                    writer.Write(Environment.NewLine + "Revit Beam Tolerances for Mapping Success (inches):" + Environment.NewLine);
+                    LogStringToDoubleMappingData(Results.RevitBeamTolerancesForMappingSuccess, writer);
 
                 }
             }
@@ -54,6 +54,16 @@ namespace RevitReactionImporter
             foreach (var entry in dictionary)
                 writer.WriteLine(indent + "{0} : {1}", entry.Key, entry.Value);
                 writer.Write(Environment.NewLine);
+        }
+
+        public static void LogStringToDoubleMappingData(Dictionary<string, double> dictionary, StreamWriter writer)
+        {
+            int indentSize = 8;
+            var indent = new string(' ', indentSize);
+
+            foreach (var entry in dictionary)
+                writer.WriteLine(indent + "{0} : {1}", entry.Key, entry.Value.ToString());
+            writer.Write(Environment.NewLine);
         }
 
 
