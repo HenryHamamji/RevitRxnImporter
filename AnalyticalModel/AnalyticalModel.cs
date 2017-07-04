@@ -11,6 +11,7 @@ namespace RevitReactionImporter
         public Members StructuralMembers { get; set; }
         public GridData GridData { get; set; }
         public LevelInfo LevelInfo { get; set; }
+        public Dictionary<string, List<Beam>> LevelToBeamMapping { get; set; }
         public double[] ReferencePointDataTransfer { get; set; }
         public AnalyticalModel()
         {
@@ -18,6 +19,7 @@ namespace RevitReactionImporter
             StructuralMembers = new Members();
             GridData = new GridData();
             LevelInfo = new LevelInfo();
+            LevelToBeamMapping = new Dictionary<string, List<Beam>>();
         }
 
 

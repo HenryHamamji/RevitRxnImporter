@@ -100,7 +100,8 @@ namespace RevitReactionImporter
 
         // LEVEL MAPPING.
 
-
+       // This function checks to see if the revit and ram level counts are the same and if they are spaced at almost equal elevations.
+       // No filtering required in this case.
         public static bool FilteringLevelStoryDataNotRequired(RAMModel ramModel, AnalyticalModel revitModel)
         {
             var levelInfo = revitModel.LevelInfo;
@@ -181,6 +182,8 @@ namespace RevitReactionImporter
         {
             var levelInfo = revitModel.LevelInfo;
             double errorTolerance = levelInfo.LevelsRevitSpacings.Count * 1.0; // Allow a 1 foot discrepancy at each level.
+            // temp.
+            ramModel.Stories.RemoveAll(s => s.Height < 4);
 
             if (levelInfo.LevelsRevitSpacings.Count < ramModel.Stories.Count) // Not all RAM Levels will be mapped.
             {
@@ -232,16 +235,19 @@ namespace RevitReactionImporter
                 // Only consider levels with beams hosted on them.
                 var revitLevelsWithBeams = GetRevitLevelsWithBeams(revitModel);
                 revitModel.LevelInfo.Levels = revitLevelsWithBeams;
+                RegenerateRevitLevelNumbers(revitModel.LevelInfo.Levels);
+                RegenerateRevitLevelSpacings(revitModel.LevelInfo);
 
+                CombineRevitLevels(revitModel);
                 var indexesToRemoveToTotalErrorDict = new Dictionary<List<int>, double>();
                 var potentialIndexesToRemoveList = new List<int>();
-                var allIndexesList = GenerateAllIndexesList(ramModel.Stories.Count);
+                var allIndexesList = GenerateAllIndexesList(revitModel.LevelInfo.Levels.Count);
                 var indexesIteratedOver = new List<int>();
                 int numStoriesToRemove = Math.Abs(ramModel.Stories.Count - levelInfo.LevelsRevitSpacings.Count);
                 int numTotalErrorIterations = numStoriesToRemove + 1;
                 for (int i = 0; i < numTotalErrorIterations; i++)
                 {
-                    indexesIteratedOver = GenerateIndexesIteratedOverList(i, levelInfo.LevelsRevitSpacings.Count);
+                    indexesIteratedOver = GenerateIndexesIteratedOverList(i, ramModel.Stories.Count);
                     double totalError = CompareSpacingDiscrepancyAllLevels(ramModel, levelInfo, i);
                     potentialIndexesToRemoveList = allIndexesList.Except(indexesIteratedOver).ToList();
 
@@ -285,11 +291,75 @@ namespace RevitReactionImporter
             }
         }
 
+        public static void CombineRevitLevels(AnalyticalModel revitModel)
+        {
+            double epsilon = 1.5;
+            int revitLevelCount = 1;
+            Dictionary<int, int> processed = new Dictionary<int, int>();
+            var similarElevationToRevitLevels = new Dictionary<int, List<LevelFloor>>();
+            for (int i = 0; i < revitModel.LevelInfo.Levels.Count; i++)
+            {
+                var levels = new List<LevelFloor>();
+                levels.Add(revitModel.LevelInfo.Levels[i]);
+
+                for (int j = 0; j < revitModel.LevelInfo.Levels.Count; j++)
+                {
+                    if (processed.ContainsKey(j))
+                    {
+                        if (i == processed[j] && j == processed.FirstOrDefault(x => x.Value == i).Key)
+                        {
+                            continue;
+                        }
+                    }
+                    if(i==j)
+                    {
+                        continue;
+                    }
+                    processed[i] = j;
+
+                    double deltaElevation = Math.Abs(revitModel.LevelInfo.Levels[i].Elevation - revitModel.LevelInfo.Levels[j].Elevation);
+                    if (deltaElevation < epsilon)
+                    {
+                        if(!similarElevationToRevitLevels.ContainsKey(revitLevelCount))
+                        {
+                            similarElevationToRevitLevels.Add(revitLevelCount, levels);
+
+                        }
+                        similarElevationToRevitLevels[revitLevelCount].Add(revitModel.LevelInfo.Levels[j]);
+
+                    }
+                }
+                revitLevelCount++;
+
+            }
+        }
+
+        public static void RegenerateRevitLevelSpacings(LevelInfo revitLevelInfo)
+        {
+            revitLevelInfo.LevelsRevitSpacings = new Dictionary<string, double>();
+            for (int i = 0; i < revitLevelInfo.Levels.Count; i++)
+            {
+                if (i != 0)
+                {
+                    revitLevelInfo.LevelsRevitSpacings[revitLevelInfo.Levels[i - 1].LevelNumber.ToString() + '-' + revitLevelInfo.Levels[i].LevelNumber.ToString()] = revitLevelInfo.Levels[i].Elevation - revitLevelInfo.Levels[i - 1].Elevation;
+
+                }
+            }
+        }
+
         public static List<LevelFloor> GetRevitLevelsWithBeams(AnalyticalModel revitModel)
         {
+
             var levelIdsWithBeams = new List<int>();
             foreach (var revitBeam in revitModel.StructuralMembers.Beams)
             {
+                if (!revitModel.LevelToBeamMapping.ContainsKey(revitBeam.ElementLevel))
+                {
+                    var beams = new List<Beam>();
+                    revitModel.LevelToBeamMapping[revitBeam.ElementLevel] = beams;
+                }
+                revitModel.LevelToBeamMapping[revitBeam.ElementLevel].Add(revitBeam);
+
                 if (!levelIdsWithBeams.Contains(revitBeam.ElementLevelId))
                 {
                     levelIdsWithBeams.Add(revitBeam.ElementLevelId);
@@ -303,15 +373,21 @@ namespace RevitReactionImporter
             }
 
             List<LevelFloor> sortedFilteredRevitLevels = filteredRevitLevels.OrderBy(o => o.Elevation).ToList();
+
+            sortedFilteredRevitLevels = RegenerateRevitLevelNumbers(sortedFilteredRevitLevels);
+
+            return sortedFilteredRevitLevels;
+        }
+
+        public static List<LevelFloor> RegenerateRevitLevelNumbers(List<LevelFloor> revitLevels)
+        {
             int levelNumber = 1;
-            foreach(var level in sortedFilteredRevitLevels)
+            foreach (var level in revitLevels)
             {
                 level.LevelNumber = levelNumber;
                 levelNumber++;
             }
-
-
-            return sortedFilteredRevitLevels;
+            return revitLevels;
         }
 
         public static void RegenerateRAMElevations(List<RAMModel.Story> ramStories)
@@ -331,16 +407,27 @@ namespace RevitReactionImporter
             }
         }
 
-        public static double CompareSpacingDiscrepancyAllLevels(RAMModel ramModel, LevelInfo revitModelLevelInfo, int ramStartIndexOffset)
+        public static double CompareSpacingDiscrepancyAllLevels(RAMModel ramModel, LevelInfo revitModelLevelInfo, int startIndexOffset)
         {
-            double totalError = 0.0;
-            for (int i = 0; i < revitModelLevelInfo.Levels.Count-1; i++)
+            int ramStoryStartIndexOffset = 0;
+            int revitLevelIndexOffset = 0;
+            if(ramModel.Stories.Count > revitModelLevelInfo.Levels.Count-1)
             {
-                int revitBaseLevelNumber = revitModelLevelInfo.Levels[i].LevelNumber;
-                int revitTopLevelNumber = revitModelLevelInfo.Levels[i + 1].LevelNumber;
+                ramStoryStartIndexOffset = startIndexOffset;
+            }
+            else if(ramModel.Stories.Count < revitModelLevelInfo.Levels.Count-1)
+            {
+                revitLevelIndexOffset = startIndexOffset;
+            }
+            double totalError = 0.0;
+            int levelCount = Math.Min(revitModelLevelInfo.Levels.Count-1, ramModel.Stories.Count);
+            for (int i = 0; i < levelCount; i++)
+            {
+                int revitBaseLevelNumber = revitModelLevelInfo.Levels[i+revitLevelIndexOffset].LevelNumber;
+                int revitTopLevelNumber = revitModelLevelInfo.Levels[i + 1 + revitLevelIndexOffset].LevelNumber;
+                double ramLevelSpacing = ramModel.Stories[i + ramStoryStartIndexOffset].Height;
 
                 double revitLevelSpacing = revitModelLevelInfo.LevelsRevitSpacings[revitBaseLevelNumber.ToString() + '-' + revitTopLevelNumber.ToString()];
-                double ramLevelSpacing = ramModel.Stories[i+ ramStartIndexOffset].Height;
                 double spacingError = CompareLevelSpacingsDiscrepancy(ramLevelSpacing, revitLevelSpacing);
                 totalError += spacingError;
             }
