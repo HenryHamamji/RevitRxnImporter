@@ -291,11 +291,10 @@ namespace RevitReactionImporter
             }
         }
 
-        public static void CombineRevitLevels(AnalyticalModel revitModel)
+        public static Dictionary<double, List<LevelFloor>> CombineRevitLevels(AnalyticalModel revitModel)
         {
-            double epsilon = 1.5;
-            int revitLevelCount = 1;
-            Dictionary<int, int> processed = new Dictionary<int, int>();
+            double epsilon = 1.75;
+            Dictionary<int, List<int>> processed = new Dictionary<int, List<int>>();
             var similarElevationToRevitLevels = new Dictionary<int, List<LevelFloor>>();
             for (int i = 0; i < revitModel.LevelInfo.Levels.Count; i++)
             {
@@ -304,34 +303,95 @@ namespace RevitReactionImporter
 
                 for (int j = 0; j < revitModel.LevelInfo.Levels.Count; j++)
                 {
-                    if (processed.ContainsKey(j))
-                    {
-                        if (i == processed[j] && j == processed.FirstOrDefault(x => x.Value == i).Key)
-                        {
-                            continue;
-                        }
-                    }
-                    if(i==j)
+                    if (IsLevelComparisonAlreadyProcessed(i, j, processed))
                     {
                         continue;
                     }
-                    processed[i] = j;
+                    if (i==j)
+                    {
+                        continue;
+                    }
+                    if(processed.ContainsKey(i))
+                    {
+                        processed[i].Add(j);
+                    }
+                    else
+                    {
+                        List<int> processedForNewKey = new List<int>();
+                        processedForNewKey.Add(j);
+                        processed.Add(i, processedForNewKey);
+                    }
 
                     double deltaElevation = Math.Abs(revitModel.LevelInfo.Levels[i].Elevation - revitModel.LevelInfo.Levels[j].Elevation);
                     if (deltaElevation < epsilon)
                     {
-                        if(!similarElevationToRevitLevels.ContainsKey(revitLevelCount))
+                        var firstLevel = revitModel.LevelInfo.Levels[i];
+                        var secondLevel = revitModel.LevelInfo.Levels[j];
+                        bool accountedFor = false;
+                        foreach(var listOfSimilarLevels in similarElevationToRevitLevels.Values)
                         {
-                            similarElevationToRevitLevels.Add(revitLevelCount, levels);
-
+                            if(listOfSimilarLevels.Contains(firstLevel) && listOfSimilarLevels.Contains(secondLevel))
+                            {
+                                accountedFor = true;
+                            }
                         }
-                        similarElevationToRevitLevels[revitLevelCount].Add(revitModel.LevelInfo.Levels[j]);
+                        if(!accountedFor)
+                        {
+                            if (!similarElevationToRevitLevels.ContainsKey(i))
+                            {
+                                similarElevationToRevitLevels.Add(i, levels);
 
+                            }
+                            similarElevationToRevitLevels[i].Add(revitModel.LevelInfo.Levels[j]);
+                        }
                     }
                 }
-                revitLevelCount++;
+            }
+            var combinedLevels = new Dictionary<double, List<LevelFloor>>();
+            foreach(var listOfSimilarRevitLevels in similarElevationToRevitLevels.Values)
+            {
+                var averageElevation = listOfSimilarRevitLevels.Average(x => x.Elevation);
+                combinedLevels.Add(averageElevation, listOfSimilarRevitLevels);
 
             }
+            foreach(var level in revitModel.LevelInfo.Levels)
+            {
+                if(!combinedLevels.Values
+                    .SelectMany(list => list)
+                    .Any(l => l == level))
+                {
+                    combinedLevels.Add(level.Elevation, new List<LevelFloor>() { level });
+                }
+            }
+            return combinedLevels;
+        }
+
+        public static bool IsLevelComparisonAlreadyProcessed(int i, int j, Dictionary<int, List<int>> processed)
+        {
+            bool firstIndexMatching = false;
+            bool secondIndexMatching = false;
+            var list = new List<int>();
+            if(processed.ContainsKey(j))
+            {
+                list = processed[j];
+                firstIndexMatching = true;
+            }
+            if(firstIndexMatching)
+            {
+                foreach (var item in list)
+                {
+                    if (item == i)
+                    {
+                        secondIndexMatching = true;
+                    }
+                }
+            }
+
+            if (firstIndexMatching && secondIndexMatching)
+            {
+                return true;
+            }
+            return false;
         }
 
         public static void RegenerateRevitLevelSpacings(LevelInfo revitLevelInfo)
