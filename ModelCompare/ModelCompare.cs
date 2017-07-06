@@ -238,47 +238,50 @@ namespace RevitReactionImporter
                 RegenerateRevitLevelNumbers(revitModel.LevelInfo.Levels);
                 RegenerateRevitLevelSpacings(revitModel.LevelInfo);
 
-                CombineRevitLevels(revitModel);
+                var combinedRevitLevels = CombineRevitLevels(revitModel);
                 var indexesToRemoveToTotalErrorDict = new Dictionary<List<int>, double>();
                 var potentialIndexesToRemoveList = new List<int>();
                 var allIndexesList = GenerateAllIndexesList(revitModel.LevelInfo.Levels.Count);
                 var indexesIteratedOver = new List<int>();
-                int numStoriesToRemove = Math.Abs(ramModel.Stories.Count - levelInfo.LevelsRevitSpacings.Count);
-                int numTotalErrorIterations = numStoriesToRemove + 1;
-                for (int i = 0; i < numTotalErrorIterations; i++)
-                {
-                    indexesIteratedOver = GenerateIndexesIteratedOverList(i, ramModel.Stories.Count);
-                    double totalError = CompareSpacingDiscrepancyAllLevels(ramModel, levelInfo, i);
-                    potentialIndexesToRemoveList = allIndexesList.Except(indexesIteratedOver).ToList();
+                int numStoriesToRemove = Math.Abs(ramModel.Stories.Count - combinedRevitLevels.Keys.Count-1);
 
-                    indexesToRemoveToTotalErrorDict[potentialIndexesToRemoveList] = totalError;
-                }
-                int numSolutions = 0;
-                var indexesToRemove = new List<int>();
-                foreach (var key in indexesToRemoveToTotalErrorDict.Keys)
+                if(numStoriesToRemove >0)
                 {
-                    double totalError = indexesToRemoveToTotalErrorDict[key];
-                    if (totalError < errorTolerance)
+                    int numTotalErrorIterations = numStoriesToRemove + 1;
+                    for (int i = 0; i < numTotalErrorIterations; i++)
                     {
-                        numSolutions += 1;
-                        indexesToRemove = key;
+                        indexesIteratedOver = GenerateIndexesIteratedOverList(i, ramModel.Stories.Count);
+                        double totalError = CompareSpacingDiscrepancyAllLevels(ramModel, levelInfo, i);
+                        potentialIndexesToRemoveList = allIndexesList.Except(indexesIteratedOver).ToList();
+
+                        indexesToRemoveToTotalErrorDict[potentialIndexesToRemoveList] = totalError;
+                    }
+                    int numSolutions = 0;
+                    var indexesToRemove = new List<int>();
+                    foreach (var key in indexesToRemoveToTotalErrorDict.Keys)
+                    {
+                        double totalError = indexesToRemoveToTotalErrorDict[key];
+                        if (totalError < errorTolerance)
+                        {
+                            numSolutions += 1;
+                            indexesToRemove = key;
+                        }
+                    }
+                    if (numSolutions > 1)
+                    {
+                        throw new Exception("More than one Level Spacing Mapping solution possible");
+                    }
+                    if (numSolutions == 0)
+                    {
+                        throw new Exception("No Level Spacing Mapping soluton found");
+                    }
+
+                    for (int i = 0; i < indexesToRemove.Count; i++)
+                    {
+                        revitModel.LevelInfo.Levels.RemoveAt(i);
                     }
                 }
-                if (numSolutions > 1)
-                {
-                    throw new Exception("More than one Level Spacing Mapping solution possible");
-                }
-                if (numSolutions == 0)
-                {
-                    throw new Exception("No Level Spacing Mapping soluton found");
-                }
-
-                for (int i = 0; i < indexesToRemove.Count; i++)
-                {
-                    revitModel.LevelInfo.Levels.RemoveAt(i);
-                }
-
-
+               
             }
             else if (levelInfo.LevelsRevitSpacings.Count == ramModel.Stories.Count)
             {
