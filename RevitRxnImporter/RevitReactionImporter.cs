@@ -59,8 +59,15 @@ namespace RevitReactionImporter
         public static UIControlledApplication RevitApplication { get; set; }
 
         private ControlInterfaceView ControlInterfaceView { get; set; }
+        private LevelMappingView LevelMappingPaneView { get; set; }
+        private LevelMappingViewModel LevelMappingViewModel { get; set; }
+        public bool IsLevelMappingPaneVisible { get; set; }
+        public bool LevelMappingPaneVisibilityChanged { get; set; }
         public ControlInterfaceViewModel ControlInterfaceViewModel { get; set; }
         private static DockablePaneId _controlPaneId;
+        public static DockablePaneId _levelMappingId;
+        private DockablePane _levelMapping = null;
+
         public Document Document { get; private set; }
         private UIApplication _uiApplication;
         private string _projectId = "";
@@ -84,10 +91,14 @@ namespace RevitReactionImporter
                 uiApp.ControlledApplication.DocumentClosed += DocumentClosedHandler;
 
                 _controlPaneId = new DockablePaneId(Guid.NewGuid());
-
                 ControlInterfaceView = new ControlInterfaceView();
 
+                _levelMappingId = new DockablePaneId(Guid.NewGuid());
+                LevelMappingPaneView = new LevelMappingView(_levelMappingId);
+                LevelMappingPaneVisibilityChanged = true;
+
                 RevitApplication.RegisterDockablePane(_controlPaneId, "RAM to Revit Reaction Importer", ControlInterfaceView);
+                RevitApplication.RegisterDockablePane(_levelMappingId, "Level Mapping User Confirmation", LevelMappingPaneView);
 
                 uiApp.Idling += UiIdlingHandler;
                 NullProperties();
@@ -150,10 +161,13 @@ namespace RevitReactionImporter
         private void DocumentHandler(Document doc)
         {
             Document = doc;
+            LevelMappingViewModel = new LevelMappingViewModel(LevelMappingPaneView, Document, this);
+
             //_projectId = Document.ProjectInformation.UniqueId;
             _projectId = Document.Title;
-            ControlInterfaceViewModel = new ControlInterfaceViewModel(ControlInterfaceView, Document, this, _projectId);
+            ControlInterfaceViewModel = new ControlInterfaceViewModel(ControlInterfaceView, Document, this, LevelMappingViewModel, _projectId);
             new DockablePane(_controlPaneId).Hide();
+            _levelMapping = new DockablePane(_levelMappingId);
 
             ToolTip = new ToolTip();
 
@@ -228,6 +242,7 @@ namespace RevitReactionImporter
         private void NullProperties()
         {
             ControlInterfaceViewModel = null;
+            LevelMappingViewModel = null;
         }
 
 
@@ -247,6 +262,12 @@ namespace RevitReactionImporter
             if (Document == null)
                 return;
 
+            if (LevelMappingPaneVisibilityChanged && !IsLevelMappingPaneVisible)
+            {
+                _levelMapping.Hide();
+                LevelMappingPaneVisibilityChanged = false;
+            }
+
             _uiApplication = sender as UIApplication;
             var uiDocument = _uiApplication.ActiveUIDocument;
 
@@ -254,6 +275,13 @@ namespace RevitReactionImporter
                 return;
         }
 
+        public void SetupLevelMappingPane()
+        {
+            IsLevelMappingPaneVisible = true;
+            LevelMappingPaneVisibilityChanged = true;
+
+            _levelMapping.Show();
+        }
 
 
 

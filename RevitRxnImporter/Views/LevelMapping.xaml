@@ -1,0 +1,19 @@
+﻿<Page x:Class="RevitReactionImporter.LevelMappingView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Title="LevelMappingView" Height="150" Width="200">
+
+    <StackPanel Margin="10">
+        <ComboBox SelectionChanged="ComboBox_SelectionChanged">
+            <ComboBoxItem>ComboBox Item #1</ComboBoxItem>
+            <ComboBoxItem IsSelected="True">ComboBox Item #2</ComboBoxItem>
+            <ComboBoxItem>ComboBox Item #3</ComboBoxItem>
+        </ComboBox>
+        <ComboBox
+          VerticalAlignment="Center"
+          HorizontalAlignment="Center"
+          x:Name="cmbTest"
+          ItemsSource="{Binding CmbContent}" Width="180" />
+    </StackPanel>
+
+</Page>

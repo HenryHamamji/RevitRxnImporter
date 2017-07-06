@@ -1,9 +1,9 @@
 C:\dev\RevitRxnImporter\ModelCompare\bin\Debug\ModelCompare.dll
 C:\dev\RevitRxnImporter\ModelCompare\bin\Debug\ModelCompare.pdb
-C:\dev\RevitRxnImporter\ModelCompare\obj\Debug\ModelCompare.dll
-C:\dev\RevitRxnImporter\ModelCompare\obj\Debug\ModelCompare.pdb
 C:\dev\RevitRxnImporter\ModelCompare\bin\Debug\AnalyticalModel.dll
 C:\dev\RevitRxnImporter\ModelCompare\bin\Debug\RAMModel.dll
 C:\dev\RevitRxnImporter\ModelCompare\bin\Debug\AnalyticalModel.pdb
 C:\dev\RevitRxnImporter\ModelCompare\bin\Debug\RAMModel.pdb
 C:\dev\RevitRxnImporter\ModelCompare\obj\Debug\ModelCompare.csprojResolveAssemblyReference.cache
+C:\dev\RevitRxnImporter\ModelCompare\obj\Debug\ModelCompare.dll
+C:\dev\RevitRxnImporter\ModelCompare\obj\Debug\ModelCompare.pdb

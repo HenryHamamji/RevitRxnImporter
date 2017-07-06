@@ -73,7 +73,8 @@ namespace RevitReactionImporter
                 ClassifyGridNameType(revitGrid);
 
             }
-            ClassifyGridDirectionalities(revitModel.GridData.Grids);
+            ClassifyGridDirectionalities(revitModel.GridData);
+            revitModel.ReferencePointDataTransfer = EstablishReferencePoint(revitModel.GridData);
 
             // Level Mapping.
             bool levelFilteringNotRequired = FilteringLevelStoryDataNotRequired(ramModel, revitModel);
@@ -684,6 +685,57 @@ namespace RevitReactionImporter
 
         // GRID MAPPING
 
+        // Defines Revit reference point for model geometry mapping from RAM to Revit. Hard-coded as Grid A-1.
+        public static double[] EstablishReferencePoint(GridData gridData)
+        {
+            var grids = gridData.Grids;
+            var referencePoint = new double[3];
+
+            int letteredGridIndex = -1;
+            int numberedGridIndex = -1;
+            //var letteredGrid = grids.First(item => item.Name == "A");
+            //var numberedGrid = grids.First(item => item.Name == "1" || item.Name == "01");
+
+            var letteredGrid = gridData.LetteredGrids[0];
+            var numberedGrid = gridData.NumberedGrids[0];
+            if (letteredGrid.GridOrientation == GridOrientationClassification.Horizontal)
+            {
+                letteredGridIndex = 1;
+            }
+            else if (letteredGrid.GridOrientation == GridOrientationClassification.Vertical)
+            {
+                letteredGridIndex = 0;
+            }
+            else
+            {
+                throw new Exception("TODO: Other Lettered Grid Classification");
+            }
+
+            if (numberedGrid.GridOrientation == GridOrientationClassification.Horizontal)
+            {
+                numberedGridIndex = 1;
+            }
+            else if (numberedGrid.GridOrientation == GridOrientationClassification.Vertical)
+            {
+                numberedGridIndex = 0;
+            }
+            else
+            {
+                throw new Exception("TODO: Other Numbered Grid Classification");
+            }
+            if (numberedGridIndex == letteredGridIndex)
+            {
+                throw new Exception("Numbered & Lettered Grids are parallel");
+            }
+
+            referencePoint[letteredGridIndex] = letteredGrid.Origin[letteredGridIndex] * 12.0;
+            referencePoint[numberedGridIndex] = numberedGrid.Origin[numberedGridIndex] * 12.0;
+            //referencePoint[0] = gridData.Grids.First(item => item.Name == "A").Origin[1]*12.0;
+            //referencePoint[1] = gridData.Grids.First(item => item.Name == "1").Origin[0]*12.0;
+            referencePoint[2] = 0.0;
+            return referencePoint;
+        }
+
         public static void ClassifyGridNameType(Grid grid)
         {
             Char gridNameDelimiter = '.';
@@ -718,8 +770,9 @@ namespace RevitReactionImporter
             }
 
         }
-        public static void ClassifyGridDirectionalities(List<Grid> grids)
+        public static void ClassifyGridDirectionalities(GridData gridData)
         {
+            var grids = gridData.Grids;
             var letteredGrids = new List<Grid>();
             var numberedGrids = new List<Grid>();
 
@@ -738,13 +791,17 @@ namespace RevitReactionImporter
                     throw new Exception("Grid does not have proper GridTypeClassification");
                 }
             }
+            gridData.LetteredGrids = letteredGrids;
+            gridData.NumberedGrids = numberedGrids;
 
-            ClassifyGridDirectionality(letteredGrids, "A", "B");
-            ClassifyGridDirectionality(numberedGrids, "1", "2");
+            SortGridsByAlphabeticalOrder(letteredGrids);
+            SortGridsByNuermicalOrder(numberedGrids);
+            ClassifyGridDirectionality(letteredGrids);
+            ClassifyGridDirectionality(numberedGrids);
 
         }
 
-        public static void ClassifyGridDirectionality(List<Grid> grids, string gridName1, string gridName2)
+        public static void ClassifyGridDirectionality(List<Grid> grids)
         {
             int coordinateInt;
             if (grids[0].GridOrientation == GridOrientationClassification.Horizontal)
@@ -762,8 +819,11 @@ namespace RevitReactionImporter
             }
             if (grids.Count > 1)
             {
-                var locationA = grids.First(item => item.Name == gridName1 || item.Name == "01").Origin[coordinateInt];
-                var locationB = grids.First(item => item.Name == gridName2 || item.Name == "02").Origin[coordinateInt];
+                //var locationA = grids.First(item => item.Name == gridName1 || item.Name == "01").Origin[coordinateInt];
+                //var locationB = grids.First(item => item.Name == gridName2 || item.Name == "02").Origin[coordinateInt];
+                var locationA = grids[0].Origin[coordinateInt];
+                var locationB = grids[1].Origin[coordinateInt];
+
                 if (locationA < locationB)
                 {
                     foreach (var grid in grids)
@@ -787,6 +847,16 @@ namespace RevitReactionImporter
             {
                 throw new Exception("Only 1 RAM grid in that direction found error");
             }
+        }
+
+        public static void SortGridsByAlphabeticalOrder(List<Grid> letteredGrids)
+        {
+            letteredGrids.OrderBy(x => x.Name);
+        }
+
+        public static void SortGridsByNuermicalOrder(List<Grid> numberedGrids)
+        {
+            numberedGrids.OrderBy(x => Convert.ToInt32(x.Name));
         }
 
         public static Dictionary<Beam.BeamOrientationRelativeToGrid, double> DetermineTolerances(GridData gridData, List<RAMModel.RAMGrid> horizontalRAMGrids, List<RAMModel.RAMGrid> verticalRAMGrids)

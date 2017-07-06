@@ -82,11 +82,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\PathUtils.cs" />
     <Compile Include="ViewModels\ControlInterfaceViewModel.cs" />
+    <Compile Include="ViewModels\LevelMappingViewModel.cs" />
     <Compile Include="Views\ControlInterfaceView.xaml.cs">
       <DependentUpon>ControlInterfaceView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ControlInterfaceView.xaml.Designer.cs">
       <DependentUpon>ControlInterfaceView.xaml.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LevelMapping.xaml.cs">
+      <DependentUpon>LevelMapping.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -95,6 +99,10 @@
   <ItemGroup>
     <Page Include="Views\ControlInterfaceView.xaml">
       <SubType>Form</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LevelMapping.xaml">
+      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

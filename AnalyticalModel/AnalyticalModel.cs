@@ -115,6 +115,9 @@ namespace RevitReactionImporter
     public class GridData
     {
         public List<Grid> Grids { get; set; }
+        public List<Grid> LetteredGrids { get; set; }
+        public List<Grid> NumberedGrids { get; set; }
+
         public int VerticalGridCount { get; set; }
         public int HorizontalGridCount { get; set; }
         public int OtherGridCount { get; set; }
@@ -126,6 +129,8 @@ namespace RevitReactionImporter
         public GridData()
         {
             Grids = new List<Grid>();
+            LetteredGrids = new List<Grid>();
+            NumberedGrids = new List<Grid>();
             VerticalGridSpacings = new Dictionary<string, double>();
             HorizontalGridSpacings = new Dictionary<string, double>();
         }

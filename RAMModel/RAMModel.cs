@@ -13,6 +13,8 @@ namespace RevitReactionImporter
         public int StoryCount { get; set; }
         public List<Story> Stories { get; set; }
         public List<RAMGrid> Grids { get; set; }
+        public List<RAMGrid> LetteredGrids { get; set; }
+        public List<RAMGrid> NumberedGrids { get; set; }
         public List<RAMGrid> HorizontalGrids { get; set; }
         public List<RAMGrid> VerticalGrids { get; set; }
         public List<RAMGrid> OtherGrids { get; set; }
@@ -26,6 +28,8 @@ namespace RevitReactionImporter
             Grids = new List<RAMGrid>();
             HorizontalGrids = new List<RAMGrid>();
             VerticalGrids = new List<RAMGrid>();
+            LetteredGrids = new List<RAMGrid>();
+            NumberedGrids = new List<RAMGrid>();
             OtherGrids = new List<RAMGrid>();
         }
 
@@ -122,13 +126,16 @@ namespace RevitReactionImporter
         }
 
         // Defines RAM reference point for model geometry mapping from RAM to Revit. Hard-coded as Grid A-1.
-        public static double[] EstablishReferencePoint(List<RAMGrid> grids)
+        public static double[] EstablishReferencePoint(List<RAMGrid> grids, List<RAMGrid> letteredGrids, List<RAMGrid> numberedGrids)
         {
             var referencePoint = new double[3];
             int letteredGridIndex = -1;
             int numberedGridIndex = -1;
-            var letteredGrid = grids.First(item => item.Name == "A");
-            var numberedGrid = grids.First(item => item.Name == "1");
+            //var letteredGrid = grids.First(item => item.Name == "A");
+            //var numberedGrid = grids.First(item => item.Name == "1");
+
+            var letteredGrid = letteredGrids[0];
+            var numberedGrid = numberedGrids[0];
 
             if (letteredGrid.GridOrientation == RAMGrid.GridOrientationClassification.Horizontal)
             {
@@ -171,8 +178,8 @@ namespace RevitReactionImporter
 
         public static void PopulateAdditionalRAMModelInfo(RAMModel ramModel)
         {
-            ramModel.ReferencePointDataTransfer = EstablishReferencePoint(ramModel.Grids);
-            ClassifyGridDirectionalities(ramModel.Grids);
+            ClassifyGridDirectionalities(ramModel.Grids, ramModel.NumberedGrids, ramModel.LetteredGrids);
+            ramModel.ReferencePointDataTransfer = EstablishReferencePoint(ramModel.Grids, ramModel.LetteredGrids, ramModel.NumberedGrids);
         }
 
         public static void ExecutePythonScript()
@@ -318,10 +325,10 @@ namespace RevitReactionImporter
             }
         }
 
-        public static void ClassifyGridDirectionalities(List<RAMGrid> grids)
+        public static void ClassifyGridDirectionalities(List<RAMGrid> grids, List<RAMGrid> numberedGrids, List<RAMGrid> letteredGrids)
         {
-            var letteredGrids = new List<RAMGrid>();
-            var numberedGrids = new List<RAMGrid>();
+            //var letteredGrids = new List<RAMGrid>();
+           //var numberedGrids = new List<RAMGrid>();
 
             foreach (var grid in grids)
             {
@@ -338,17 +345,30 @@ namespace RevitReactionImporter
                     throw new Exception("Grid does not have proper GridTypeClassification");
                 }
             }
-            ClassifyGridDirectionality(letteredGrids, "A", "B");
-            ClassifyGridDirectionality(numberedGrids, "1", "2");
+
+            SortGridsByAlphabeticalOrder(letteredGrids);
+            SortGridsByNuermicalOrder(numberedGrids);
+            ClassifyGridDirectionality(letteredGrids);
+            ClassifyGridDirectionality(numberedGrids);
 
         }
 
-        public static void ClassifyGridDirectionality(List<RAMGrid> grids, string gridName1, string gridName2)
+        public static void SortGridsByAlphabeticalOrder(List<RAMGrid> letteredGrids)
+        {
+            letteredGrids.OrderBy(x => x.Name);
+        }
+
+        public static void SortGridsByNuermicalOrder(List<RAMGrid> numberedGrids)
+        {
+            numberedGrids.OrderBy(x => Convert.ToInt32(x.Name));
+        }
+
+        public static void ClassifyGridDirectionality(List<RAMGrid> grids)
         {
             if (grids.Count > 1)
             {
-                var locationA = grids.First(item => item.Name == gridName1).Location;
-                var locationB = grids.First(item => item.Name == gridName2).Location;
+                var locationA = grids[0].Location;
+                var locationB = grids[1].Location;
                 if (locationA < locationB)
                 {
                     foreach (var grid in grids)

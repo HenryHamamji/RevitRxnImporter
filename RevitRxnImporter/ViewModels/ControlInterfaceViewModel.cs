@@ -22,24 +22,29 @@ namespace RevitReactionImporter
         //private readonly JsonSerializerSettings jsonSettings;
         private AnalyticalModel _analyticalModel = null;
         private RAMModel _ramModel = null;
+        private LevelMappingViewModel LevelMappingViewModel = null;
 
         private ControlInterfaceView _view = null; // TODO: replace this connection with data binding
+        public LevelMappingView _levelMappingView = null;
         private Document _document;
         public AnalyticalModel AnalyticalModel { get { return _analyticalModel; } }
         public RAMModel RAMModel { get { return _ramModel; } }
 
         public ControlInterfaceViewModel(ControlInterfaceView view, Document doc,
-            RevitReactionImporterApp rria, string projectId)
+            RevitReactionImporterApp rria, LevelMappingViewModel levelMappingViewModel, string projectId)
         {
             _rria = rria;
 
             _view = view;
             _view.ViewModel = this;
+            LevelMappingViewModel = levelMappingViewModel;
+
             _document = doc;
             _projectId = projectId;
 
 
             IList<RibbonItem> ribbonItems = _rria.RibbonPanel.GetItems();
+            //_levelMappingView = new LevelMappingView();
         }
 
         public void DocumentClosed()
@@ -50,19 +55,35 @@ namespace RevitReactionImporter
 
         public void ImportBeamReactions()
         {
+
+
+            //_controlPaneId = new DockablePaneId(Guid.NewGuid());
+
+            //ControlInterfaceView = new ControlInterfaceView();
+
+            //RevitApplication.RegisterDockablePane(_controlPaneId, "RAM to Revit Reaction Importer", ControlInterfaceView);
+
             RAMModel.ExecutePythonScript();
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
+            ShowLevelMappingPane();
             ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel);
             System.Windows.Forms.MessageBox.Show("Model Compare Working");
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
+
+
 
         }
 
 
         public void ResetBeamReactions()
         {
+        }
+
+        internal void ShowLevelMappingPane()
+        {
+            _rria.SetupLevelMappingPane();
         }
 
     }
