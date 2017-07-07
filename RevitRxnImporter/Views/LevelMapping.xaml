@@ -13,7 +13,7 @@
           VerticalAlignment="Center"
           HorizontalAlignment="Center"
           x:Name="cmbTest"
-          ItemsSource="{Binding CmbContent}" Width="180" />
+          ItemsSource="{Binding RevitLevelNames}" Width="180" />
     </StackPanel>
 
 </Page>

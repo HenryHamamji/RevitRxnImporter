@@ -30,7 +30,7 @@ namespace RevitReactionImporter
     //}
     public partial class LevelMappingView : Page, IDockablePaneProvider
     {
-        public ObservableCollection<string> CmbContent { get; set; }
+        public ObservableCollection<string> RevitLevels { get; set; }
 
         internal LevelMappingViewModel ViewModel { get; set; }
 
@@ -40,24 +40,32 @@ namespace RevitReactionImporter
         //private ExternalEvent importRAMReactionsEvent;
         //private ExternalEvent clearReactionsEvent;
 
-        //internal ObservableCollection<string> ConnectionTypes = new ObservableCollection<string>();
+        public ObservableCollection<string> RevitLevelNames { get; set; }
 
         //public string SelectedConnectionType { get; set; }
 
         public LevelMappingView(DockablePaneId paneId)
         {
-            CmbContent = new ObservableCollection<string>
-            {
-                "test 1",
-                "test 2"
-            };
+            //RevitLevelNames = new ObservableCollection<string>();
+            //{
+            //    //"test 1",
+            //    //"test 2"
+            //};
+            //RevitLevelNames = RevitLevelNames;
+            //LevelMappingViewModel levelMappingViewModel = new LevelMappingViewModel();
 
             InitializeComponent();
-            //LevelMappingViewModel levelMappingViewModel = new LevelMappingViewModel();
-            DataContext = this;
-            //cmbTest.ItemsSource = 
-            ViewModel = null;
             LevelMappingPaneId = paneId;
+
+            //ViewModel = this.ViewModel;
+            //if(ViewModel != null)
+            //{
+            //RevitLevelNames = ViewModel.RevitLevelNames;
+            DataContext = this;
+
+           // }
+
+            //ViewModel = null;
 
             //var importRAMReactionsHandler = new ImportRAMReactionsHandler();
             //importRAMReactionsHandler.View = this;

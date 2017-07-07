@@ -66,7 +66,7 @@ namespace RevitReactionImporter
             RAMModel.ExecutePythonScript();
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
-            ShowLevelMappingPane();
+            ShowLevelMappingPane(_analyticalModel.LevelInfo);
             ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel);
             System.Windows.Forms.MessageBox.Show("Model Compare Working");
             var logger = new Logger(_projectId, results);
@@ -81,8 +81,9 @@ namespace RevitReactionImporter
         {
         }
 
-        internal void ShowLevelMappingPane()
+        internal void ShowLevelMappingPane(LevelInfo revitLevelInfo)
         {
+            LevelMappingViewModel.PopulateRevitLevels(revitLevelInfo);
             _rria.SetupLevelMappingPane();
         }
 
