@@ -1,19 +1,24 @@
-﻿<Page x:Class="RevitReactionImporter.LevelMappingView"
+﻿<Page
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Title="LevelMappingView" Height="150" Width="200">
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="RevitReactionImporter.LevelMappingView"
+             Title="LevelMappingView" Width="400" Height="300">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
 
-    <StackPanel Margin="10">
-        <ComboBox SelectionChanged="ComboBox_SelectionChanged">
-            <ComboBoxItem>ComboBox Item #1</ComboBoxItem>
-            <ComboBoxItem IsSelected="True">ComboBox Item #2</ComboBoxItem>
-            <ComboBoxItem>ComboBox Item #3</ComboBoxItem>
-        </ComboBox>
-        <ComboBox
-          VerticalAlignment="Center"
-          HorizontalAlignment="Center"
-          x:Name="cmbTest"
+        <Grid Margin="10" Background="White" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ListBox Grid.Column ="0" x:Name="RevitLevelTextBlocks"/>
+            <ComboBox Grid.Column="1"
+          x:Name="RevitLevelsComboBoxes"
           ItemsSource="{Binding RevitLevelNames}" Width="180" />
-    </StackPanel>
-
+        </Grid>
+        
+    </ScrollViewer>
 </Page>

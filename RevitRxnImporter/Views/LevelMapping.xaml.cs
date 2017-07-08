@@ -31,9 +31,7 @@ namespace RevitReactionImporter
     public partial class LevelMappingView : Page, IDockablePaneProvider
     {
         public ObservableCollection<string> RevitLevels { get; set; }
-
         internal LevelMappingViewModel ViewModel { get; set; }
-
         internal DockablePaneProviderData _paneProviderData = null;
         public DockablePaneId LevelMappingPaneId { get; set; }
 
@@ -42,38 +40,21 @@ namespace RevitReactionImporter
 
         public ObservableCollection<string> RevitLevelNames { get; set; }
 
-        //public string SelectedConnectionType { get; set; }
-
         public LevelMappingView(DockablePaneId paneId)
         {
-            //RevitLevelNames = new ObservableCollection<string>();
-            //{
-            //    //"test 1",
-            //    //"test 2"
-            //};
-            //RevitLevelNames = RevitLevelNames;
-            //LevelMappingViewModel levelMappingViewModel = new LevelMappingViewModel();
-
             InitializeComponent();
             LevelMappingPaneId = paneId;
+            if(ViewModel!=null)
+            {
+                RevitLevelNames = ViewModel.RevitLevelNames;
 
-            //ViewModel = this.ViewModel;
-            //if(ViewModel != null)
-            //{
-            //RevitLevelNames = ViewModel.RevitLevelNames;
+            }
             DataContext = this;
 
-           // }
-
-            //ViewModel = null;
 
             //var importRAMReactionsHandler = new ImportRAMReactionsHandler();
             //importRAMReactionsHandler.View = this;
             //importRAMReactionsEvent = ExternalEvent.Create(importRAMReactionsHandler);
-
-            //var clearReactionsHandler = new ClearReactionsHandler();
-            //clearReactionsHandler.View = this;
-            //clearReactionsEvent = ExternalEvent.Create(clearReactionsHandler);
         }
 
         public void SetupDockablePane(DockablePaneProviderData data)
@@ -83,8 +64,8 @@ namespace RevitReactionImporter
             data.InitialState.SetFloatingRectangle(new Rectangle(200, 150, 500, 350));
             data.InitialState.DockPosition = DockPosition.Floating;
 
-            data.FrameworkElement.MaxHeight = 200;
-            data.FrameworkElement.MaxWidth = 300;
+            //data.FrameworkElement.MaxHeight = 200;
+            //data.FrameworkElement.MaxWidth = 300;
 
             _paneProviderData = data;
         }
