@@ -15,9 +15,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <ListBox Grid.Column ="0" x:Name="RevitLevelTextBlocks"/>
-            <ComboBox Grid.Column="1"
-          x:Name="RevitLevelsComboBoxes"
-          ItemsSource="{Binding RevitLevelNames}" Width="180" />
+            <StackPanel Grid.Column="1" x:Name="RevitLevelsComboBoxes"/>
         </Grid>
         
     </ScrollViewer>

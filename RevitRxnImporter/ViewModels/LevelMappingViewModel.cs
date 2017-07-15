@@ -48,7 +48,7 @@ namespace RevitReactionImporter
 
         }
 
-        public ObservableCollection<string> PopulateRevitLevels(LevelInfo revitLevelInfo)
+        public ObservableCollection<string> PopulateRevitLevelsAndRAMFloorLayoutTypes(LevelInfo revitLevelInfo, List<RAMModel.Story> ramStories)
         {
             var revitLevelNamesString = "";
             _view.RevitLevelNames = new ObservableCollection<string>();
@@ -58,7 +58,7 @@ namespace RevitReactionImporter
                 _view.RevitLevelNames.Add(revitLevel.Name);
             }
             var revitLevelNames = _view.RevitLevelNames;
-            _view.RevitLevelsComboBoxes.ItemsSource = revitLevelNames;
+            //_view.RevitLevelsComboBoxes.ItemsSource = revitLevelNames;
             foreach (string levelName in revitLevelNames)
             {
                 revitLevelNamesString += levelName + "\r\n";
@@ -79,7 +79,7 @@ namespace RevitReactionImporter
                 //border.Child = item;
                 //item.Style = 
                 CreateRevitLevelEntries(item, elem.Name);
-
+                CreateRAMLayoutTypeEntries(ramStories);
             }
                 return revitLevelNames;
         }
@@ -96,7 +96,7 @@ namespace RevitReactionImporter
             var text = new FrameworkElementFactory(typeof(TextBlock));
             text.SetValue(TextBlock.TextProperty, elemName);
             text.SetValue(TextBlock.TextWrappingProperty, TextWrapping.Wrap);
-            text.SetValue(TextBlock.MarginProperty, new Thickness(5, 5, 25, 0));
+            text.SetValue(TextBlock.MarginProperty, new Thickness(5, 5, 5, 5));
             sp.AppendChild(text);
 
             dataTemplate.VisualTree = sp;
@@ -105,25 +105,21 @@ namespace RevitReactionImporter
             _view.RevitLevelTextBlocks.Items.Add(item);
         }
 
-        void CreateRAMLayoutTypeEntries(ListBoxItem item, string elemName)
+        void CreateRAMLayoutTypeEntries(List<RAMModel.Story> ramStories)
         {
-            var dataTemplate = new DataTemplate();
-            dataTemplate.DataType = typeof(TextBlock);
+            var combo = new System.Windows.Controls.ComboBox();
+            foreach(var ramFloorLayoutType in ramStories)
+            {
+                combo.Items.Add("  " + ramFloorLayoutType.LayoutType);
 
-            var sp = new FrameworkElementFactory(typeof(StackPanel));
-            sp.Name = "RAM Layout Type Listings";
-            sp.SetValue(StackPanel.OrientationProperty, System.Windows.Controls.Orientation.Vertical);
+            }
 
-            var text = new FrameworkElementFactory(typeof(TextBlock));
-            text.SetValue(TextBlock.TextProperty, elemName);
-            text.SetValue(TextBlock.TextWrappingProperty, TextWrapping.Wrap);
-            text.SetValue(TextBlock.MarginProperty, new Thickness(5, 5, 25, 0));
-            sp.AppendChild(text);
-
-            dataTemplate.VisualTree = sp;
-
-            item.ContentTemplate = dataTemplate;
-            _view.RevitLevelTextBlocks.Items.Add(item);
+            combo.Padding = new Thickness(1, 5, 1, 5);
+            combo.BorderThickness = new Thickness(1);
+            combo.Width = 200;
+            combo.SetValue(TextBlock.TextWrappingProperty, TextWrapping.Wrap);
+            combo.SetValue(TextBlock.MarginProperty, new Thickness(3, 9, 3, 9));
+            _view.RevitLevelsComboBoxes.Children.Add(combo);
         }
 
 
