@@ -29,6 +29,7 @@ namespace RevitReactionImporter
         private Document _document;
         public AnalyticalModel AnalyticalModel { get { return _analyticalModel; } }
         public RAMModel RAMModel { get { return _ramModel; } }
+        public bool IsLevelMappingSetByUser { get; set; }
 
         public ControlInterfaceViewModel(ControlInterfaceView view, Document doc,
             RevitReactionImporterApp rria, LevelMappingViewModel levelMappingViewModel, string projectId)
@@ -85,6 +86,11 @@ namespace RevitReactionImporter
         {
             LevelMappingViewModel.PopulateRevitLevelsAndRAMFloorLayoutTypes(revitLevelInfo, ramStories);
             _rria.SetupLevelMappingPane();
+        }
+
+        internal void SetLevelMappingFromUser(Dictionary<int, string> levelMapping)
+        {
+
         }
 
     }
