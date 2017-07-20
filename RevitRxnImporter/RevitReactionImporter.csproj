@@ -40,6 +40,10 @@
     <Reference Include="AdWindows">
       <HintPath>..\..\..\Program Files\Autodesk\Revit 2016\AdWindows.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="RevitAPI">
@@ -72,6 +76,8 @@
     <Compile Include="ExternalEvents\BaseIdleHandler.cs" />
     <Compile Include="ExternalEvents\ClearReactionsHandler.cs" />
     <Compile Include="ExternalEvents\ImportRAMReactionsHandler.cs" />
+    <Compile Include="ExternalEvents\SetLevelMappingFromUserHandler.cs" />
+    <Compile Include="LevelMappingHistory.cs" />
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

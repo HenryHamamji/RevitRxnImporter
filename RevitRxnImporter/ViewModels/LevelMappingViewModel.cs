@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using Newtonsoft.Json;
 
 namespace RevitReactionImporter
 {
@@ -32,6 +34,9 @@ namespace RevitReactionImporter
         public AnalyticalModel AnalyticalModel { get { return _analyticalModel; } }
         public RAMModel RAMModel { get { return _ramModel; } }
         public ObservableCollection<string> RevitLevelNames { get; private set; }
+        public Dictionary<int, string> LevelMappingFromUser { get; private set; }
+        public bool IsLevelMappingSetByUser { get; set; }
+
         public LevelMappingViewModel(LevelMappingView view, Document doc,
             RevitReactionImporterApp rria)
         {
@@ -45,6 +50,8 @@ namespace RevitReactionImporter
             _view = view;
             _view.ViewModel = this;
             _document = doc;
+            LevelMappingFromUser = new Dictionary<int, string>();
+            IsLevelMappingSetByUser = false;
 
         }
 
@@ -67,25 +74,23 @@ namespace RevitReactionImporter
 
             foreach (var elem in revitLevelInfo.Levels)
             {
-                var item = new ListBoxItem();
-                //item.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 111, 111, 255));
-                //item.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 0, 0, 0));
-                item.Padding = new Thickness(1, 8, 1, 8);
-                item.BorderThickness = new Thickness(1);
+                //var item = new ListBoxItem();
+                //item.Padding = new Thickness(1, 8, 1, 8);
+                //item.BorderThickness = new Thickness(1);
 
                 //var border = new Border();
                 //border.CornerRadius = new CornerRadius(2);
                 //border.BorderBrush = Brushes.SteelBlue;
                 //border.Child = item;
                 //item.Style = 
-                CreateRevitLevelEntries(item, elem.Name);
+                CreateRevitLevelEntries(elem.Name);
                 CreateRAMLayoutTypeEntries(ramStories);
             }
                 return revitLevelNames;
         }
 
 
-        void CreateRevitLevelEntries(ListBoxItem item, string elemName)
+        void CreateRevitLevelEntries(string elemName)
         {
             var dataTemplate = new DataTemplate();
             dataTemplate.DataType = typeof(TextBlock);
@@ -93,22 +98,26 @@ namespace RevitReactionImporter
             sp.Name = "Revit Level Listings";
             sp.SetValue(StackPanel.OrientationProperty, System.Windows.Controls.Orientation.Vertical);
 
-            var text = new FrameworkElementFactory(typeof(TextBlock));
+            var text = new TextBlock();
             text.SetValue(TextBlock.TextProperty, elemName);
             text.SetValue(TextBlock.TextWrappingProperty, TextWrapping.Wrap);
-            text.SetValue(TextBlock.MarginProperty, new Thickness(5, 5, 5, 5));
-            sp.AppendChild(text);
+            text.SetValue(TextBlock.MarginProperty, new Thickness(5, 14, 5, 14));
+            //sp.AppendChild(text);
 
             dataTemplate.VisualTree = sp;
 
-            item.ContentTemplate = dataTemplate;
-            _view.RevitLevelTextBlocks.Items.Add(item);
+            //item.ContentTemplate = dataTemplate;
+            //_view.RevitLevelTextBlocks.Items.Add(item);
+            _view.RevitLevelTextBlocks.Children.Add(text);
+
         }
 
         void CreateRAMLayoutTypeEntries(List<RAMModel.Story> ramStories)
         {
             var combo = new System.Windows.Controls.ComboBox();
-            foreach(var ramFloorLayoutType in ramStories)
+            combo.Items.Add("");
+
+            foreach (var ramFloorLayoutType in ramStories)
             {
                 combo.Items.Add("  " + ramFloorLayoutType.LayoutType);
 
@@ -122,10 +131,79 @@ namespace RevitReactionImporter
             _view.RevitLevelsComboBoxes.Children.Add(combo);
         }
 
+        public void SetLevelMappingFromUser()
+        {
+            var analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
 
+            for (int i=0; i < _view.RevitLevelTextBlocks.Children.Count; i++)
+            {
+                var revitLevelStackPanelItem = (System.Windows.Controls.TextBlock) _view.RevitLevelTextBlocks.Children[i];
+                string revitLevelName = revitLevelStackPanelItem.Text;
+                int revitLevelId = GetRevitLevelIdFromName(revitLevelName, analyticalModel.LevelInfo);
+                var ramFloorLayoutTypes = _view.RevitLevelsComboBoxes.Children;
+                var ramFloorLayoutTypeComboBox = (System.Windows.Controls.ComboBox)ramFloorLayoutTypes[i];
+                string ramFloorLayoutType = ramFloorLayoutTypeComboBox.Text;
+                LevelMappingFromUser[revitLevelId] = ramFloorLayoutType;
+            }
+            IsLevelMappingSetByUser = true;
+        }
 
+        int GetRevitLevelIdFromName(string revitLevelName, LevelInfo levelInfo)
+        {
+            return levelInfo.Levels.Where(i => i.Name == revitLevelName).FirstOrDefault().ElementId;
+        }
 
+        private static string GetLevelMappingHistoryFile()
+        {
+            var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            return System.IO.Path.Combine(folder, @"RAMDataImporter\history.txt");
+        }
 
+        public LevelMappingHistory LoadLevelMappingHistoryFromDisk()
+        {
+            string fullPath = GetLevelMappingHistoryFile();
+
+            if (!File.Exists(fullPath))
+                return new LevelMappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser);
+
+            var text = File.ReadAllText(fullPath);
+
+            LevelMappingHistory levelMappingHistory;
+
+            try
+            {
+                levelMappingHistory = JsonConvert.DeserializeObject<LevelMappingHistory>(text);
+            }
+            catch
+            {
+                return new LevelMappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser);
+            }
+
+            return levelMappingHistory;
+        }
+
+        public void SaveHistoryToDisk()
+        {
+            EnsureHistoryDirectoryExists();
+
+            string fullPath = GetLevelMappingHistoryFile();
+
+            var history = new LevelMappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser);
+            var histJson = JsonConvert.SerializeObject(history, Formatting.Indented);
+
+            System.IO.File.WriteAllText(fullPath, histJson);
+        }
+
+        private void EnsureHistoryDirectoryExists()
+        {
+            var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var dir = System.IO.Path.Combine(folder, "RAMDataImporter");
+
+            if (Directory.Exists(dir))
+                return;
+
+            Directory.CreateDirectory(dir);
+        }
 
 
 

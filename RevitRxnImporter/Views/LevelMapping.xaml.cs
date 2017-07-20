@@ -35,7 +35,7 @@ namespace RevitReactionImporter
         internal DockablePaneProviderData _paneProviderData = null;
         public DockablePaneId LevelMappingPaneId { get; set; }
 
-        //private ExternalEvent importRAMReactionsEvent;
+        private ExternalEvent setLevelMappingFromUserEvent;
         //private ExternalEvent clearReactionsEvent;
 
         public ObservableCollection<string> RevitLevelNames { get; set; }
@@ -52,9 +52,9 @@ namespace RevitReactionImporter
             DataContext = this;
 
 
-            //var importRAMReactionsHandler = new ImportRAMReactionsHandler();
-            //importRAMReactionsHandler.View = this;
-            //importRAMReactionsEvent = ExternalEvent.Create(importRAMReactionsHandler);
+            var setLevelMappingFromUserHandler = new SetLevelMappingFromUserHandler();
+            setLevelMappingFromUserHandler.View = this;
+            setLevelMappingFromUserEvent = ExternalEvent.Create(setLevelMappingFromUserHandler);
         }
 
         public void SetupDockablePane(DockablePaneProviderData data)
@@ -73,6 +73,14 @@ namespace RevitReactionImporter
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
+        }
+
+        private void OnClickSetLevelMappingFromUser(object sender, RoutedEventArgs e)
+        {
+            if (setLevelMappingFromUserEvent != null)
+                setLevelMappingFromUserEvent.Raise();
+            else
+                MessageBox.Show("SetLevelMappingFromUser event handler is null");
         }
     }
 }

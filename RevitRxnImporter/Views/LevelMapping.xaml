@@ -19,9 +19,9 @@
                 <RowDefinition Height="20" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <ListBox Background="Transparent" BorderThickness="0" Grid.Column ="0" x:Name="RevitLevelTextBlocks"/>
+            <StackPanel Grid.Column ="0" x:Name="RevitLevelTextBlocks"/>
                 <StackPanel Grid.Column="1" x:Name="RevitLevelsComboBoxes"/>
-            <Button Grid.Column ="1" Grid.Row ="3" Width="120"> Set Level Mapping </Button>
+            <Button Grid.Column ="1" Grid.Row ="3" Width="120" Click="OnClickSetLevelMappingFromUser"> Set Level Mapping </Button>
             </Grid>
             
     </ScrollViewer>

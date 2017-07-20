@@ -22,14 +22,16 @@ namespace RevitReactionImporter
         //private readonly JsonSerializerSettings jsonSettings;
         private AnalyticalModel _analyticalModel = null;
         private RAMModel _ramModel = null;
-        private LevelMappingViewModel LevelMappingViewModel = null;
+        private ModelCompare _modelCompare = null;
 
+        private LevelMappingViewModel LevelMappingViewModel = null;
         private ControlInterfaceView _view = null; // TODO: replace this connection with data binding
         public LevelMappingView _levelMappingView = null;
         private Document _document;
         public AnalyticalModel AnalyticalModel { get { return _analyticalModel; } }
+        public ModelCompare ModelCompare { get { return _modelCompare; } }
         public RAMModel RAMModel { get { return _ramModel; } }
-        public bool IsLevelMappingSetByUser { get; set; }
+        //public bool IsLevelMappingSetByUser { get; set; }
 
         public ControlInterfaceViewModel(ControlInterfaceView view, Document doc,
             RevitReactionImporterApp rria, LevelMappingViewModel levelMappingViewModel, string projectId)
@@ -42,7 +44,6 @@ namespace RevitReactionImporter
 
             _document = doc;
             _projectId = projectId;
-
 
             IList<RibbonItem> ribbonItems = _rria.RibbonPanel.GetItems();
             //_levelMappingView = new LevelMappingView();
@@ -67,7 +68,11 @@ namespace RevitReactionImporter
             RAMModel.ExecutePythonScript();
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
-            ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories);
+            if(!LevelMappingViewModel.IsLevelMappingSetByUser)
+            {
+                ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories);
+            }
+
             ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel);
             System.Windows.Forms.MessageBox.Show("Model Compare Working");
             var logger = new Logger(_projectId, results);
