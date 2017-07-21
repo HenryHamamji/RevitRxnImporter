@@ -152,7 +152,7 @@
             //System.Windows.Forms.MessageBox.Show(project.StructuralMembers.Beams[0].StartReactionTotal);
             //System.Windows.Forms.MessageBox.Show("RAM Reaction import button was clicked");
 
-            System.Windows.Forms.MessageBox.Show("Analytical Model Extracted");
+            //System.Windows.Forms.MessageBox.Show("Analytical Model Extracted");
 
             beamInstancedCollectorTransaction.Commit();
             return project;

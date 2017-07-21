@@ -19,7 +19,7 @@ namespace RevitReactionImporter
 
         private ExternalEvent importRAMReactionsEvent;
         private ExternalEvent clearReactionsEvent;
-
+        private ExternalEvent configureEvent;
         internal ObservableCollection<string> ConnectionTypes = new ObservableCollection<string>();
 
         public string SelectedConnectionType { get; set; }
@@ -37,6 +37,10 @@ namespace RevitReactionImporter
             var clearReactionsHandler = new ClearReactionsHandler();
             clearReactionsHandler.View = this;
             clearReactionsEvent = ExternalEvent.Create(clearReactionsHandler);
+
+            var configureHandler = new ConfigureHandler();
+            configureHandler.ControlInterfaceView = this;
+            configureEvent = ExternalEvent.Create(configureHandler);
         }
 
         public void SetupDockablePane(DockablePaneProviderData data)
@@ -68,6 +72,13 @@ namespace RevitReactionImporter
                 MessageBox.Show("ClearReactionsEvent event handler is null");
         }
 
+        private void OnConfigureClick(object sender, RoutedEventArgs e)
+        {
+            if (configureEvent != null)
+                configureEvent.Raise();
+            else
+                MessageBox.Show("ConfigureEvent event handler is null");
+        }
     }
 
     public enum ButtonType

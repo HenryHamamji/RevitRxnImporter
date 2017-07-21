@@ -68,10 +68,10 @@ namespace RevitReactionImporter
             RAMModel.ExecutePythonScript();
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
-            if(!LevelMappingViewModel.IsLevelMappingSetByUser)
-            {
+            //if(!LevelMappingViewModel.IsLevelMappingSetByUser)
+            //{
                 ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories);
-            }
+            //}
 
             ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel);
             System.Windows.Forms.MessageBox.Show("Model Compare Working");
@@ -89,8 +89,14 @@ namespace RevitReactionImporter
 
         internal void ShowLevelMappingPane(LevelInfo revitLevelInfo, List<RAMModel.Story> ramStories)
         {
-            LevelMappingViewModel.PopulateRevitLevelsAndRAMFloorLayoutTypes(revitLevelInfo, ramStories);
+            LevelMappingViewModel.PopulateRevitLevelsAndRAMFloorLayoutTypesOptions(revitLevelInfo, ramStories);
+            LevelMappingViewModel.PopulateLevelMapping(LevelMappingViewModel.LoadLevelMappingHistoryFromDisk());
             _rria.SetupLevelMappingPane();
+        }
+
+        internal void ConfigureOptions()
+        {
+
         }
 
         internal void SetLevelMappingFromUser(Dictionary<int, string> levelMapping)

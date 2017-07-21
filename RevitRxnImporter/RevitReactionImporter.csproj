@@ -75,6 +75,7 @@
   <ItemGroup>
     <Compile Include="ExternalEvents\BaseIdleHandler.cs" />
     <Compile Include="ExternalEvents\ClearReactionsHandler.cs" />
+    <Compile Include="ExternalEvents\ConfigureHandler.cs" />
     <Compile Include="ExternalEvents\ImportRAMReactionsHandler.cs" />
     <Compile Include="ExternalEvents\SetLevelMappingFromUserHandler.cs" />
     <Compile Include="LevelMappingHistory.cs" />
@@ -148,6 +149,11 @@
       <Project>{7579ccca-0a51-41e7-85ec-9aaca38a1f1e}</Project>
       <Name>RAMModel</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\configure.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -31,7 +31,8 @@ namespace RevitReactionImporter
         //private LevelMappingView _view { get { return _view; } }
 
         private Document _document;
-        public AnalyticalModel AnalyticalModel { get { return _analyticalModel; } }
+        //public AnalyticalModel AnalyticalModel { get { return _analyticalModel; } }
+        public AnalyticalModel AnalyticalModel { get; set; }
         public RAMModel RAMModel { get { return _ramModel; } }
         public ObservableCollection<string> RevitLevelNames { get; private set; }
         public Dictionary<int, string> LevelMappingFromUser { get; private set; }
@@ -52,10 +53,12 @@ namespace RevitReactionImporter
             _document = doc;
             LevelMappingFromUser = new Dictionary<int, string>();
             IsLevelMappingSetByUser = false;
-
+            var levelMappingHistory = LoadLevelMappingHistoryFromDisk();
+            IsLevelMappingSetByUser = levelMappingHistory.IsLevelMappingSetByUser;
+            //PopulateLevelMapping(levelMappingHistory);
         }
 
-        public ObservableCollection<string> PopulateRevitLevelsAndRAMFloorLayoutTypes(LevelInfo revitLevelInfo, List<RAMModel.Story> ramStories)
+        public ObservableCollection<string> PopulateRevitLevelsAndRAMFloorLayoutTypesOptions(LevelInfo revitLevelInfo, List<RAMModel.Story> ramStories)
         {
             var revitLevelNamesString = "";
             _view.RevitLevelNames = new ObservableCollection<string>();
@@ -131,10 +134,43 @@ namespace RevitReactionImporter
             _view.RevitLevelsComboBoxes.Children.Add(combo);
         }
 
+        public void PopulateLevelMapping(LevelMappingHistory levelMappingHistory)
+        {
+            // check if set by user.
+            if(IsLevelMappingSetByUser)
+            {
+                //if yes, then load from history.
+                LevelMappingFromUser = levelMappingHistory.LevelMappingFromUser;
+                SetValueOfRAMFloorLayoutTypeComboBoxesFromUser();
+            }
+            else
+            {
+                //if not set by user then load from algorithm.
+                //if algorithm was able to map then load that.
+                // if algorithm could not map, then leave them all blank.
+            }
+
+
+        }
+
+        public void SetValueOfRAMFloorLayoutTypeComboBoxesFromUser()
+        {
+            var analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
+            for (int i = 0; i < _view.RevitLevelTextBlocks.Children.Count; i++)
+            {
+                var revitLevelStackPanelItem = (System.Windows.Controls.TextBlock)_view.RevitLevelTextBlocks.Children[i];
+                string revitLevelName = revitLevelStackPanelItem.Text;
+                int revitLevelId = GetRevitLevelIdFromName(revitLevelName, analyticalModel.LevelInfo);
+                var ramFloorLayoutTypes = _view.RevitLevelsComboBoxes.Children;
+                var ramFloorLayoutTypeComboBox = (System.Windows.Controls.ComboBox)ramFloorLayoutTypes[i];
+                string selectedValue = LevelMappingFromUser[revitLevelId];
+                ramFloorLayoutTypeComboBox.SelectedValue = selectedValue;
+            }
+        }
+
         public void SetLevelMappingFromUser()
         {
             var analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
-
             for (int i=0; i < _view.RevitLevelTextBlocks.Children.Count; i++)
             {
                 var revitLevelStackPanelItem = (System.Windows.Controls.TextBlock) _view.RevitLevelTextBlocks.Children[i];
@@ -146,6 +182,7 @@ namespace RevitReactionImporter
                 LevelMappingFromUser[revitLevelId] = ramFloorLayoutType;
             }
             IsLevelMappingSetByUser = true;
+            SaveLevelMappingHistoryToDisk();
         }
 
         int GetRevitLevelIdFromName(string revitLevelName, LevelInfo levelInfo)
@@ -182,9 +219,9 @@ namespace RevitReactionImporter
             return levelMappingHistory;
         }
 
-        public void SaveHistoryToDisk()
+        public void SaveLevelMappingHistoryToDisk()
         {
-            EnsureHistoryDirectoryExists();
+            EnsureLevelMappingHistoryDirectoryExists();
 
             string fullPath = GetLevelMappingHistoryFile();
 
@@ -194,7 +231,7 @@ namespace RevitReactionImporter
             System.IO.File.WriteAllText(fullPath, histJson);
         }
 
-        private void EnsureHistoryDirectoryExists()
+        private void EnsureLevelMappingHistoryDirectoryExists()
         {
             var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var dir = System.IO.Path.Combine(folder, "RAMDataImporter");

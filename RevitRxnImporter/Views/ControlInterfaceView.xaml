@@ -22,7 +22,7 @@
             <Button Name="ImportRAMReactions"
                     Width="60"
                     Height="60"
-                    Margin="50 7 7 7"
+                    Margin="25 7 7 7"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     Click="OnImportBeamReactionsClick">
@@ -33,11 +33,22 @@
             <Button x:Name="ResetBeamReactions"
             	Width="60"
             	Height="60"
-            	Margin="60,7,7,0"
+            	Margin="50,7,7,0"
             	HorizontalAlignment="Left"
             	VerticalAlignment="Top"
             	Click="OnResetBeamReactionsClick" RenderTransformOrigin="2.427,0.448">
                 <Image Source="/RevitReactionImporterApp;component/Resources/reset.png"
+                       Width="60"
+                       Height="50"/>
+            </Button>
+            <Button x:Name="Configure"
+            	Width="60"
+            	Height="60"
+            	Margin="60,7,7,0"
+            	HorizontalAlignment="Left"
+            	VerticalAlignment="Top"
+            	Click="OnConfigureClick" RenderTransformOrigin="2.427,0.448">
+                <Image Source="/RevitReactionImporterApp;component/Resources/configure.png"
                        Width="60"
                        Height="50"/>
             </Button>
@@ -46,15 +57,23 @@
         <StackPanel Grid.Row="1"
                     Orientation="Horizontal">
             <TextBlock Name="ImportReactionsText"
-                       Width="120"
-                       Margin="20,0,7,7"
-                       Text="Import RAM Reactions"
-                       TextAlignment="Center" />
+                       Width="100"
+                       Margin="5,0,5,7"
+                       Text="Import Beam Reactions"
+                       TextAlignment="Center"
+                       FontSize="9"/>
             <TextBlock Name="ResetBeamReactionsText"
-                       Width="130"
-                       Margin="0,0,7,7"
+                       Width="100"
+                       Margin="15,0,5,7"
                        Text="Reset Beam Reactions"
-                       TextAlignment="Center" />
+                       TextAlignment="Center"
+                       FontSize="9"/>
+            <TextBlock Name="ConfigureText"
+                       Width="100"
+                       Margin="17.5,0,7,7"
+                       Text="Configure"
+                       TextAlignment="Center"
+                       FontSize="9"/>
         </StackPanel>
 
     </Grid>
