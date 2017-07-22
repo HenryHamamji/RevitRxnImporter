@@ -147,7 +147,9 @@ namespace RevitReactionImporter
             {
                 //if not set by user then load from algorithm.
                 //if algorithm was able to map then load that.
-                // if algorithm could not map, then leave them all blank.
+                // if algorithm could not map, then leave the mapping blank.
+
+                SetValueOfRAMFloorLayoutTypeComboBoxesFromAlgorithm();
             }
 
 
@@ -165,6 +167,26 @@ namespace RevitReactionImporter
                 var ramFloorLayoutTypeComboBox = (System.Windows.Controls.ComboBox)ramFloorLayoutTypes[i];
                 string selectedValue = LevelMappingFromUser[revitLevelId];
                 ramFloorLayoutTypeComboBox.SelectedValue = selectedValue;
+            }
+        }
+
+        public void SetValueOfRAMFloorLayoutTypeComboBoxesFromAlgorithm()
+        {
+            RAMModel.ExecutePythonScript();
+            RAMModel ramModel = RAMModel.DeserializeRAMModel();
+            var analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
+
+            ModelCompare.Results results = ModelCompare.CompareModels(ramModel, analyticalModel);
+
+            for (int i = 0; i < _view.RevitLevelTextBlocks.Children.Count; i++)
+            {
+                var revitLevelStackPanelItem = (System.Windows.Controls.TextBlock)_view.RevitLevelTextBlocks.Children[i];
+                string revitLevelName = revitLevelStackPanelItem.Text;
+                int revitLevelId = GetRevitLevelIdFromName(revitLevelName, analyticalModel.LevelInfo);
+                var ramFloorLayoutTypes = _view.RevitLevelsComboBoxes.Children;
+                var ramFloorLayoutTypeComboBox = (System.Windows.Controls.ComboBox)ramFloorLayoutTypes[i];
+                string selectedValue = results.LevelMapping[revitLevelId];
+                ramFloorLayoutTypeComboBox.SelectedValue = "  " + selectedValue;
             }
         }
 

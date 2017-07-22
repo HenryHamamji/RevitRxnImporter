@@ -677,7 +677,10 @@ namespace RevitReactionImporter
                 }
                 else
                 {
-                    throw new Exception("Unable to map levels. RAM model levels are different from Revit model levels");
+                    // Unable to map levels.
+                    // RAM model levels are different from Revit model levels.
+                    // Return empty mapping.
+                    levelMappingDict[revitLevelId] = "";
                 }
 
             }
