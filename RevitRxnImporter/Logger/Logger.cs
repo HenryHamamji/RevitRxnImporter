@@ -25,8 +25,6 @@ namespace RevitReactionImporter
             var path = PathUtils.GetLogFile(ProjectId);
             path = PathUtils.GetUserFreandlyLogFile(ProjectId);
             File.WriteAllText(path, String.Empty);
-            //var result = "test stirng to append";
-            //File.AppendAllText(path, result + Environment.NewLine);
             using (var stream = new FileStream(path, FileMode.Truncate))
             {
                 using (var writer = new StreamWriter(stream))

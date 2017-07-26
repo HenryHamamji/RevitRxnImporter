@@ -17,7 +17,7 @@ namespace RevitReactionImporter
     public class ControlInterfaceViewModel
     {
         private RevitReactionImporterApp _rria;
-        private string _projectId = "";
+        public string _projectId = "";
 
         //private readonly JsonSerializerSettings jsonSettings;
         private AnalyticalModel _analyticalModel = null;
@@ -102,9 +102,9 @@ namespace RevitReactionImporter
             ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories);
         }
 
-        internal void ShowDataFileBrowserWindow()
+        internal void ShowDataFileBrowserWindow(string projectId)
         {
-            DataFileBrowser dataFileBrowser = new DataFileBrowser();
+            DataFileBrowser dataFileBrowser = new DataFileBrowser(projectId);
             dataFileBrowser.Show();
         }
 

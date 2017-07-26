@@ -11,7 +11,7 @@ namespace RevitReactionImporter
             if (ControlInterfaceView.ViewModel == null)
                 return;
 
-            ControlInterfaceView.ViewModel.ShowDataFileBrowserWindow();
+            ControlInterfaceView.ViewModel.ShowDataFileBrowserWindow(ControlInterfaceView.ViewModel._projectId);
         }
 
         public override string GetName()

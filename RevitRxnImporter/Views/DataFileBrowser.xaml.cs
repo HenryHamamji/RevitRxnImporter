@@ -23,11 +23,17 @@ namespace RevitReactionImporter
     /// </summary>
     public partial class DataFileBrowser : Window
     {
+        private string ProjectId { get; set; }
         public string RAMModelMetaDataFilePath { get; set; }
         public string RAMModelReactionsFilePath { get; set; }
+        public string RAMModelStudsFilePath { get; set; }
+        public string RAMModelCamberFilePath { get; set; }
+        public string RAMModelSizesFilePath { get; set; }
 
-        public DataFileBrowser()
+
+        public DataFileBrowser(string projectId)
         {
+            ProjectId = projectId;
             InitializeComponent();
         }
 
@@ -42,13 +48,33 @@ namespace RevitReactionImporter
                 string fileName = openFileDialog.FileName;
                 txtEditor.Text = fileName;
                 RAMModelMetaDataFilePath = fileName;
+                WriteRAMMetaDetaFilePathsToFile();
             }
         }
 
         private void WriteRAMMetaDetaFilePathsToFile()
         {
-            string[] lines = { "First line", "Second line", "Third line" };
-            System.IO.File.WriteAllLines(@"C:\Users\Public\TestFolder\WriteLines.txt", lines);
+            var path = GetMetaDataFile(ProjectId);
+            File.WriteAllText(path, String.Empty);
+            using (var stream = new FileStream(path, FileMode.Truncate))
+            {
+                using (var writer = new StreamWriter(stream))
+                {
+                    writer.Write("Model: " + RAMModelMetaDataFilePath + Environment.NewLine);
+                    writer.Write("Reactions: " + RAMModelReactionsFilePath + Environment.NewLine);
+
+                }
+            }
+        }
+
+        internal static string GetMetaDataFile(string projectId)
+        {
+            var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var dir = System.IO.Path.Combine(folder, @"RevitRxnImporter\metadata");
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            return System.IO.Path.Combine(dir, string.Format("metadata.txt"));
         }
     }
 }
