@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace RevitReactionImporter
 {
-    public class LevelMappingHistory
+    public class MappingHistory
     {
         public bool IsLevelMappingSetByUser { get; set; }
         public Dictionary<int, string> LevelMappingFromUser { get; set; }
 
-        public LevelMappingHistory(bool isLevelMappingSetByUser, Dictionary<int, string> levelMappingFromUser)
+        public MappingHistory(bool isLevelMappingSetByUser, Dictionary<int, string> levelMappingFromUser)
         {
             IsLevelMappingSetByUser = isLevelMappingSetByUser;
             LevelMappingFromUser = levelMappingFromUser;

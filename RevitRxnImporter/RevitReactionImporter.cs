@@ -197,13 +197,20 @@ namespace RevitReactionImporter
         {
             PushButton appButton = panel.AddItem(new PushButtonData("RAM Reaction Importer", "Import RAM Reactions", _assemblyPath, "RevitReactionImporter.ControlInterfaceDockingPane")) as PushButton;
             appButton.ToolTip = "RAM Reaction Importer";
-            System.Windows.Media.Imaging.BitmapImage image = new System.Windows.Media.Imaging.BitmapImage();
-            image.BeginInit();
-            image.UriSource = new Uri(@"C:\dev\RevitRxnImporter\RevitRxnImporter\Resources\icon.jpg");
-            image.DecodePixelHeight = 175;
-            appButton.Image = image;
-            appButton.LargeImage = image;
-            image.EndInit();
+            System.Windows.Media.Imaging.BitmapImage imagePushButton = new System.Windows.Media.Imaging.BitmapImage();
+            imagePushButton.BeginInit();
+            imagePushButton.UriSource = new Uri(@"C:\dev\RevitRxnImporter\RevitRxnImporter\Resources\icon.jpeg");
+            imagePushButton.DecodePixelHeight = 50;
+            appButton.Image = imagePushButton;
+            appButton.LargeImage = imagePushButton;
+            imagePushButton.EndInit();
+
+            System.Windows.Media.Imaging.BitmapImage imageToolTip = new System.Windows.Media.Imaging.BitmapImage();
+            imageToolTip.BeginInit();
+            imageToolTip.UriSource = new Uri(@"C:\dev\RevitRxnImporter\RevitRxnImporter\Resources\icon.jpeg");
+            imageToolTip.DecodePixelHeight = 200;
+            appButton.ToolTipImage = imageToolTip;
+            imageToolTip.EndInit();
         }
 
 

@@ -8,74 +8,100 @@
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </Page.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Background="White">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="25" />
 
-    <Grid Background="White">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="25" />
-            <RowDefinition Height="50" />
-        </Grid.RowDefinitions>
+            </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0"
+            <StackPanel Grid.Row="0"
                     Orientation="Horizontal">
 
-            <Button Name="ImportRAMReactions"
+                <Button Name="ImportRAMReactions"
                     Width="60"
                     Height="60"
                     Margin="25 7 7 7"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     Click="OnImportBeamReactionsClick">
-                <Image Source="/RevitReactionImporterApp;component/Resources/import.jpg"
+                    <Image Source="/RevitReactionImporterApp;component/Resources/import.jpg"
                        Width="50"
                        Height="60"/>
-            </Button>
-            <Button x:Name="ResetBeamReactions"
+                </Button>
+                <Button x:Name="ResetBeamReactions"
             	Width="60"
             	Height="60"
             	Margin="50,7,7,0"
             	HorizontalAlignment="Left"
             	VerticalAlignment="Top"
             	Click="OnResetBeamReactionsClick" RenderTransformOrigin="2.427,0.448">
-                <Image Source="/RevitReactionImporterApp;component/Resources/reset.png"
+                    <Image Source="/RevitReactionImporterApp;component/Resources/reset.png"
                        Width="60"
                        Height="50"/>
-            </Button>
-            <Button x:Name="Configure"
-            	Width="60"
-            	Height="60"
-            	Margin="60,7,7,0"
-            	HorizontalAlignment="Left"
-            	VerticalAlignment="Top"
-            	Click="OnConfigureClick" RenderTransformOrigin="2.427,0.448">
-                <Image Source="/RevitReactionImporterApp;component/Resources/configure.png"
-                       Width="60"
-                       Height="50"/>
-            </Button>
+                </Button>
 
-        </StackPanel>
-        <StackPanel Grid.Row="1"
+            </StackPanel>
+            <StackPanel Grid.Row="1"
                     Orientation="Horizontal">
-            <TextBlock Name="ImportReactionsText"
+                <TextBlock Name="ImportReactionsText"
                        Width="100"
                        Margin="5,0,5,7"
                        Text="Import Beam Reactions"
                        TextAlignment="Center"
                        FontSize="9"/>
-            <TextBlock Name="ResetBeamReactionsText"
+                <TextBlock Name="ResetBeamReactionsText"
                        Width="100"
                        Margin="15,0,5,7"
                        Text="Reset Beam Reactions"
                        TextAlignment="Center"
                        FontSize="9"/>
-            <TextBlock Name="ConfigureText"
+            </StackPanel>
+            <StackPanel Grid.Row="3"
+                    Orientation="Horizontal">
+                <Button x:Name="ConfigureLevelMapping"
+            	Width="60"
+            	Height="60"
+            	Margin="25 7 7 7"
+            	HorizontalAlignment="Left"
+            	VerticalAlignment="Top"
+            	Click="OnConfigureClick" RenderTransformOrigin="2.427,0.448">
+                    <Image Source="/RevitReactionImporterApp;component/Resources/configure.png"
+                       Width="60"
+                       Height="50"/>
+                </Button>
+                <Button x:Name="AssignDataFiles"
+            	Width="60"
+            	Height="60"
+            	Margin="50,7,7,0"
+            	HorizontalAlignment="Left"
+            	VerticalAlignment="Top"
+            	Click="OnAssignDataFilesClick" RenderTransformOrigin="2.427,0.448">
+                    <Image Source="/RevitReactionImporterApp;component/Resources/files.png"
+                       Width="60"
+                       Height="50"/>
+                </Button>
+            </StackPanel>
+            <StackPanel Grid.Row="4"
+                    Orientation="Horizontal">
+                <TextBlock Name="ConfigureText"
                        Width="100"
-                       Margin="17.5,0,7,7"
-                       Text="Configure"
+                       Margin="5,0,5,7"
+                       Text="Configure Level Mapping"
                        TextAlignment="Center"
                        FontSize="9"/>
-        </StackPanel>
+                <TextBlock Name="AssignDataFilesText"
+                       Width="100"
+                       Margin="15,0,5,7"
+                       Text="Assign Data Files"
+                       TextAlignment="Center"
+                       FontSize="9"/>
+            </StackPanel>
 
-    </Grid>
-
+        </Grid>
+    </ScrollViewer>
 </Page>

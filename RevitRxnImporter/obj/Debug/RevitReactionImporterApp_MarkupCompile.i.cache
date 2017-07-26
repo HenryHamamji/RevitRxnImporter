@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 
-2-1363030939
+3452700970
 
-201387501627
+22885924552
 30-1028137282
-Views\ControlInterfaceView.xaml;Views\LevelMapping.xaml;
+Views\ControlInterfaceView.xaml;Views\DataFileBrowser.xaml;Views\LevelMapping.xaml;
 
 False
 

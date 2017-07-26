@@ -73,12 +73,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExternalEvents\AssignDataFilesHandler.cs" />
     <Compile Include="ExternalEvents\BaseIdleHandler.cs" />
     <Compile Include="ExternalEvents\ClearReactionsHandler.cs" />
     <Compile Include="ExternalEvents\ConfigureHandler.cs" />
     <Compile Include="ExternalEvents\ImportRAMReactionsHandler.cs" />
     <Compile Include="ExternalEvents\SetLevelMappingFromUserHandler.cs" />
-    <Compile Include="LevelMappingHistory.cs" />
+    <Compile Include="MappingHistory.cs" />
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -96,6 +97,9 @@
     <Compile Include="Views\ControlInterfaceView.xaml.Designer.cs">
       <DependentUpon>ControlInterfaceView.xaml.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\DataFileBrowser.xaml.cs">
+      <DependentUpon>DataFileBrowser.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\LevelMapping.xaml.cs">
       <DependentUpon>LevelMapping.xaml</DependentUpon>
     </Compile>
@@ -108,13 +112,16 @@
       <SubType>Form</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\DataFileBrowser.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\LevelMapping.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\icon.jpg" />
     <Resource Include="Resources\import.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
@@ -126,6 +133,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -152,6 +160,16 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\configure.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\icon.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\files.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

@@ -90,19 +90,28 @@ namespace RevitReactionImporter
         internal void ShowLevelMappingPane(LevelInfo revitLevelInfo, List<RAMModel.Story> ramStories)
         {
             LevelMappingViewModel.PopulateRevitLevelsAndRAMFloorLayoutTypesOptions(revitLevelInfo, ramStories);
-            LevelMappingViewModel.PopulateLevelMapping(LevelMappingViewModel.LoadLevelMappingHistoryFromDisk());
+            LevelMappingViewModel.PopulateLevelMapping(LevelMappingViewModel.LoadMappingHistoryFromDisk());
             _rria.SetupLevelMappingPane();
         }
 
-        internal void ConfigureOptions()
+        internal void ConfigureLevelMapping()
         {
-
+            RAMModel.ExecutePythonScript();
+            RAMModel _ramModel = RAMModel.DeserializeRAMModel();
+            _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
+            ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories);
         }
 
-        internal void SetLevelMappingFromUser(Dictionary<int, string> levelMapping)
+        internal void ShowDataFileBrowserWindow()
         {
-
+            DataFileBrowser dataFileBrowser = new DataFileBrowser();
+            dataFileBrowser.Show();
         }
+
+        //internal void SetLevelMappingFromUser(Dictionary<int, string> levelMapping)
+        //{
+
+        //}
 
     }
 }

@@ -189,7 +189,7 @@ namespace RevitReactionImporter
             var startInfo = new System.Diagnostics.ProcessStartInfo
             {
                 WorkingDirectory = @"C:\dev\RAM Reaction Importer\RAM-Reaction-Importer",
-                WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal,
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
                 FileName = "cmd.exe",
                 RedirectStandardInput = true,
                 UseShellExecute = false

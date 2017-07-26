@@ -29,7 +29,6 @@ namespace RevitReactionImporter
 
         private LevelMappingView _view = null; // TODO: replace this connection with data binding
         //private LevelMappingView _view { get { return _view; } }
-
         private Document _document;
         //public AnalyticalModel AnalyticalModel { get { return _analyticalModel; } }
         public AnalyticalModel AnalyticalModel { get; set; }
@@ -53,8 +52,8 @@ namespace RevitReactionImporter
             _document = doc;
             LevelMappingFromUser = new Dictionary<int, string>();
             IsLevelMappingSetByUser = false;
-            var levelMappingHistory = LoadLevelMappingHistoryFromDisk();
-            IsLevelMappingSetByUser = levelMappingHistory.IsLevelMappingSetByUser;
+            var mappingHistory = LoadMappingHistoryFromDisk();
+            IsLevelMappingSetByUser = mappingHistory.IsLevelMappingSetByUser;
             //PopulateLevelMapping(levelMappingHistory);
         }
 
@@ -134,7 +133,7 @@ namespace RevitReactionImporter
             _view.RevitLevelsComboBoxes.Children.Add(combo);
         }
 
-        public void PopulateLevelMapping(LevelMappingHistory levelMappingHistory)
+        public void PopulateLevelMapping(MappingHistory levelMappingHistory)
         {
             // check if set by user.
             if(IsLevelMappingSetByUser)
@@ -218,24 +217,24 @@ namespace RevitReactionImporter
             return System.IO.Path.Combine(folder, @"RAMDataImporter\history.txt");
         }
 
-        public LevelMappingHistory LoadLevelMappingHistoryFromDisk()
+        public MappingHistory LoadMappingHistoryFromDisk()
         {
             string fullPath = GetLevelMappingHistoryFile();
 
             if (!File.Exists(fullPath))
-                return new LevelMappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser);
+                return new MappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser);
 
             var text = File.ReadAllText(fullPath);
 
-            LevelMappingHistory levelMappingHistory;
+            MappingHistory levelMappingHistory;
 
             try
             {
-                levelMappingHistory = JsonConvert.DeserializeObject<LevelMappingHistory>(text);
+                levelMappingHistory = JsonConvert.DeserializeObject<MappingHistory>(text);
             }
             catch
             {
-                return new LevelMappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser);
+                return new MappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser);
             }
 
             return levelMappingHistory;
@@ -247,7 +246,7 @@ namespace RevitReactionImporter
 
             string fullPath = GetLevelMappingHistoryFile();
 
-            var history = new LevelMappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser);
+            var history = new MappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser);
             var histJson = JsonConvert.SerializeObject(history, Formatting.Indented);
 
             System.IO.File.WriteAllText(fullPath, histJson);
