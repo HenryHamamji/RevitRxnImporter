@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using Microsoft.Win32;
+using Autodesk.Revit.UI;
 
 
 namespace RevitReactionImporter
@@ -29,12 +30,19 @@ namespace RevitReactionImporter
         public string RAMModelStudsFilePath { get; set; }
         public string RAMModelCamberFilePath { get; set; }
         public string RAMModelSizesFilePath { get; set; }
+        private ExternalEvent assignDataFilesEvent;
 
 
-        public DataFileBrowser(string projectId)
+        public DataFileBrowser(string projectId, ControlInterfaceView controlInterfaceView)
         {
             ProjectId = projectId;
             InitializeComponent();
+
+            var assignDataFilesHandler = new AssignDataFilesHandler();
+            assignDataFilesHandler.DataFileBrowser = this;
+            assignDataFilesHandler.ControlInterfaceView = controlInterfaceView;
+            assignDataFilesEvent = ExternalEvent.Create(assignDataFilesHandler);
+
         }
 
         private void onBrowseFileClick(object sender, RoutedEventArgs e)
@@ -48,10 +56,12 @@ namespace RevitReactionImporter
                 string fileName = openFileDialog.FileName;
                 txtEditor.Text = fileName;
                 RAMModelMetaDataFilePath = fileName;
-                WriteRAMMetaDetaFilePathsToFile();
+                OnOpenFileDialogIsTrue();
+                //WriteRAMMetaDetaFilePathsToFile();
             }
         }
 
+        //todo: remove
         private void WriteRAMMetaDetaFilePathsToFile()
         {
             var path = GetMetaDataFile(ProjectId);
@@ -76,5 +86,16 @@ namespace RevitReactionImporter
 
             return System.IO.Path.Combine(dir, string.Format("metadata.txt"));
         }
+
+        private void OnOpenFileDialogIsTrue()
+        {
+            if (assignDataFilesEvent != null)
+                assignDataFilesEvent.Raise();
+            else
+                MessageBox.Show("AssignDataFilesEvent event handler is null");
+        }
+
+
+
     }
 }

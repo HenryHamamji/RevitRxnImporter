@@ -32,6 +32,12 @@ namespace RevitReactionImporter
         public ModelCompare ModelCompare { get { return _modelCompare; } }
         public RAMModel RAMModel { get { return _ramModel; } }
         //public bool IsLevelMappingSetByUser { get; set; }
+        public string RAMModelMetaDataFilePath { get; set; }
+        public string RAMModelReactionsFilePath { get; set; }
+        public string RAMModelStudsFilePath { get; set; }
+        public string RAMModelCamberFilePath { get; set; }
+        public string RAMModelSizesFilePath { get; set; }
+
 
         public ControlInterfaceViewModel(ControlInterfaceView view, Document doc,
             RevitReactionImporterApp rria, LevelMappingViewModel levelMappingViewModel, string projectId)
@@ -65,12 +71,12 @@ namespace RevitReactionImporter
 
             //RevitApplication.RegisterDockablePane(_controlPaneId, "RAM to Revit Reaction Importer", ControlInterfaceView);
 
-            RAMModel.ExecutePythonScript();
+            RAMModel.ExecutePythonScript(RAMModelMetaDataFilePath);
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
             //if(!LevelMappingViewModel.IsLevelMappingSetByUser)
             //{
-                ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories);
+                ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMModelMetaDataFilePath);
             //}
 
             ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel);
@@ -87,31 +93,32 @@ namespace RevitReactionImporter
         {
         }
 
-        internal void ShowLevelMappingPane(LevelInfo revitLevelInfo, List<RAMModel.Story> ramStories)
+        internal void ShowLevelMappingPane(LevelInfo revitLevelInfo, List<RAMModel.Story> ramStories, string filePath)
         {
             LevelMappingViewModel.PopulateRevitLevelsAndRAMFloorLayoutTypesOptions(revitLevelInfo, ramStories);
-            LevelMappingViewModel.PopulateLevelMapping(LevelMappingViewModel.LoadMappingHistoryFromDisk());
+            LevelMappingViewModel.PopulateLevelMapping(LevelMappingViewModel.LoadMappingHistoryFromDisk(), filePath);
             _rria.SetupLevelMappingPane();
         }
 
         internal void ConfigureLevelMapping()
         {
-            RAMModel.ExecutePythonScript();
+            RAMModel.ExecutePythonScript(RAMModelMetaDataFilePath); // list of file paths
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
-            ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories);
+            ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMModelMetaDataFilePath);
         }
 
         internal void ShowDataFileBrowserWindow(string projectId)
         {
-            DataFileBrowser dataFileBrowser = new DataFileBrowser(projectId);
+            DataFileBrowser dataFileBrowser = new DataFileBrowser(projectId, _view);
             dataFileBrowser.Show();
         }
 
-        //internal void SetLevelMappingFromUser(Dictionary<int, string> levelMapping)
-        //{
 
-        //}
+        internal void AssignDataFiles(string filePath) // list of filepaths
+        {
+            RAMModelMetaDataFilePath = filePath;
+        }
 
     }
 }

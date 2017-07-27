@@ -133,7 +133,7 @@ namespace RevitReactionImporter
             _view.RevitLevelsComboBoxes.Children.Add(combo);
         }
 
-        public void PopulateLevelMapping(MappingHistory levelMappingHistory)
+        public void PopulateLevelMapping(MappingHistory levelMappingHistory, string filePath)
         {
             // check if set by user.
             if(IsLevelMappingSetByUser)
@@ -148,7 +148,7 @@ namespace RevitReactionImporter
                 //if algorithm was able to map then load that.
                 // if algorithm could not map, then leave the mapping blank.
 
-                SetValueOfRAMFloorLayoutTypeComboBoxesFromAlgorithm();
+                SetValueOfRAMFloorLayoutTypeComboBoxesFromAlgorithm(filePath);
             }
 
 
@@ -169,9 +169,9 @@ namespace RevitReactionImporter
             }
         }
 
-        public void SetValueOfRAMFloorLayoutTypeComboBoxesFromAlgorithm()
+        public void SetValueOfRAMFloorLayoutTypeComboBoxesFromAlgorithm(string filePath)
         {
-            RAMModel.ExecutePythonScript();
+            RAMModel.ExecutePythonScript(filePath);
             RAMModel ramModel = RAMModel.DeserializeRAMModel();
             var analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
 

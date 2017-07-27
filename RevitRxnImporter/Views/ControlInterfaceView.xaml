@@ -80,7 +80,7 @@
             	Margin="50,7,7,0"
             	HorizontalAlignment="Left"
             	VerticalAlignment="Top"
-            	Click="OnAssignDataFilesClick" RenderTransformOrigin="2.427,0.448">
+            	Click="OnShowDataFilesBrowserClick" RenderTransformOrigin="2.427,0.448">
                     <Image Source="/RevitReactionImporterApp;component/Resources/files.png"
                        Width="60"
                        Height="50"/>

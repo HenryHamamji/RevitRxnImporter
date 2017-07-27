@@ -74,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExternalEvents\AssignDataFilesHandler.cs" />
+    <Compile Include="ExternalEvents\ShowDataFilesBrowserHandler.cs" />
     <Compile Include="ExternalEvents\BaseIdleHandler.cs" />
     <Compile Include="ExternalEvents\ClearReactionsHandler.cs" />
     <Compile Include="ExternalEvents\ConfigureHandler.cs" />

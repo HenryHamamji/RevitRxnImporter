@@ -20,7 +20,7 @@ namespace RevitReactionImporter
         private ExternalEvent importRAMReactionsEvent;
         private ExternalEvent clearReactionsEvent;
         private ExternalEvent configureEvent;
-        private ExternalEvent assignDataFilesEvent;
+        private ExternalEvent showDataFilesBrowserEvent;
         internal ObservableCollection<string> ConnectionTypes = new ObservableCollection<string>();
 
         public string SelectedConnectionType { get; set; }
@@ -43,9 +43,10 @@ namespace RevitReactionImporter
             configureHandler.ControlInterfaceView = this;
             configureEvent = ExternalEvent.Create(configureHandler);
 
-            var assignDataFilesHandler = new AssignDataFilesHandler();
-            assignDataFilesHandler.ControlInterfaceView = this;
-            assignDataFilesEvent = ExternalEvent.Create(assignDataFilesHandler);
+            var showDataFilesBrowserHandler = new ShowDataFilesBrowserHandler();
+            showDataFilesBrowserHandler.ControlInterfaceView = this;
+            showDataFilesBrowserEvent = ExternalEvent.Create(showDataFilesBrowserHandler);
+
         }
 
         public void SetupDockablePane(DockablePaneProviderData data)
@@ -85,12 +86,12 @@ namespace RevitReactionImporter
                 MessageBox.Show("ConfigureEvent event handler is null");
         }
 
-        private void OnAssignDataFilesClick(object sender, RoutedEventArgs e)
+        private void OnShowDataFilesBrowserClick(object sender, RoutedEventArgs e)
         {
-            if (assignDataFilesEvent != null)
-                assignDataFilesEvent.Raise();
+            if (showDataFilesBrowserEvent != null)
+                showDataFilesBrowserEvent.Raise();
             else
-                MessageBox.Show("AssignDataFilesEvent event handler is null");
+                MessageBox.Show("ShowDataFilesBrowserEvent event handler is null");
         }
 
     }
