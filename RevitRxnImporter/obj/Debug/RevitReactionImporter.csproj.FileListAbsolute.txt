@@ -80,3 +80,5 @@ C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporterApp.pdb
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\Newtonsoft.Json.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\DataFileBrowser.baml
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\DataFileBrowser.g.cs
+C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Interop.VBIDE.dll
+C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporter.csproj.ResolveComReference.cache

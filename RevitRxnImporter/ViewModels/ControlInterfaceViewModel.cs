@@ -36,8 +36,7 @@ namespace RevitReactionImporter
         public string RAMModelReactionsFilePath { get; set; }
         public string RAMModelStudsFilePath { get; set; }
         public string RAMModelCamberFilePath { get; set; }
-        public string RAMModelSizesFilePath { get; set; }
-
+        public List<string> RAMFiles { get; set; }
 
         public ControlInterfaceViewModel(ControlInterfaceView view, Document doc,
             RevitReactionImporterApp rria, LevelMappingViewModel levelMappingViewModel, string projectId)
@@ -52,6 +51,7 @@ namespace RevitReactionImporter
             _projectId = projectId;
 
             IList<RibbonItem> ribbonItems = _rria.RibbonPanel.GetItems();
+            RAMFiles = new List<string>();
             //_levelMappingView = new LevelMappingView();
         }
 
@@ -64,48 +64,114 @@ namespace RevitReactionImporter
         public void ImportBeamReactions()
         {
 
+            // Gather the input files.
+            GatherRAMFiles();
+            // Check if required files are loaded.
+            if (!AreRequiredFilesForBeamReactionsLoaded())
+            {
+                System.Windows.Forms.MessageBox.Show("RAM Model & RAM Beam Reaction Files Have Not Been Loaded. Please Load these two files.");
+                return;
+            }
 
-            //_controlPaneId = new DockablePaneId(Guid.NewGuid());
-
-            //ControlInterfaceView = new ControlInterfaceView();
-
-            //RevitApplication.RegisterDockablePane(_controlPaneId, "RAM to Revit Reaction Importer", ControlInterfaceView);
-
-            RAMModel.ExecutePythonScript(RAMModelMetaDataFilePath);
+            RAMModel.ExecutePythonScript(RAMFiles);
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
             //if(!LevelMappingViewModel.IsLevelMappingSetByUser)
             //{
-                ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMModelMetaDataFilePath);
+                ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
             //}
 
             ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel);
             System.Windows.Forms.MessageBox.Show("Model Compare Working");
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
-
-
-
         }
+
+        internal bool AreRequiredFilesForBeamReactionsLoaded()
+        {
+            bool modelFilePresent = !string.IsNullOrEmpty(RAMModelMetaDataFilePath);
+            bool reactionsFilePresent = !string.IsNullOrEmpty(RAMModelReactionsFilePath);
+            if(modelFilePresent && reactionsFilePresent)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        internal bool AreRequiredFilesForBeamStudsOrBeamSizesLoaded()
+        {
+            // beam sizes file path is the same as the studs file path = summary file.
+            bool modelFilePresent = !string.IsNullOrEmpty(RAMModelMetaDataFilePath);
+            bool studsorBeamSizesFilePresent = !string.IsNullOrEmpty(RAMModelStudsFilePath);
+            if (modelFilePresent && studsorBeamSizesFilePresent)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        internal bool AreRequiredFilesForBeamCamberLoaded()
+        {
+            bool modelFilePresent = !string.IsNullOrEmpty(RAMModelMetaDataFilePath);
+            bool camberFilePresent = !string.IsNullOrEmpty(RAMModelCamberFilePath);
+            if (modelFilePresent && camberFilePresent)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        internal void GatherRAMFiles()
+        {
+            var files = new List<string>();
+            if(!string.IsNullOrEmpty(RAMModelMetaDataFilePath))
+            {
+                files.Add(RAMModelMetaDataFilePath);
+            }
+            if(!string.IsNullOrEmpty(RAMModelReactionsFilePath))
+            {
+                files.Add(RAMModelReactionsFilePath);
+            }
+            if(!string.IsNullOrEmpty(RAMModelStudsFilePath))
+            {
+                files.Add(RAMModelStudsFilePath);
+            }
+            if(!string.IsNullOrEmpty(RAMModelCamberFilePath))
+            {
+                files.Add(RAMModelCamberFilePath);
+            }
+
+            RAMFiles = files;
+        }
+        
 
 
         public void ResetBeamReactions()
         {
         }
 
-        internal void ShowLevelMappingPane(LevelInfo revitLevelInfo, List<RAMModel.Story> ramStories, string filePath)
+        internal void ShowLevelMappingPane(LevelInfo revitLevelInfo, List<RAMModel.Story> ramStories, List<string> filePaths)
         {
             LevelMappingViewModel.PopulateRevitLevelsAndRAMFloorLayoutTypesOptions(revitLevelInfo, ramStories);
-            LevelMappingViewModel.PopulateLevelMapping(LevelMappingViewModel.LoadMappingHistoryFromDisk(), filePath);
+            LevelMappingViewModel.PopulateLevelMapping(LevelMappingViewModel.LoadMappingHistoryFromDisk(), filePaths);
             _rria.SetupLevelMappingPane();
         }
 
         internal void ConfigureLevelMapping()
         {
-            RAMModel.ExecutePythonScript(RAMModelMetaDataFilePath); // list of file paths
+            RAMModel.ExecutePythonScript(RAMFiles); // list of file paths
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
-            ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMModelMetaDataFilePath);
+            ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
         }
 
         internal void ShowDataFileBrowserWindow(string projectId)
@@ -115,9 +181,24 @@ namespace RevitReactionImporter
         }
 
 
-        internal void AssignDataFiles(string filePath) // list of filepaths
+        internal void AssignRAMModelDataFile(string filePath)
         {
             RAMModelMetaDataFilePath = filePath;
+        }
+
+        internal void AssignRAMReactionsDataFile(string filePath)
+        {
+            RAMModelReactionsFilePath = filePath;
+        }
+
+        internal void AssignRAMStudsDataFile(string filePath)
+        {
+            RAMModelStudsFilePath = filePath;
+        }
+
+        internal void AssignRAMCamberDataFile(string filePath)
+        {
+            RAMModelCamberFilePath = filePath;
         }
 
     }

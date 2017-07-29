@@ -183,8 +183,15 @@ namespace RevitReactionImporter
             ramModel.ReferencePointDataTransfer = EstablishReferencePoint(ramModel.Grids, ramModel.LetteredGrids, ramModel.NumberedGrids);
         }
 
-        public static void ExecutePythonScript(string filePath)
+        public static void ExecutePythonScript(List<string> filePaths)
         {
+            for(int i=0; i < filePaths.Count; i++)
+            {
+                filePaths[i] = "\"" + filePaths[i] + "\"";
+            }
+            const string argsSeparator = " ";
+            string args = string.Join(argsSeparator, filePaths);
+
             Process process = new Process();
 
             var startInfo = new System.Diagnostics.ProcessStartInfo
@@ -192,7 +199,7 @@ namespace RevitReactionImporter
                 WorkingDirectory = @"C:\dev\RAM Reaction Importer\RAM-Reaction-Importer",
                 WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
                 FileName = "cmd.exe",
-                Arguments = string.Format("{0} {1}", "getLevels.py", filePath),
+                Arguments = string.Format("{0} {1}", "getLevels.py", args),
                 RedirectStandardInput = true,
                 UseShellExecute = false
             };
@@ -201,7 +208,7 @@ namespace RevitReactionImporter
             process.StartInfo = startInfo;
             process.Start();
             process.StandardInput.WriteLine(@"C:\dev\RAM Reaction Importer\RAM-Reaction-Importer");
-            process.StandardInput.WriteLine("python getLevels.py " + filePath);
+            process.StandardInput.WriteLine("python getLevels.py " + args);
             // Read the standard output of the app we called.  
             // in order to avoid deadlock we will read output first 
             // and then wait for process terminate: 
