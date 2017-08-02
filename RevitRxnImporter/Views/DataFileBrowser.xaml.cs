@@ -36,11 +36,12 @@ namespace RevitReactionImporter
         public DataFileBrowser(string projectId, ControlInterfaceView controlInterfaceView)
         {
             ProjectId = projectId;
+            LoadRAMMetaDataFileHistoryFromDisk();
             InitializeComponent();
-            txtEditorRAMModel.Text = Settings1.Default.RAMModelFilePathSetting;
-            txtEditorRAMReactions.Text = Settings1.Default.RAMReactionsFilePathSetting;
-            txtEditorRAMStuds.Text = Settings1.Default.RAMStudsFilePathSetting;
-            txtEditorRAMCamber.Text = Settings1.Default.RAMCamberFilePathSetting;
+            txtEditorRAMModel.Text = RAMModelMetaDataFilePath;
+            txtEditorRAMReactions.Text = RAMModelReactionsFilePath;
+            txtEditorRAMStuds.Text = RAMModelStudsFilePath;
+            txtEditorRAMCamber.Text = RAMModelCamberFilePath;
         
             var assignDataFilesHandler = new AssignDataFilesHandler();
             assignDataFilesHandler.DataFileBrowser = this;
@@ -63,47 +64,63 @@ namespace RevitReactionImporter
                 TempButtonName = button.Name;
                 if (button.Name == "btnRAMModelFile")
                 {
-                    if(!CheckIfRAMModelFileIsCorrect(fileName))
+                    if(!CheckIfRAMFileIsCorrect(fileName, "Echo"))
                     {
-                        System.Windows.Forms.MessageBox.Show("This file is not a RAM Model File. Please provide the correct file.");
+                        System.Windows.Forms.MessageBox.Show("This file is not the RAM Model File. Please provide the correct file.");
                         return;
                     }
                     txtEditorRAMModel.Text = fileName;
                     RAMModelMetaDataFilePath = fileName;
-                    Settings1.Default.RAMModelFilePathSetting = fileName;
-                    Settings1.Default.Save();
+                    //Settings1.Default.RAMModelFilePathSetting = fileName;
+                    //Settings1.Default.Save();
                 }
                 else if(button.Name == "btnRAMReactionsFile")
                 {
+                    if (!CheckIfRAMFileIsCorrect(fileName, "Reaction"))
+                    {
+                        System.Windows.Forms.MessageBox.Show("This file is not the RAM Reactions File. Please provide the correct file.");
+                        return;
+                    }
                     txtEditorRAMReactions.Text = fileName;
                     RAMModelReactionsFilePath = fileName;
-                    Settings1.Default.RAMReactionsFilePathSetting = fileName;
-                    Settings1.Default.Save();
+                    //Settings1.Default.RAMReactionsFilePathSetting = fileName;
+                    //Settings1.Default.Save();
                 }
                 else if (button.Name == "btnRAMStudsFile")
                 {
+                    if (!CheckIfRAMFileIsCorrect(fileName, "Summary"))
+                    {
+                        System.Windows.Forms.MessageBox.Show("This file is not the RAM Studs File. Please provide the correct file.");
+                        return;
+                    }
                     txtEditorRAMStuds.Text = fileName;
                     RAMModelStudsFilePath = fileName;
-                    Settings1.Default.RAMStudsFilePathSetting = fileName;
-                    Settings1.Default.Save();
+                   // Settings1.Default.RAMStudsFilePathSetting = fileName;
+                    //Settings1.Default.Save();
                 }
                 else if (button.Name == "btnRAMCamberFile")
                 {
+                    if (!CheckIfRAMFileIsCorrect(fileName, "Deflection"))
+                    {
+                        System.Windows.Forms.MessageBox.Show("This file is not the RAM Camber File. Please provide the correct file.");
+                        return;
+                    }
                     txtEditorRAMCamber.Text = fileName;
                     RAMModelCamberFilePath = fileName;
-                    Settings1.Default.RAMCamberFilePathSetting = fileName;
-                    Settings1.Default.Save();
+                    //Settings1.Default.RAMCamberFilePathSetting = fileName;
+                    //Settings1.Default.Save();
                 }
+
                 else
                 {
                     throw new Exception("Button name is not recognized");
                 }
-
+                WriteRAMMetaDetaFilePathsToFile();
                 OnOpenFileDialogIsTrue(button.Name);
             }
         }
 
-        internal bool CheckIfRAMModelFileIsCorrect(string ramModelFilePath)
+        internal bool CheckIfRAMFileIsCorrect(string ramModelFilePath, string fileCategoryIdentifier)
         {
             Excel.Application excel = new Excel.Application();
             Excel.Workbook wb = excel.Workbooks.Open(ramModelFilePath);
@@ -111,24 +128,25 @@ namespace RevitReactionImporter
             //Read the first cell
             string fileCategory = excelSheet.Cells[1, 1].Value.ToString();
             wb.Close();
-            return fileCategory.Contains("Echo");
+            return fileCategory.Contains(fileCategoryIdentifier);
         }
 
-        //todo: remove
-        //private void WriteRAMMetaDetaFilePathsToFile()
-        //{
-        //    var path = GetMetaDataFile(ProjectId);
-        //    File.WriteAllText(path, String.Empty);
-        //    using (var stream = new FileStream(path, FileMode.Truncate))
-        //    {
-        //        using (var writer = new StreamWriter(stream))
-        //        {
-        //            writer.Write("Model: " + RAMModelMetaDataFilePath + Environment.NewLine);
-        //            writer.Write("Reactions: " + RAMModelReactionsFilePath + Environment.NewLine);
+        private void WriteRAMMetaDetaFilePathsToFile()
+        {
+            var path = GetMetaDataFile(ProjectId);
+            File.WriteAllText(path, String.Empty);
+            using (var stream = new FileStream(path, FileMode.Truncate))
+            {
+                using (var writer = new StreamWriter(stream))
+                {
+                    writer.Write(RAMModelMetaDataFilePath + Environment.NewLine);
+                    writer.Write(RAMModelReactionsFilePath + Environment.NewLine);
+                    writer.Write(RAMModelStudsFilePath + Environment.NewLine);
+                    writer.Write(RAMModelCamberFilePath);
 
-        //        }
-        //    }
-        //}
+                }
+            }
+        }
 
         internal static string GetMetaDataFile(string projectId)
         {
@@ -136,9 +154,30 @@ namespace RevitReactionImporter
             var dir = System.IO.Path.Combine(folder, @"RevitRxnImporter\metadata");
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
+            return System.IO.Path.Combine(dir, string.Format("Project-{0}_metadata.csv", projectId));
 
-            return System.IO.Path.Combine(dir, string.Format("metadata.txt"));
+            //return System.IO.Path.Combine(dir, string.Format("metadata.txt"));
         }
+
+        public void LoadRAMMetaDataFileHistoryFromDisk()
+        {
+            string fullPath = GetMetaDataFile(ProjectId);
+
+            if (!File.Exists(fullPath))
+                return;
+
+            var text = File.ReadAllLines(fullPath);
+
+            //MappingHistory levelMappingHistory;
+            RAMModelMetaDataFilePath = text[0];
+            RAMModelReactionsFilePath = text[1];
+            RAMModelStudsFilePath = text[2];
+            RAMModelCamberFilePath = text[3];
+
+            //return levelMappingHistory;
+        }
+
+
 
         private void OnOpenFileDialogIsTrue(string buttonName)
         {
