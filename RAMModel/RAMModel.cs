@@ -218,7 +218,9 @@ namespace RevitReactionImporter
             process.Close();
 
             // write the output we got from python app 
-            Console.WriteLine("Value received from script: " + myString);            
+            Console.WriteLine("Value received from script: " + myString);
+            System.Threading.Thread.Sleep(2000);
+
         }
 
 

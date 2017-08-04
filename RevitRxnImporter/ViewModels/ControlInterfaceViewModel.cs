@@ -32,6 +32,7 @@ namespace RevitReactionImporter
         public ModelCompare ModelCompare { get { return _modelCompare; } }
         public RAMModel RAMModel { get { return _ramModel; } }
         //public bool IsLevelMappingSetByUser { get; set; }
+        //public Dictionary<int, string> LevelMappingFromUser { get; private set; }
         public string RAMModelMetaDataFilePath { get; set; }
         public string RAMModelReactionsFilePath { get; set; }
         public string RAMModelStudsFilePath { get; set; }
@@ -74,14 +75,14 @@ namespace RevitReactionImporter
             }
 
             RAMModel.ExecutePythonScript(RAMFiles);
+
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
             //if(!LevelMappingViewModel.IsLevelMappingSetByUser)
             //{
                 ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
             //}
-
-            ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel);
+            ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser);
             System.Windows.Forms.MessageBox.Show("Model Compare Working");
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
@@ -132,8 +133,9 @@ namespace RevitReactionImporter
 
         internal void GatherRAMFiles()
         {
+            LoadRAMMetaDataFileHistoryFromDisk();
             var files = new List<string>();
-            if(!string.IsNullOrEmpty(RAMModelMetaDataFilePath))
+            if (!string.IsNullOrEmpty(RAMModelMetaDataFilePath))
             {
                 files.Add(RAMModelMetaDataFilePath);
             }
@@ -152,7 +154,32 @@ namespace RevitReactionImporter
 
             RAMFiles = files;
         }
-        
+
+        private void LoadRAMMetaDataFileHistoryFromDisk()
+        {
+            string fullPath = GetMetaDataFile(_projectId);
+
+            if (!File.Exists(fullPath))
+                return;
+
+            var text = File.ReadAllLines(fullPath);
+
+            RAMModelMetaDataFilePath = text[0];
+            RAMModelReactionsFilePath = text[1];
+            RAMModelStudsFilePath = text[2];
+            RAMModelCamberFilePath = text[3];
+
+        }
+
+        internal static string GetMetaDataFile(string projectId)
+        {
+            var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var dir = System.IO.Path.Combine(folder, @"RevitRxnImporter\metadata");
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            return System.IO.Path.Combine(dir, string.Format("Project-{0}_metadata.csv", projectId));
+        }
+
 
 
         public void ResetBeamReactions()
@@ -162,14 +189,16 @@ namespace RevitReactionImporter
         internal void ShowLevelMappingPane(LevelInfo revitLevelInfo, List<RAMModel.Story> ramStories, List<string> filePaths)
         {
             LevelMappingViewModel.PopulateRevitLevelsAndRAMFloorLayoutTypesOptions(revitLevelInfo, ramStories);
-            LevelMappingViewModel.PopulateLevelMapping(LevelMappingViewModel.LoadMappingHistoryFromDisk(), filePaths);
+            LevelMappingViewModel.PopulateLevelMapping(LevelMappingViewModel.LoadMappingHistoryFromDisk());
             _rria.SetupLevelMappingPane();
         }
 
         internal void ConfigureLevelMapping()
         {
-            RAMModel.ExecutePythonScript(RAMFiles); // list of file paths
+            GatherRAMFiles();
+            RAMModel.ExecutePythonScript(RAMFiles);
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
+
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
             ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
         }

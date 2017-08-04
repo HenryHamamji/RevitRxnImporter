@@ -35,6 +35,10 @@ namespace RevitReactionImporter
 
         public DataFileBrowser(string projectId, ControlInterfaceView controlInterfaceView)
         {
+            //txtEditorRAMModel.Text = controlInterfaceView.ViewModel.
+            //txtEditorRAMReactions.Text = RAMModelReactionsFilePath;
+            //txtEditorRAMStuds.Text = RAMModelStudsFilePath;
+            //txtEditorRAMCamber.Text = RAMModelCamberFilePath;
             ProjectId = projectId;
             LoadRAMMetaDataFileHistoryFromDisk();
             InitializeComponent();
@@ -88,7 +92,7 @@ namespace RevitReactionImporter
                 }
                 else if (button.Name == "btnRAMStudsFile")
                 {
-                    if (!CheckIfRAMFileIsCorrect(fileName, "Summary"))
+                    if (!CheckIfRAMFileIsCorrect(fileName, "Beam Summary"))
                     {
                         System.Windows.Forms.MessageBox.Show("This file is not the RAM Studs File. Please provide the correct file.");
                         return;
@@ -159,7 +163,7 @@ namespace RevitReactionImporter
             //return System.IO.Path.Combine(dir, string.Format("metadata.txt"));
         }
 
-        public void LoadRAMMetaDataFileHistoryFromDisk()
+        private void LoadRAMMetaDataFileHistoryFromDisk()
         {
             string fullPath = GetMetaDataFile(ProjectId);
 

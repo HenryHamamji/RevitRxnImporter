@@ -23,6 +23,8 @@ namespace RevitReactionImporter
         public Dictionary<int, string> LevelMapping { get; set; }
         public Dictionary<string, double> LevelsRevitSpacings { get; set; }
         public int MappedBeamsCount { get; set; }
+        public bool IsLevelMappingSetByUser { get; set; }
+        public Dictionary<int, string> LevelMappingByUser { get; set; }
 
         public class Results
         {
@@ -64,7 +66,7 @@ namespace RevitReactionImporter
             }
         }
 
-        public static Results CompareModels(RAMModel ramModel, AnalyticalModel revitModel)
+        public static Results CompareModels(RAMModel ramModel, AnalyticalModel revitModel, Dictionary<int, string> levelMappingFromUser)
         {
             var modelCompare = new ModelCompare(ramModel, revitModel);
             // Grid Mapping.
@@ -90,10 +92,9 @@ namespace RevitReactionImporter
 
             // Beam Mapping.
             var results = new Results(modelCompare.LevelMapping);
-            // TODO: tolerances calc function.
-            //var tolerances = DetermineTolerances(revitModel.GridData, ramModel.HorizontalGrids, ramModel.VerticalGrids);
             double tolerance = 0.0;
-            PerformBeamMapping(ramModel, revitModel, modelCompare.LevelMapping, results, tolerance);
+            // TODO, toggle b/w level mapping from algorithm and from user.
+            PerformBeamMapping(ramModel, revitModel, levelMappingFromUser, results, tolerance);
 
             return results;
 
@@ -948,7 +949,11 @@ namespace RevitReactionImporter
                 foreach (var layoutType in ramBeamToLayoutMapping.Keys)
                 {
                     //int numMappedBeamsPerFloor = 0;
-
+                    if(!levelMappingDict.Values.Contains(layoutType.Substring(12, layoutType.Length - 12)))
+                    {
+                        continue;
+                        // this means that there are beams on at least 1 layout type that was not associated with a revit level.
+                    }
                     int revitLevelId = GetRevitLevelIdFromRAMLayoutType(levelMappingDict, layoutType);
                     string revitLevelName = GetRevitLevelNameFromId(revitLevelId, revitModel.LevelInfo.Levels);
                     revitLevelToRAMLevelMappingResults[revitLevelName] = layoutType;

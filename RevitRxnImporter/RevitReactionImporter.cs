@@ -161,10 +161,9 @@ namespace RevitReactionImporter
         private void DocumentHandler(Document doc)
         {
             Document = doc;
-            LevelMappingViewModel = new LevelMappingViewModel(LevelMappingPaneView, Document, this);
-
-            //_projectId = Document.ProjectInformation.UniqueId;
             _projectId = Document.Title;
+
+            LevelMappingViewModel = new LevelMappingViewModel(LevelMappingPaneView, Document, this, _projectId);
             ControlInterfaceViewModel = new ControlInterfaceViewModel(ControlInterfaceView, Document, this, LevelMappingViewModel, _projectId);
             new DockablePane(_controlPaneId).Hide();
             _levelMapping = new DockablePane(_levelMappingId);
