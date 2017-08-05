@@ -443,13 +443,48 @@ namespace RevitReactionImporter
         }
 
         // STUDS
-        public void MapStudsToBeams()
+        public List<RAMBeam> MapStudCountsToRAMBeams(Dictionary<string, Dictionary<int, int>> layoutTypeToBeamStudCount, List<RAMBeam> ramBeams)
         {
             // loop over RAMBeamList and find matching beams in the stud file parser
             // beamList and assign the stud count.
+            for (int j = 0; j < layoutTypeToBeamStudCount.Keys.Count; j++)
+            {
+                var studFileBeamLayoutType = layoutTypeToBeamStudCount.Keys.ToList()[j];
+
+                for (int i = 0; i < ramBeams.Count; i++)
+                {
+                    var ramBeamFloorLayoutTypeUnStripped = ramBeams[i].FloorLayoutType;
+                    string ramBeamFloorLayoutType = ramBeamFloorLayoutTypeUnStripped.Substring(12, ramBeamFloorLayoutTypeUnStripped.Length - 12);
+
+                    if (studFileBeamLayoutType == ramBeamFloorLayoutType)
+                    {
+                        var ramBeamId = ramBeams[i].Id;
+                        Dictionary<int, int> studFileBeamIdToStudCountDict = layoutTypeToBeamStudCount.Values.ToList()[j];
+
+                        for (int k = 0; k < studFileBeamIdToStudCountDict.Keys.Count; k++)
+                        {
+                            int studFileBeamId = studFileBeamIdToStudCountDict.Keys.ToList()[k];
+                            if(studFileBeamId == ramBeamId)
+                            {
+                                int studFileBeamStudCount = studFileBeamIdToStudCountDict.Values.ToList()[k];
+                                RamBeams[i].StudCount = studFileBeamStudCount;
+                            }
+
+                        }
+
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                }
+            }
+
+            return RamBeams;
         }
 
-        public void ReadCSVTest()
+        public Dictionary<string, Dictionary<int, int>> ParseStudFile(string ramStudsFilePath)
         {
             int lastRowIndex = 0;
             var layoutTypeRowIndexes = new Dictionary<string, int>();
@@ -458,7 +493,7 @@ namespace RevitReactionImporter
             var beamIdList = new List<string>();
             var studCountList = new List<string>();
 
-            using (StreamReader sr = new StreamReader(@"C:\dev\222 summary.csv"))
+            using (StreamReader sr = new StreamReader(ramStudsFilePath))
             {
                 String line;
                 int rowIndex = 0;
@@ -538,6 +573,7 @@ namespace RevitReactionImporter
                 }
                 layoutTypeToBeamStudCount.Add(layoutTypeRowIndexes.Keys.ToList()[i], beamIdToStudCount);
             }
+            return layoutTypeToBeamStudCount;
         }
 
         //public static void DeserializeRAMOrigin(RAMModel ramModel)

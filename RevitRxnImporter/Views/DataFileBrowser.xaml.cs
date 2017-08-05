@@ -56,16 +56,25 @@ namespace RevitReactionImporter
 
         private void onBrowseFileClick(object sender, RoutedEventArgs e)
         {
+            var button = sender as System.Windows.Controls.Button;
+            TempButtonName = button.Name;
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
+            if(button.Name == "btnRAMStudsFile")
+            {
+                openFileDialog.Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*";
+
+            }
+            else
+            {
+                openFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
+            }
             openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
             if (openFileDialog.ShowDialog() == true)
             {
                 string fileName = openFileDialog.FileName;
 
-                var button = sender as System.Windows.Controls.Button;
-                TempButtonName = button.Name;
+
                 if (button.Name == "btnRAMModelFile")
                 {
                     if(!CheckIfRAMFileIsCorrect(fileName, "Echo"))
