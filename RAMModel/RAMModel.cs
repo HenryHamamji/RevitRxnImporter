@@ -443,22 +443,101 @@ namespace RevitReactionImporter
         }
 
         // STUDS
+        public void MapStudsToBeams()
+        {
+            // loop over RAMBeamList and find matching beams in the stud file parser
+            // beamList and assign the stud count.
+        }
+
         public void ReadCSVTest()
         {
-            //var msftRaw = Deedle.Frame.ReadCsv(@"C:\dev\222 summary.csv");
+            int lastRowIndex = 0;
+            var layoutTypeRowIndexes = new Dictionary<string, int>();
+            var layoutTypeToBeamIds = new Dictionary<string, List<int>>();
+            var layoutTypeToBeamStudCount = new Dictionary<string, Dictionary<int, int>>();
+            var beamIdList = new List<string>();
+            var studCountList = new List<string>();
+
             using (StreamReader sr = new StreamReader(@"C:\dev\222 summary.csv"))
             {
                 String line;
-
+                int rowIndex = 0;
                 while ((line = sr.ReadLine()) != null)
                 {
+                    rowIndex += 1;
                     string[] parts = line.Split(',');
 
-                    string orderId = parts[0];
+                    string beamIds = parts[0];
+                    if (parts.Length > 8)
+                    {
+                        string studCount = parts[9];
+                        studCountList.Add(studCount);
+                    }
+                    else
+                    {
+                        studCountList.Add(" ");
+                    }
 
+                    beamIdList.Add(beamIds);
+                    if (beamIds.Contains("Floor Type:"))
+                    {
+                        string layoutType = beamIds.Substring(12, beamIds.Length - 12);
+                        System.Console.WriteLine(rowIndex + "," + layoutType);
+                        layoutTypeRowIndexes.Add(layoutType, rowIndex);
+                    }
+                    if (beamIds.Contains("*"))
+                    {
+                        lastRowIndex = rowIndex;
+                        System.Console.WriteLine(lastRowIndex);
+                    }
                 }
             }
 
+            var listOfEnds = new List<int[]>();
+            for (int j = 0; j < layoutTypeRowIndexes.Keys.Count - 1; j++)
+            {
+                var ends = new int[2];
+                ends[0] = layoutTypeRowIndexes.Values.ToList()[j];
+                ends[1] = layoutTypeRowIndexes.Values.ToList()[j + 1];
+                listOfEnds.Add(ends);
+            }
+            var lastEnds = new int[2];
+            lastEnds[0] = layoutTypeRowIndexes.Values.ToList().Last();
+            lastEnds[1] = lastRowIndex;
+            listOfEnds.Add(lastEnds);
+
+            for (int i = 0; i < listOfEnds.Count; i++)
+            {
+                Dictionary<int, int> beamIdToStudCount = new Dictionary<int, int>();
+                var beamsPerFLoor = beamIdList.GetRange(listOfEnds[i][0] + 2, listOfEnds[i][1] - listOfEnds[i][0] - 3);
+                var studCountPerFloor = studCountList.GetRange(listOfEnds[i][0] + 2, listOfEnds[i][1] - listOfEnds[i][0] - 3);
+                for (int k = 0; k < beamsPerFLoor.Count; k++)
+                {
+                    if (String.IsNullOrWhiteSpace(beamsPerFLoor[k]))
+                    {
+                        beamsPerFLoor.RemoveAt(k);
+                        studCountPerFloor.RemoveAt(k);
+                    }
+                }
+                var intBeamsPerFloor = beamsPerFLoor.Select(int.Parse).ToList();
+                var intStudCountPerFloor = new List<int>();
+
+                layoutTypeToBeamIds.Add(layoutTypeRowIndexes.Keys.ToList()[i], intBeamsPerFloor);
+
+                for (int s = 0; s < intBeamsPerFloor.Count; s++)
+                {
+                    if (studCountPerFloor[s].Contains("Studs") || String.IsNullOrWhiteSpace(studCountPerFloor[s]) || studCountPerFloor[s] == "")
+                    {
+                        intStudCountPerFloor.Add(0);
+                    }
+                    else
+                    {
+                        intStudCountPerFloor.Add(Int32.Parse(studCountPerFloor[s]));
+                    }
+                    beamIdToStudCount.Add(intBeamsPerFloor[s], intStudCountPerFloor[s]);
+                }
+                layoutTypeToBeamStudCount.Add(layoutTypeRowIndexes.Keys.ToList()[i], beamIdToStudCount);
+            }
         }
 
         //public static void DeserializeRAMOrigin(RAMModel ramModel)
