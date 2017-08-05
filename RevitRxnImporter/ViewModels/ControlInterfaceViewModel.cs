@@ -88,6 +88,12 @@ namespace RevitReactionImporter
             Logger.LocalLog();
         }
 
+        public void ImportStudCounts()
+        {
+            RAMModel _ramModel = new RAMModel();
+            _ramModel.ReadCSVTest();
+        }
+
         internal bool AreRequiredFilesForBeamReactionsLoaded()
         {
             bool modelFilePresent = !string.IsNullOrEmpty(RAMModelMetaDataFilePath);

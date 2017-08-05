@@ -3,7 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Title="RevitReactionnImporterApp"
       Width="350"
-      Height="250">
+      Height="300">
 
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
@@ -11,6 +11,9 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Background="White">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="10" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="25" />
                 <RowDefinition Height="50" />
@@ -63,6 +66,30 @@
             </StackPanel>
             <StackPanel Grid.Row="3"
                     Orientation="Horizontal">
+
+                <Button Name="ImportRAMStuds"
+                    Width="60"
+                    Height="60"
+                    Margin="25 7 7 7"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Click="OnImportBeamStudsClick">
+                    <Image Source="/RevitReactionImporterApp;component/Resources/stud.PNG"
+                       Width="50"
+                       Height="50" RenderTransformOrigin="0.568,0.223"/>
+                </Button>
+            </StackPanel>
+            <StackPanel Grid.Row="4"
+                    Orientation="Horizontal">
+                <TextBlock Name="ImportStudsText"
+                       Width="100"
+                       Margin="5,0,5,7"
+                       Text="Import Beam Stud Count"
+                       TextAlignment="Center"
+                       FontSize="9"/>
+            </StackPanel>
+            <StackPanel Grid.Row="6"
+                    Orientation="Horizontal">
                 <Button x:Name="ConfigureLevelMapping"
             	Width="60"
             	Height="60"
@@ -86,7 +113,7 @@
                        Height="50"/>
                 </Button>
             </StackPanel>
-            <StackPanel Grid.Row="4"
+            <StackPanel Grid.Row="7"
                     Orientation="Horizontal">
                 <TextBlock Name="ConfigureText"
                        Width="100"

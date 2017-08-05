@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
+
 namespace RevitReactionImporter
 {
     public class RAMModel
@@ -108,6 +109,8 @@ namespace RevitReactionImporter
             public double EndTotalReactionPositive { get; set; }
             public int Id { get; set; }
             public bool IsMappedToRevitBeam { get; set; }
+            public int StudCount { get; set; }
+
 
             public RAMBeam(string floorLayoutType, string size, double startPointX, double startPointY, double endPointX, double endPointY, double startReactionTotalPositive, double endReactionTotalPositive )
             {
@@ -241,32 +244,32 @@ namespace RevitReactionImporter
             }
             String[] allBeamData = beamDataString.Split(lineDelimiter);
             allBeamData = allBeamData.Take(allBeamData.Length - 1).ToArray();
-            var id = 1;
+            //var id = 1;
             foreach (var singleBeamData in allBeamData)
             {
                 bool isCantilevered = false;
                 string[] beamProperties = singleBeamData.Split(propertyDelimiter);
 
-                if(beamProperties[4] == "NA")
-                {
-                    beamProperties[4] = "0";
-                }
-                if (beamProperties[5] == "NA")
+                if(beamProperties[5] == "NA")
                 {
                     beamProperties[5] = "0";
                 }
-                if (beamProperties[7] == "NA")
+                if (beamProperties[6] == "NA")
                 {
-                    beamProperties[7] = "0";
+                    beamProperties[6] = "0";
+                }
+                if (beamProperties[8] == "NA")
+                {
+                    beamProperties[8] = "0";
                     isCantilevered = true;
                 }
-                RAMBeam ramBeam = new RAMBeam(beamProperties[0], beamProperties[1], Convert.ToDouble(beamProperties[2])*12.0, Convert.ToDouble(beamProperties[3])*12.0,
-                    Convert.ToDouble(beamProperties[4])*12.0, Convert.ToDouble(beamProperties[5])*12.0, Convert.ToDouble(beamProperties[6]), Convert.ToDouble(beamProperties[7]));
+                RAMBeam ramBeam = new RAMBeam(beamProperties[0], beamProperties[2], Convert.ToDouble(beamProperties[3])*12.0, Convert.ToDouble(beamProperties[4])*12.0,
+                    Convert.ToDouble(beamProperties[5])*12.0, Convert.ToDouble(beamProperties[6])*12.0, Convert.ToDouble(beamProperties[7]), Convert.ToDouble(beamProperties[8]));
                 ramBeam.IsCantilevered = isCantilevered;
-                ramBeam.Id = id;
-                id += 1;
+                ramBeam.Id = Int32.Parse(beamProperties[1]);
+                //id += 1;
                 ramModel.RamBeams.Add(ramBeam);
-                }
+            }
             DeserializeRAMStoryData(ramModel);
             DeserializeRAMGridData(ramModel);
             PopulateAdditionalRAMModelInfo(ramModel);
@@ -434,6 +437,25 @@ namespace RevitReactionImporter
                 else
                 {
                     ramGrid.GridTypeNaming = RAMGrid.GridTypeNamingClassification.Lettered;
+                }
+            }
+
+        }
+
+        // STUDS
+        public void ReadCSVTest()
+        {
+            //var msftRaw = Deedle.Frame.ReadCsv(@"C:\dev\222 summary.csv");
+            using (StreamReader sr = new StreamReader(@"C:\dev\222 summary.csv"))
+            {
+                String line;
+
+                while ((line = sr.ReadLine()) != null)
+                {
+                    string[] parts = line.Split(',');
+
+                    string orderId = parts[0];
+
                 }
             }
 

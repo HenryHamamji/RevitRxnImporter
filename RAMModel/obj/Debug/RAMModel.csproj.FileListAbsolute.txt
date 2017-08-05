@@ -3,3 +3,6 @@ C:\dev\RevitRxnImporter\RAMModel\bin\Debug\RAMModel.pdb
 C:\dev\RevitRxnImporter\RAMModel\obj\Debug\RAMModel.dll
 C:\dev\RevitRxnImporter\RAMModel\obj\Debug\RAMModel.pdb
 C:\dev\RevitRxnImporter\RAMModel\obj\Debug\RAMModel.csprojResolveAssemblyReference.cache
+C:\dev\RevitRxnImporter\RAMModel\bin\Debug\Deedle.dll
+C:\dev\RevitRxnImporter\RAMModel\bin\Debug\Deedle.pdb
+C:\dev\RevitRxnImporter\RAMModel\bin\Debug\Deedle.xml

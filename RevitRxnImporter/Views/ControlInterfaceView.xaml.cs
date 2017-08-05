@@ -18,6 +18,7 @@ namespace RevitReactionImporter
         internal DockablePaneProviderData _paneProviderData = null;
 
         private ExternalEvent importRAMReactionsEvent;
+        private ExternalEvent importRAMStudsEvent;
         private ExternalEvent clearReactionsEvent;
         private ExternalEvent configureEvent;
         private ExternalEvent showDataFilesBrowserEvent;
@@ -34,6 +35,10 @@ namespace RevitReactionImporter
             var importRAMReactionsHandler = new ImportRAMReactionsHandler();
             importRAMReactionsHandler.View = this;
             importRAMReactionsEvent = ExternalEvent.Create(importRAMReactionsHandler);
+
+            var importRAMStudsHandler = new ImportRAMStudsHandler();
+            importRAMStudsHandler.View = this;
+            importRAMStudsEvent = ExternalEvent.Create(importRAMStudsHandler);
 
             var clearReactionsHandler = new ClearReactionsHandler();
             clearReactionsHandler.View = this;
@@ -70,12 +75,22 @@ namespace RevitReactionImporter
                 MessageBox.Show("ImportRAMReactionsEvent event handler is null");
         }
 
+
+
         private void OnResetBeamReactionsClick(object sender, RoutedEventArgs e)
         {
             if (clearReactionsEvent != null)
                 clearReactionsEvent.Raise();
             else
                 MessageBox.Show("ClearReactionsEvent event handler is null");
+        }
+
+        private void OnImportBeamStudsClick(object sender, RoutedEventArgs e)
+        {
+            if (importRAMStudsEvent != null)
+                importRAMStudsEvent.Raise();
+            else
+                MessageBox.Show("ImportRAMStudssEvent event handler is null");
         }
 
         private void OnConfigureClick(object sender, RoutedEventArgs e)
