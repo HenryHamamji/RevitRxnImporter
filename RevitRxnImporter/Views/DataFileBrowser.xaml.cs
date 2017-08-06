@@ -59,9 +59,9 @@ namespace RevitReactionImporter
             var button = sender as System.Windows.Controls.Button;
             TempButtonName = button.Name;
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            if(button.Name == "btnRAMStudsFile")
+            if(button.Name == "btnRAMStudsFile" || button.Name == "btnRAMCamberFile")
             {
-                openFileDialog.Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*";
+                openFileDialog.Filter = "csv files (*.csv)|*.csv|All files (*.*)|*.*";
 
             }
             else

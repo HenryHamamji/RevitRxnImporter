@@ -110,6 +110,7 @@ namespace RevitReactionImporter
             public int Id { get; set; }
             public bool IsMappedToRevitBeam { get; set; }
             public int StudCount { get; set; }
+            public double Camber { get; set; }
 
 
             public RAMBeam(string floorLayoutType, string size, double startPointX, double startPointY, double endPointX, double endPointY, double startReactionTotalPositive, double endReactionTotalPositive )
@@ -576,30 +577,129 @@ namespace RevitReactionImporter
             return layoutTypeToBeamStudCount;
         }
 
-        //public static void DeserializeRAMOrigin(RAMModel ramModel)
-        //{
-        //    string path = @"C:\dev\RAM Reaction Importer\RAM-Reaction-Importer\RAMStoryData.txt";
-        //    string storyDataString = "";
-        //    Char lineDelimiter = ';';
-        //    Char propertyDelimiter = ',';
-        //    using (StreamReader sr = new StreamReader(path))
-        //    {
-        //        // Read the stream to a string.
-        //        storyDataString = sr.ReadToEnd();
-        //    }
-        //    String[] allStoryData = storyDataString.Split(lineDelimiter);
-        //    foreach (var singleStoryData in allStoryData)
-        //    {
-        //        string[] storyProperties = singleStoryData.Split(propertyDelimiter);
-        //        Story ramStory = new Story(Convert.ToInt32(storyProperties[0]), storyProperties[1], storyProperties[2], Convert.ToDouble(storyProperties[3]), Convert.ToDouble(storyProperties[4]));
-        //        ramModel.Stories.Add(ramStory);
-        //    }
+        // CAMBER
+        public class CamberParser
+        {
+            public class BeamCamberFile
+            {
+                public string FloorLayoutType { get; set; }
+                public int Id { get; set; }
+                public double Camber { get; set; }
+                public bool IsComposite { get; set; }
 
+            }
 
-        //}
+            public static List<BeamCamberFile> ParseCamberFile(string ramCamberFilePath)
+            {
+                var beamList = new List<BeamCamberFile>();
+                bool IsComposite = false;
+                string layoutType = "";
+                var camberList = new List<string>();
+
+                using (StreamReader sr = new StreamReader(ramCamberFilePath))
+                {
+                    String line;
+                    int rowIndex = 0;
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        rowIndex += 1;
+                        string[] parts = line.Split(',');
+
+                        string firstColumn = parts[0];
+                        if (firstColumn.Contains("Floor Type:"))
+                        {
+                            layoutType = firstColumn.Substring(13, firstColumn.Length - 13);
+                        }
+                        if (firstColumn.Contains("Noncomposite"))
+                        {
+                            IsComposite = false;
+                        }
+                        else if (firstColumn.Contains("Composite"))
+                        {
+                            IsComposite = true;
+                        }
+                        int beamId;
+                        if (int.TryParse(firstColumn, out beamId))
+                        {
+                            BeamCamberFile beam = new BeamCamberFile();
+                            beam.FloorLayoutType = layoutType;
+                            beam.Id = beamId;
+                            beam.IsComposite = IsComposite;
+                            string camber = "";
+                            double camberDouble = 0.0;
+                            if (!IsComposite)
+                            {
+                                try
+                                {
+                                    camber = parts[5];
+                                    camberList.Add(camber);
+                                }
+                                catch
+                                {
+                                    Array.Resize(ref parts, 6);
+                                    parts[6 - 1] = " ";
+                                    camber = parts[5];
+                                    camberList.Add(camber);
+                                }
+                            }
+                            else if (IsComposite)
+                            {
+                                try
+                                {
+                                    camber = parts[6];
+                                    camberList.Add(camber);
+                                }
+                                catch
+                                {
+                                    Array.Resize(ref parts, 7);
+                                    parts[7 - 1] = " ";
+                                    camber = parts[6];
+                                    camberList.Add(camber);
+                                }
+                            }
+                            if (double.TryParse(camber, out camberDouble))
+                            {
+                                beam.Camber = camberDouble;
+                            }
+                            else
+                            {
+                                beam.Camber = 0.0;
+                            }
+
+                            beamList.Add(beam);
+                        }
+                    }
+                }
+                return beamList;
+            }
+        }
+
+        public List<RAMBeam> MapCamberToRAMBeams(List<CamberParser.BeamCamberFile> beamsFromCamberFile, List<RAMBeam> ramBeams)
+        {
+            for(int i=0; i < ramBeams.Count; i++)
+            {
+                var ramBeamFloorLayoutTypeUnStripped = ramBeams[i].FloorLayoutType;
+                string ramBeamFloorLayoutType = ramBeamFloorLayoutTypeUnStripped.Substring(12, ramBeamFloorLayoutTypeUnStripped.Length - 12);
+                var ramBeamId = ramBeams[i].Id;
+                for (int j = 0; j < beamsFromCamberFile.Count; j++)
+                {
+                    var layoutTypeFromCamberFileUnTrimmed = beamsFromCamberFile[j].FloorLayoutType;
+                    string layoutTypeFromCamberFile = layoutTypeFromCamberFileUnTrimmed.Trim();
+
+                    if (layoutTypeFromCamberFile == ramBeamFloorLayoutType)
+                    {
+                        var beamIdFromCamberFile = beamsFromCamberFile[j].Id;
+                        if (beamIdFromCamberFile == ramBeamId)
+                        {
+                            ramBeams[i].Camber = beamsFromCamberFile[j].Camber;
+                        }
+                    }
+
+                }
+            }
+            return ramBeams;
+        }
 
 
     }
-
-
 }

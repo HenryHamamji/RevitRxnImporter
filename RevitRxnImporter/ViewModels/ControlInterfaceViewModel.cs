@@ -53,7 +53,6 @@ namespace RevitReactionImporter
 
             IList<RibbonItem> ribbonItems = _rria.RibbonPanel.GetItems();
             RAMFiles = new List<string>();
-            //_levelMappingView = new LevelMappingView();
         }
 
         public void DocumentClosed()
@@ -90,12 +89,52 @@ namespace RevitReactionImporter
 
         public void ImportStudCounts(string ramStudsFilePath)
         {
+            if (!AreRequiredFilesForBeamStudsLoaded())
+            {
+                System.Windows.Forms.MessageBox.Show("RAM Model, RAM Beam Reaction, & RAM Studs Files Have Not Been Loaded. Please Load these two files.");
+                return;
+            }
             GatherRAMFiles();
-            //RAMModel _ramModel = new RAMModel();
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             var dict = _ramModel.ParseStudFile(ramStudsFilePath);
             _ramModel.MapStudCountsToRAMBeams(dict, _ramModel.RamBeams);
         }
+
+        public void ImportCamberValues(string ramCamberFilePath)
+        {
+            if (!AreRequiredFilesForBeamCamberLoaded())
+            {
+                System.Windows.Forms.MessageBox.Show("RAM Model, RAM Beam Reaction, & RAM Camber Files Have Not Been Loaded. Please Load these two files.");
+                return;
+            }
+            GatherRAMFiles();
+            RAMModel _ramModel = RAMModel.DeserializeRAMModel();
+            var beamsFromCamberFile = RAMModel.CamberParser.ParseCamberFile(ramCamberFilePath);
+            _ramModel.MapCamberToRAMBeams(beamsFromCamberFile, _ramModel.RamBeams);
+        }
+
+        public void ImportBeamSizes()
+        {
+            // Gather the input files.
+            GatherRAMFiles();
+            // Check if required files are loaded.
+            if (!AreRequiredFilesForBeamSizingLoaded())
+            {
+                System.Windows.Forms.MessageBox.Show("RAM Model & RAM Beam Reaction Files Have Not Been Loaded. Please Load these two files.");
+                return;
+            }
+
+            RAMModel.ExecutePythonScript(RAMFiles);
+
+            RAMModel _ramModel = RAMModel.DeserializeRAMModel();
+            _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
+            //if(!LevelMappingViewModel.IsLevelMappingSetByUser)
+            //{
+            ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
+            //}
+            ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser);
+        }
+
 
         internal bool AreRequiredFilesForBeamReactionsLoaded()
         {
@@ -111,12 +150,13 @@ namespace RevitReactionImporter
             }
         }
 
-        internal bool AreRequiredFilesForBeamStudsOrBeamSizesLoaded()
+        internal bool AreRequiredFilesForBeamStudsLoaded()
         {
-            // beam sizes file path is the same as the studs file path = summary file.
             bool modelFilePresent = !string.IsNullOrEmpty(RAMModelMetaDataFilePath);
-            bool studsorBeamSizesFilePresent = !string.IsNullOrEmpty(RAMModelStudsFilePath);
-            if (modelFilePresent && studsorBeamSizesFilePresent)
+            bool reactionsFilePresent = !string.IsNullOrEmpty(RAMModelReactionsFilePath);
+            bool studsFilePresent = !string.IsNullOrEmpty(RAMModelStudsFilePath);
+
+            if (modelFilePresent && studsFilePresent && reactionsFilePresent)
             {
                 return true;
             }
@@ -129,8 +169,23 @@ namespace RevitReactionImporter
         internal bool AreRequiredFilesForBeamCamberLoaded()
         {
             bool modelFilePresent = !string.IsNullOrEmpty(RAMModelMetaDataFilePath);
+            bool reactionsFilePresent = !string.IsNullOrEmpty(RAMModelReactionsFilePath);
             bool camberFilePresent = !string.IsNullOrEmpty(RAMModelCamberFilePath);
-            if (modelFilePresent && camberFilePresent)
+            if (modelFilePresent && camberFilePresent && reactionsFilePresent)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        internal bool AreRequiredFilesForBeamSizingLoaded()
+        {
+            bool modelFilePresent = !string.IsNullOrEmpty(RAMModelMetaDataFilePath);
+            bool reactionsFilePresent = !string.IsNullOrEmpty(RAMModelReactionsFilePath);
+            if (modelFilePresent && reactionsFilePresent)
             {
                 return true;
             }

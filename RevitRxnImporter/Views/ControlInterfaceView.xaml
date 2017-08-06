@@ -16,10 +16,16 @@
                 <RowDefinition Height="10" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="25" />
-                <RowDefinition Height="50" />
+                <RowDefinition Height="10" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="25" />
-
+                <RowDefinition Height="10" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="10" />
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0"
@@ -90,6 +96,52 @@
             </StackPanel>
             <StackPanel Grid.Row="6"
                     Orientation="Horizontal">
+                <Button Name="ImportRAMCamber"
+                    Width="60"
+                    Height="60"
+                    Margin="25 7 7 7"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Click="OnImportBeamCamberClick">
+                    <Image Source="/RevitReactionImporterApp;component/Resources/camber.jpg"
+                       Width="50"
+                       Height="50" RenderTransformOrigin="0.568,0.223"/>
+                </Button>
+            </StackPanel>
+            <StackPanel Grid.Row="7"
+                    Orientation="Horizontal">
+                <TextBlock Name="ImportCamberText"
+                       Width="100"
+                       Margin="5,0,5,7"
+                       Text="Import Beam Camber"
+                       TextAlignment="Center"
+                       FontSize="9"/>
+            </StackPanel>
+            <StackPanel Grid.Row="9"
+                    Orientation="Horizontal">
+                <Button Name="ImportRAMBeamSizes"
+                    Width="60"
+                    Height="60"
+                    Margin="25 7 7 7"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Click="OnImportBeamSizesClick">
+                    <Image Source="/RevitReactionImporterApp;component/Resources/steel beam.png"
+                       Width="50"
+                       Height="50" RenderTransformOrigin="0.568,0.223"/>
+                </Button>
+            </StackPanel>
+            <StackPanel Grid.Row="10"
+                    Orientation="Horizontal">
+                <TextBlock Name="ImportBeamSizesText"
+                       Width="100"
+                       Margin="5,0,5,7"
+                       Text="Import Beam Sizes"
+                       TextAlignment="Center"
+                       FontSize="9"/>
+            </StackPanel>
+            <StackPanel Grid.Row="12"
+                    Orientation="Horizontal">
                 <Button x:Name="ConfigureLevelMapping"
             	Width="60"
             	Height="60"
@@ -113,7 +165,7 @@
                        Height="50"/>
                 </Button>
             </StackPanel>
-            <StackPanel Grid.Row="7"
+            <StackPanel Grid.Row="13"
                     Orientation="Horizontal">
                 <TextBlock Name="ConfigureText"
                        Width="100"

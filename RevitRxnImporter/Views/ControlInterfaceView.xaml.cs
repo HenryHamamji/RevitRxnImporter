@@ -19,9 +19,13 @@ namespace RevitReactionImporter
 
         private ExternalEvent importRAMReactionsEvent;
         private ExternalEvent importRAMStudsEvent;
+        private ExternalEvent importRAMCamberEvent;
+        private ExternalEvent importRAMBeamSizesEvent;
+
         private ExternalEvent clearReactionsEvent;
         private ExternalEvent configureEvent;
         private ExternalEvent showDataFilesBrowserEvent;
+
         internal ObservableCollection<string> ConnectionTypes = new ObservableCollection<string>();
 
         public string SelectedConnectionType { get; set; }
@@ -39,6 +43,14 @@ namespace RevitReactionImporter
             var importRAMStudsHandler = new ImportRAMStudsHandler();
             importRAMStudsHandler.View = this;
             importRAMStudsEvent = ExternalEvent.Create(importRAMStudsHandler);
+
+            var importRAMCamberHandler = new ImportRAMCamberHandler();
+            importRAMCamberHandler.View = this;
+            importRAMCamberEvent = ExternalEvent.Create(importRAMCamberHandler);
+
+            var importRAMBeamSizingHandler = new ImportRAMBeamSizingHandler();
+            importRAMBeamSizingHandler.View = this;
+            importRAMBeamSizesEvent = ExternalEvent.Create(importRAMBeamSizingHandler);
 
             var clearReactionsHandler = new ClearReactionsHandler();
             clearReactionsHandler.View = this;
@@ -93,6 +105,15 @@ namespace RevitReactionImporter
                 MessageBox.Show("ImportRAMStudssEvent event handler is null");
         }
 
+        private void OnImportBeamCamberClick(object sender, RoutedEventArgs e)
+        {
+            if (importRAMCamberEvent != null)
+                importRAMCamberEvent.Raise();
+            else
+                MessageBox.Show("ImportRAMCamberEvent event handler is null");
+        }
+
+
         private void OnConfigureClick(object sender, RoutedEventArgs e)
         {
             if (configureEvent != null)
@@ -109,12 +130,13 @@ namespace RevitReactionImporter
                 MessageBox.Show("ShowDataFilesBrowserEvent event handler is null");
         }
 
-    }
-
-    public enum ButtonType
-    {
-        Analyze,
-        Estimate
+        private void OnImportBeamSizesClick(object sender, RoutedEventArgs e)
+        {
+            if (importRAMBeamSizesEvent != null)
+                importRAMBeamSizesEvent.Raise();
+            else
+                MessageBox.Show("ImportRAMBeamSizesEvent event handler is null");
+        }
     }
 
 }
