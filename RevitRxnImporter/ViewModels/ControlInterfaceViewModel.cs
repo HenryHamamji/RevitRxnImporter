@@ -95,6 +95,8 @@ namespace RevitReactionImporter
                 return;
             }
             GatherRAMFiles();
+            RAMModel.ExecutePythonScript(RAMFiles);
+
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             var dict = _ramModel.ParseStudFile(ramStudsFilePath);
             _ramModel.MapStudCountsToRAMBeams(dict, _ramModel.RamBeams);
@@ -108,6 +110,8 @@ namespace RevitReactionImporter
                 return;
             }
             GatherRAMFiles();
+            RAMModel.ExecutePythonScript(RAMFiles);
+
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             var beamsFromCamberFile = RAMModel.CamberParser.ParseCamberFile(ramCamberFilePath);
             _ramModel.MapCamberToRAMBeams(beamsFromCamberFile, _ramModel.RamBeams);
@@ -246,8 +250,19 @@ namespace RevitReactionImporter
 
 
 
-        public void ResetBeamReactions()
+        public void ClearBeamData()
         {
+        }
+
+        public void ResetVisualization()
+        {
+        }
+
+        public void VisualizeData(string annotationToVisualize)
+        {
+            ResultsVisualizer resultsVisualizer = new ResultsVisualizer(_document);
+            _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
+            resultsVisualizer.ColorMembers(_analyticalModel, annotationToVisualize);
         }
 
         internal void ShowLevelMappingPane(LevelInfo revitLevelInfo, List<RAMModel.Story> ramStories, List<string> filePaths)
@@ -271,6 +286,12 @@ namespace RevitReactionImporter
         {
             DataFileBrowser dataFileBrowser = new DataFileBrowser(projectId, _view);
             dataFileBrowser.Show();
+        }
+
+        internal void ShowSelectAnnotationToVisualizeWindow()
+        {
+            var annotationTypeSelectionForVisualization = new AnnotationTypeSelectionForVisualization(_view);
+            annotationTypeSelectionForVisualization.Show();
         }
 
 

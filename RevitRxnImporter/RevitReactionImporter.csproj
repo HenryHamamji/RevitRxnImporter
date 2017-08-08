@@ -77,9 +77,12 @@
     <Compile Include="ExternalEvents\ImportRAMBeamSizingHandler.cs" />
     <Compile Include="ExternalEvents\ImportRAMCamberHandler.cs" />
     <Compile Include="ExternalEvents\ImportRAMStudsHandler.cs" />
+    <Compile Include="ExternalEvents\ResetVisualizationHandler.cs" />
+    <Compile Include="ExternalEvents\SelectAnnotationToVisualizeHandler.cs" />
+    <Compile Include="ExternalEvents\ShowAnnotationSelectionToVisualizeBrowser.cs" />
     <Compile Include="ExternalEvents\ShowDataFilesBrowserHandler.cs" />
     <Compile Include="ExternalEvents\BaseIdleHandler.cs" />
-    <Compile Include="ExternalEvents\ClearReactionsHandler.cs" />
+    <Compile Include="ExternalEvents\ClearDataHandler.cs" />
     <Compile Include="ExternalEvents\ConfigureHandler.cs" />
     <Compile Include="ExternalEvents\ImportRAMReactionsHandler.cs" />
     <Compile Include="ExternalEvents\SetLevelMappingFromUserHandler.cs" />
@@ -112,6 +115,9 @@
     <Compile Include="Views\LevelMapping.xaml.cs">
       <DependentUpon>LevelMapping.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\AnnotationTypeSelectionForVisualization.xaml.cs">
+      <DependentUpon>AnnotationTypeSelectionForVisualization.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -133,11 +139,12 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\AnnotationTypeSelectionForVisualization.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\import.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
     <Resource Include="Resources\reset.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
@@ -145,8 +152,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +176,10 @@
     <ProjectReference Include="..\RAMModel\RAMModel.csproj">
       <Project>{7579ccca-0a51-41e7-85ec-9aaca38a1f1e}</Project>
       <Name>RAMModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ResultsVisualizer\ResultsVisualizer.csproj">
+      <Project>{37f4eb35-e4a8-4a86-8822-c7d05d7c9e43}</Project>
+      <Name>ResultsVisualizer</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -221,12 +232,27 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\camber.jpg">
+    <Resource Include="Resources\deflection.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\steel beam.png">
+    <Resource Include="Resources\beam.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\import.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\paint_brush.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\sweep.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

@@ -63,9 +63,9 @@ namespace RevitReactionImporter.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap camber {
+        internal static System.Drawing.Bitmap beam {
             get {
-                object obj = ResourceManager.GetObject("camber", resourceCulture);
+                object obj = ResourceManager.GetObject("beam", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -76,6 +76,16 @@ namespace RevitReactionImporter.Properties {
         internal static System.Drawing.Bitmap configure {
             get {
                 object obj = ResourceManager.GetObject("configure", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap deflection {
+            get {
+                object obj = ResourceManager.GetObject("deflection", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -111,6 +121,16 @@ namespace RevitReactionImporter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap paint_brush {
+            get {
+                object obj = ResourceManager.GetObject("paint_brush", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to RAM REACTION IMPORTER LOG RESULTS.
         /// </summary>
         internal static string RAM_REACTION_IMPORTER_LOG_HEADER {
@@ -132,9 +152,9 @@ namespace RevitReactionImporter.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap steel_beam {
+        internal static System.Drawing.Bitmap stud {
             get {
-                object obj = ResourceManager.GetObject("steel_beam", resourceCulture);
+                object obj = ResourceManager.GetObject("stud", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -142,9 +162,9 @@ namespace RevitReactionImporter.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap stud {
+        internal static System.Drawing.Bitmap sweep {
             get {
-                object obj = ResourceManager.GetObject("stud", resourceCulture);
+                object obj = ResourceManager.GetObject("sweep", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

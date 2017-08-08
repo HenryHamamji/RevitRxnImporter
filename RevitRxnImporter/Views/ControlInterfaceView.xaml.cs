@@ -22,9 +22,12 @@ namespace RevitReactionImporter
         private ExternalEvent importRAMCamberEvent;
         private ExternalEvent importRAMBeamSizesEvent;
 
-        private ExternalEvent clearReactionsEvent;
         private ExternalEvent configureEvent;
         private ExternalEvent showDataFilesBrowserEvent;
+        private ExternalEvent showAnnotationSelectionToVisualizeBrowserEvent;
+        private ExternalEvent resetVisualizationEvent;
+        private ExternalEvent clearDataEvent;
+
 
         internal ObservableCollection<string> ConnectionTypes = new ObservableCollection<string>();
 
@@ -52,10 +55,6 @@ namespace RevitReactionImporter
             importRAMBeamSizingHandler.View = this;
             importRAMBeamSizesEvent = ExternalEvent.Create(importRAMBeamSizingHandler);
 
-            var clearReactionsHandler = new ClearReactionsHandler();
-            clearReactionsHandler.View = this;
-            clearReactionsEvent = ExternalEvent.Create(clearReactionsHandler);
-
             var configureHandler = new ConfigureHandler();
             configureHandler.ControlInterfaceView = this;
             configureEvent = ExternalEvent.Create(configureHandler);
@@ -63,6 +62,18 @@ namespace RevitReactionImporter
             var showDataFilesBrowserHandler = new ShowDataFilesBrowserHandler();
             showDataFilesBrowserHandler.ControlInterfaceView = this;
             showDataFilesBrowserEvent = ExternalEvent.Create(showDataFilesBrowserHandler);
+
+            var showAnnotationSelectionToVisualizeBrowser = new ShowAnnotationSelectionToVisualizeBrowser();
+            showAnnotationSelectionToVisualizeBrowser.ControlInterfaceView = this;
+            showAnnotationSelectionToVisualizeBrowserEvent = ExternalEvent.Create(showAnnotationSelectionToVisualizeBrowser);
+
+            var resetVisualizationHandler = new ResetVisualizationHandler();
+            resetVisualizationHandler.View = this;
+            resetVisualizationEvent = ExternalEvent.Create(resetVisualizationHandler);
+
+            var clearDataHandler = new ClearDataHandler();
+            clearDataHandler.View = this;
+            clearDataEvent = ExternalEvent.Create(clearDataHandler);
 
         }
 
@@ -85,16 +96,6 @@ namespace RevitReactionImporter
                 importRAMReactionsEvent.Raise();
             else
                 MessageBox.Show("ImportRAMReactionsEvent event handler is null");
-        }
-
-
-
-        private void OnResetBeamReactionsClick(object sender, RoutedEventArgs e)
-        {
-            if (clearReactionsEvent != null)
-                clearReactionsEvent.Raise();
-            else
-                MessageBox.Show("ClearReactionsEvent event handler is null");
         }
 
         private void OnImportBeamStudsClick(object sender, RoutedEventArgs e)
@@ -137,6 +138,33 @@ namespace RevitReactionImporter
             else
                 MessageBox.Show("ImportRAMBeamSizesEvent event handler is null");
         }
+
+        private void OnVisualizeClick(object sender, RoutedEventArgs e)
+        {
+            if (showAnnotationSelectionToVisualizeBrowserEvent != null)
+                showAnnotationSelectionToVisualizeBrowserEvent.Raise();
+            else
+                MessageBox.Show("ShowAnnotationSelectionToVisualizeBrowserEvent event handler is null");
+        }
+
+        private void OnResetVisualizationClick(object sender, RoutedEventArgs e)
+        {
+            if (resetVisualizationEvent != null)
+                resetVisualizationEvent.Raise();
+            else
+                MessageBox.Show("resetVisualizationEvent event handler is null");
+        }
+
+        private void OnClearDataClick(object sender, RoutedEventArgs e)
+        {
+            if (clearDataEvent != null)
+                clearDataEvent.Raise();
+            else
+                MessageBox.Show("clearDataEvent event handler is null");
+        }
+
+
+
     }
 
 }

@@ -82,3 +82,7 @@ C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\DataFileBrowser.baml
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\DataFileBrowser.g.cs
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Interop.VBIDE.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\RevitReactionImporter.csproj.ResolveComReference.cache
+C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\AnnotationTypeSelectionForVisualization.baml
+C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\AnnotationTypeSelectionForVisualization.g.cs
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\ResultsVisualizer.dll
+C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\ResultsVisualizer.pdb

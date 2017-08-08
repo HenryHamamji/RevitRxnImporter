@@ -1,0 +1,107 @@
+﻿<Window x:Class="RevitReactionImporter.AnnotationTypeSelectionForVisualization"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Choose Annotation Type to Visualize..." Height="150" Width="360">
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0"
+                    Orientation="Horizontal">
+            <Button Name="VisualizeRAMReactions"
+                    Width="60"
+                    Height="60"
+                    Margin="15 10 10 10"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Click="OnAnnotationToVisualizeClick">
+                <Image Source="/RevitReactionImporterApp;component/Resources/import.png"
+                       Width="50"
+                       Height="60"/>
+            </Button>
+        </StackPanel>
+        <TextBlock Grid.Column ="0" Grid.Row ="1" Name="VisualizeReactionsText"
+                       Width="Auto"
+                   Height="Auto"
+                       Margin="10,0,10,10"
+                       Text="Visualize Beam Reactions"
+                       TextAlignment="Center"
+                       FontSize="9"
+                   TextWrapping="Wrap"/>
+        <StackPanel Grid.Column ="1" Grid.Row="0"
+                    Orientation="Horizontal">
+            <Button Name="VisualizeRAMSizes"
+                    Width="60"
+                    Height="60"
+                    Margin="10 10 10 10"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Click="OnAnnotationToVisualizeClick">
+                <Image Source="/RevitReactionImporterApp;component/Resources/beam.png"
+                       Width="50"
+                       Height="60"/>
+            </Button>
+        </StackPanel>
+        <TextBlock Grid.Column ="1" Grid.Row ="1" Name="VisualizeSizesText"
+                       Width="Auto"
+                   Height="Auto"
+                       Margin="10,0,10,10"
+                       Text="Visualize Beam Sizes"
+                       TextAlignment="Center"
+                       FontSize="9"
+                   TextWrapping="Wrap"/>
+        <StackPanel Grid.Row="0"
+                    Grid.Column ="2"
+                    Orientation="Horizontal">
+            <Button Name="VisualizeRAMStuds"
+                    Width="60"
+                    Height="60"
+                    Margin="10 10 10 10"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Click="OnAnnotationToVisualizeClick">
+                <Image Source="/RevitReactionImporterApp;component/Resources/stud.png"
+                       Width="50"
+                       Height="60"/>
+            </Button>
+        </StackPanel>
+        <TextBlock Grid.Row ="1" Grid.Column ="2" Name="VisualizeStudCountsText"
+                       Width="Auto"
+                   Height="Auto"
+                       Margin="10,0,10,10"
+                       Text="Visualize Beam Reactions"
+                       TextAlignment="Center"
+                       FontSize="9"
+                   TextWrapping="Wrap"/>
+        <StackPanel Grid.Row="0"
+                    Grid.Column ="3"
+                    Orientation="Horizontal">
+            <Button Name="VisualizeRAMCamber"
+                    Width="60"
+                    Height="60"
+                    Margin="10 10 15 10"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Click="OnAnnotationToVisualizeClick">
+                <Image Source="/RevitReactionImporterApp;component/Resources/deflection.png"
+                       Width="50"
+                       Height="60"/>
+            </Button>
+        </StackPanel>
+        <TextBlock Grid.Row ="1" Grid.Column ="3" Name="VisualizeCamberText"
+                       Width="Auto"
+                   Height="Auto"
+                       Margin="10,0,15,10"
+                       Text="Visualize Beam Camber Values"
+                       TextAlignment="Center"
+                       FontSize="9"
+                   TextWrapping="Wrap"/>
+    </Grid>
+</Window>

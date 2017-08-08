@@ -2,7 +2,7 @@
 
 namespace RevitReactionImporter
 {
-    class ClearReactionsHandler : BaseIdleHandler
+    class ResetVisualizationHandler : BaseIdleHandler
     {
         public ControlInterfaceView View { get; set; }
 
@@ -11,12 +11,12 @@ namespace RevitReactionImporter
             if (View.ViewModel == null)
                 return;
 
-            View.ViewModel.ResetBeamReactions();
+            View.ViewModel.ResetVisualization();
         }
 
         public override string GetName()
         {
-            return "ClearReactionsHandler";
+            return "ResetVisualizationHandler";
         }
     }
 }
