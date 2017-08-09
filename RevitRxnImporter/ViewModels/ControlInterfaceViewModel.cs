@@ -38,6 +38,7 @@ namespace RevitReactionImporter
         public string RAMModelStudsFilePath { get; set; }
         public string RAMModelCamberFilePath { get; set; }
         public List<string> RAMFiles { get; set; }
+        public ModelCompare.Results Results { get; set; }
 
         public ControlInterfaceViewModel(ControlInterfaceView view, Document doc,
             RevitReactionImporterApp rria, LevelMappingViewModel levelMappingViewModel, string projectId)
@@ -82,6 +83,7 @@ namespace RevitReactionImporter
                 ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
             //}
             ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser);
+            Results = results;
             System.Windows.Forms.MessageBox.Show("Model Compare Working");
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
@@ -262,7 +264,7 @@ namespace RevitReactionImporter
         {
             ResultsVisualizer resultsVisualizer = new ResultsVisualizer(_document);
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
-            resultsVisualizer.ColorMembers(_analyticalModel, annotationToVisualize);
+            resultsVisualizer.ColorMembers(_analyticalModel, annotationToVisualize, Results.MappedRevitBeams, Results.ModelBeamList);
         }
 
         internal void ShowLevelMappingPane(LevelInfo revitLevelInfo, List<RAMModel.Story> ramStories, List<string> filePaths)
