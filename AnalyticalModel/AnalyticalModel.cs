@@ -251,6 +251,8 @@ namespace RevitReactionImporter
         public double[] EndPoint { get; set; }
         public string StartReactionTotal { get; set; }
         public string EndReactionTotal { get; set; }
+        public string StudCount { get; set; }
+        public string Camber { get; set; }
         public string RAMFloorLayoutType { get; set; }
         public bool IsMappedToRAMBeam { get; set; }
         public double ToleranceForSuccessFulMapping { get; set; }

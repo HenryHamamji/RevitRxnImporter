@@ -34,10 +34,17 @@ namespace RevitReactionImporter
             public Dictionary<string, string> RevitMappingResultsByFloor { get; set; }
             public Dictionary<string, string> RevitLevelToRAMFloorLayoutTypeMapping { get; set; }
             public Dictionary<string, double> RevitBeamTolerancesForMappingSuccess { get; set; }
+            public List<Beam> MappedRevitBeams { get; set; }
+            public List<Beam> ModelBeamList { get; set; }
+            public List<Beam> UnMappedBeamList { get; set; }
+
 
             public Results(Dictionary<int, string> levelMapping)
             {
                 LevelMapping = levelMapping;
+                MappedRevitBeams = new List<Beam>();
+                ModelBeamList = new List<Beam>();
+                UnMappedBeamList = new List<Beam>();
                 //RAMMappingResultsByFloor = ramMappingResultsByFloor;
                 //RevitMappingResultsByFloor = revitMappingResultsByFloor;
                 //, Dictionary<string, string> ramMappingResultsByFloor, Dictionary<string, string> revitMappingResultsByFloor
@@ -920,12 +927,20 @@ namespace RevitReactionImporter
         }
         // BEAM MAPPING.
 
+        public static List<Beam> GetUnMappedBeams(List<Beam> mappedRevitBeams, List<Beam> modelBeams)
+        {
+            //var unMappedBeams = new List<Beam>();
+            var unMappedBeams = modelBeams.Where(p => !mappedRevitBeams.Any(p2 => p2.ElementId == p.ElementId)).ToList();
+            return unMappedBeams;
+        }
+
+
         public static Results PerformBeamMapping(RAMModel ramModel, AnalyticalModel revitModel, Dictionary<int, string> levelMappingDict, Results results, double tolerance)
         {
             Dictionary<string, string> beamRevitMappingByLevelResults = new Dictionary<string, string>();
             Dictionary<string, string> beamRamMappingByLevelResults = new Dictionary<string, string>();
             Dictionary<string, string> revitLevelToRAMLevelMappingResults = new Dictionary<string, string>();
-
+            int iterationCount = 1;
             int numMappedBeamsTotal = 0;
             // Offset RAM Beam X & Y based on Reference Point.
             var offset = MapReferencePoints(ramModel.ReferencePointDataTransfer, revitModel.ReferencePointDataTransfer);
@@ -980,6 +995,7 @@ namespace RevitReactionImporter
                                 revitBeam.ToleranceForSuccessFulMapping = tolerance;
                                 revitBeamTolerancesForMappingSuccess[revitBeam.ElementId.ToString()] = tolerance;
                                 ramBeam.IsMappedToRevitBeam = true;
+                                results.MappedRevitBeams.Add(revitBeam);
                                 //continue;
                             }
                             if (ComparePoints(ramBeam.StartPoint, revitBeam.EndPoint, tolerance) && ComparePoints(ramBeam.EndPoint, revitBeam.StartPoint, tolerance))
@@ -991,6 +1007,8 @@ namespace RevitReactionImporter
                                 revitBeam.ToleranceForSuccessFulMapping = tolerance;
                                 revitBeamTolerancesForMappingSuccess[revitBeam.ElementId.ToString()] = tolerance;
                                 ramBeam.IsMappedToRevitBeam = true;
+                                results.MappedRevitBeams.Add(revitBeam);
+
                                 //continue;
                             }
                         }
@@ -1000,10 +1018,16 @@ namespace RevitReactionImporter
                     beamRamMappingByLevelResults[layoutType] = proportionRamBeamsMappedPerFloor;
                     beamRevitMappingByLevelResults[revitLevelName] = proportionRevitBeamsMappedPerFloor;
                     numMappedBeamsTotal = numMappedBeamsPerFloor.Sum(x => x.Value);
+                    if (iterationCount == 1)
+                    {
+                        results.ModelBeamList.AddRange(revitBeamList);
+                    }
                 }
+
+                iterationCount++;
                 tolerance += 4.0;
             }
-
+            GetUnMappedBeams(results.MappedRevitBeams, results.ModelBeamList);
             // Populate results.
             results.RAMMappingResultsByFloor = beamRamMappingByLevelResults;
             results.RevitMappingResultsByFloor = beamRevitMappingByLevelResults;
