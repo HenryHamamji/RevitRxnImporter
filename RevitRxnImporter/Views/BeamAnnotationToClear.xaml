@@ -1,0 +1,85 @@
+﻿<UserControl x:Class="RevitReactionImporter.BeamAnnotationToClear"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+         Height="150" Width="360">
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0"
+                    Orientation="Horizontal">
+            <Button Name="ClearReactions"
+                    Width="60"
+                    Height="60"
+                    Margin="15 10 10 10"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Click="OnAnnotationToClearClick">
+                <Image Source="/RevitReactionImporterApp;component/Resources/import.png"
+                       Width="50"
+                       Height="60"/>
+            </Button>
+        </StackPanel>
+        <TextBlock Grid.Column ="0" Grid.Row ="1" Name="ClearReactionsText"
+                       Width="Auto"
+                   Height="Auto"
+                       Margin="10,0,10,10"
+                       Text="Clear Beam Reactions"
+                       TextAlignment="Center"
+                       FontSize="9"
+                   TextWrapping="Wrap"/>
+        <StackPanel Grid.Row="0"
+                    Grid.Column ="1"
+                    Orientation="Horizontal">
+            <Button Name="ClearStuds"
+                    Width="60"
+                    Height="60"
+                    Margin="10 10 10 10"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Click="OnAnnotationToClearClick">
+                <Image Source="/RevitReactionImporterApp;component/Resources/stud.png"
+                       Width="50"
+                       Height="60"/>
+            </Button>
+        </StackPanel>
+        <TextBlock Grid.Row ="1" Grid.Column ="1" Name="ClearStudCountsText"
+                       Width="Auto"
+                   Height="Auto"
+                       Margin="10,0,10,10"
+                       Text="Clear Beam Stud Counts"
+                       TextAlignment="Center"
+                       FontSize="9"
+                   TextWrapping="Wrap"/>
+        <StackPanel Grid.Row="0"
+                    Grid.Column ="2"
+                    Orientation="Horizontal">
+            <Button Name="ClearCamber"
+                    Width="60"
+                    Height="60"
+                    Margin="10 10 15 10"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Click="OnAnnotationToClearClick">
+                <Image Source="/RevitReactionImporterApp;component/Resources/deflection.png"
+                       Width="50"
+                       Height="60"/>
+            </Button>
+        </StackPanel>
+        <TextBlock Grid.Row ="1" Grid.Column ="2" Name="ClearCamberText"
+                       Width="Auto"
+                   Height="Auto"
+                       Margin="10,0,15,10"
+                       Text="Clear Beam Camber Values"
+                       TextAlignment="Center"
+                       FontSize="9"
+                   TextWrapping="Wrap"/>
+    </Grid>
+</UserControl>

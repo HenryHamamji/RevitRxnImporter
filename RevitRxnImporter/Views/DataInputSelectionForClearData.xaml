@@ -1,0 +1,101 @@
+﻿<UserControl x:Class="RevitReactionImporter.DataInputSelectionForClearData"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+         Height="150" Width="300">
+
+    <UserControl.Resources>
+        
+        <Style x:Key="MyButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                            <Rectangle Name="r1" StrokeThickness="0.5" Stroke="Black"/>
+
+                            <Border Name="border" Width="{TemplateBinding ActualWidth}" Height="{TemplateBinding ActualHeight}"  CornerRadius="2" BorderThickness="1" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0"
+                    Orientation="Horizontal">
+            <Button Name="RAMImportDataType"
+                    Width="60"
+                    Height="60"
+                    Margin="20 10 10 10"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Click="OnRAMImportDataTypeClick"
+                    BorderBrush="Black"
+                    Cursor="Hand"
+                    Style="{StaticResource MyButtonStyle}">
+                <Image Source="/RevitReactionImporterApp;component/Resources/import.png"
+                       Width="50"
+                       Height="60"/>
+
+
+            </Button>
+        </StackPanel>
+        <TextBlock Grid.Column ="0" Grid.Row ="1" Name="RAMImportDataTypeText"
+                       Width="Auto"
+                   Height="Auto"
+                       Margin="5,0,5,10"
+                       Text="Clear RAM Imported Beam Annotations"
+                       TextAlignment="Center"
+                       FontSize="9"
+                   TextWrapping="Wrap"/>
+        <StackPanel Grid.Column ="1" Grid.Row="0"
+                    Orientation="Horizontal">
+            <Button Name="UserInputDataType"
+                    Width="60"
+                    Height="60"
+                    Margin="15 10 10 10"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Cursor="Hand"
+                    Click="OnUserInputDataTypeClick"
+                                        Style="{StaticResource MyButtonStyle}">
+                <Image Source="/RevitReactionImporterApp;component/Resources/beam.png"
+                       Width="50"
+                       Height="60"/>
+            </Button>
+        </StackPanel>
+        <TextBlock Grid.Column ="1" Grid.Row ="1" Name="UserInputDataTypeText"
+                       Width="Auto"
+                   Height="Auto"
+                       Margin="5,0,5,10"
+                       Text="Clear User Input Beam Annotations"
+                       TextAlignment="Center"
+                       FontSize="9"
+                   TextWrapping="Wrap"/>
+
+
+        <StackPanel Grid.Row="0"
+                    Grid.Column ="3"
+                    Orientation="Horizontal">
+            <Button Name="LoadBeamAnnotationsToClearBtn"
+                    Width="60"
+                    Height="20"
+                    Margin="20 50 15 10"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Click="OnSelectDataTypesToClearClick">
+            </Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

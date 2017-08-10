@@ -86,3 +86,9 @@ C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\AnnotationTypeSelection
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\AnnotationTypeSelectionForVisualization.g.cs
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\ResultsVisualizer.dll
 C:\dev\RevitRxnImporter\RevitRxnImporter\bin\Debug\ResultsVisualizer.pdb
+C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\DataInputSelectionForClearData.baml
+C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\DataInputSelectionForClearData.g.cs
+C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\BeamAnnotationToClear.baml
+C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\BeamAnnotationToClear.g.cs
+C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\ClearAnnotationsMain.baml
+C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\ClearAnnotationsMain.g.cs

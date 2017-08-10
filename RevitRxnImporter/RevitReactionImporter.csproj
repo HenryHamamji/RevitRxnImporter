@@ -103,6 +103,9 @@
     <Compile Include="Utilities\PathUtils.cs" />
     <Compile Include="ViewModels\ControlInterfaceViewModel.cs" />
     <Compile Include="ViewModels\LevelMappingViewModel.cs" />
+    <Compile Include="Views\ClearAnnotationsMain.xaml.cs">
+      <DependentUpon>ClearAnnotationsMain.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ControlInterfaceView.xaml.cs">
       <DependentUpon>ControlInterfaceView.xaml</DependentUpon>
     </Compile>
@@ -118,6 +121,12 @@
     <Compile Include="Views\AnnotationTypeSelectionForVisualization.xaml.cs">
       <DependentUpon>AnnotationTypeSelectionForVisualization.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\DataInputSelectionForClearData.xaml.cs">
+      <DependentUpon>DataInputSelectionForClearData.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\BeamAnnotationToClear.xaml.cs">
+      <DependentUpon>BeamAnnotationToClear.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -127,6 +136,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\ClearAnnotationsMain.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ControlInterfaceView.xaml">
       <SubType>Form</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -140,6 +153,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\AnnotationTypeSelectionForVisualization.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DataInputSelectionForClearData.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\BeamAnnotationToClear.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

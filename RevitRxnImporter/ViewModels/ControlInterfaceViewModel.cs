@@ -254,19 +254,52 @@ namespace RevitReactionImporter
 
         public void ClearBeamData()
         {
+            //DataInputSelectionForClearData dataInputSelectionForClearData = new DataInputSelectionForClearData();
+            //dataInputSelectionForClearData.Show();
+            ClearAnnotationsMain clearAnnotationsMain = new ClearAnnotationsMain();
+            clearAnnotationsMain.Show();
+        }
+
+        internal void ShowSelectDataInputWindow()
+        {
+            var annotationTypeSelectionForVisualization = new AnnotationTypeSelectionForVisualization(_view);
+            annotationTypeSelectionForVisualization.Show();
         }
 
         public void ResetVisualization()
         {
+            var viewType = _document.ActiveView.ViewType;
+            if (viewType.ToString() != "EngineeringPlan")
+            {
+                System.Windows.Forms.MessageBox.Show("Please go to the Framing Plan View in order to visualize the results of the RAM data import.");
+                return;
+            }
+            _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
+            var beamsToReset = new List<Beam>();
+            if(Results == null)
+            {
+                beamsToReset = _analyticalModel.StructuralMembers.Beams;
+            }
+            else
+            {
+                beamsToReset = Results.ModelBeamList;
+            }
+
+            ResultsVisualizer resultsVisualizer = new ResultsVisualizer(_document);
+            resultsVisualizer.ResetVisualsInActiveView(beamsToReset);
+
         }
 
         public void VisualizeData(string annotationToVisualize)
         {
+
             var viewType = _document.ActiveView.ViewType;
             if(viewType.ToString() != "EngineeringPlan")
             {
+                System.Windows.Forms.MessageBox.Show("Please go to the Framing Plan View in order to visualize the results of the RAM data import.");
                 return;
             }
+
             ResultsVisualizer resultsVisualizer = new ResultsVisualizer(_document);
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
 
@@ -298,6 +331,11 @@ namespace RevitReactionImporter
 
         internal void ShowSelectAnnotationToVisualizeWindow()
         {
+            if (Results == null)
+            {
+                System.Windows.Forms.MessageBox.Show("No RAM data imported. Import RAM data in order to visualize import results.");
+                return;
+            }
             var annotationTypeSelectionForVisualization = new AnnotationTypeSelectionForVisualization(_view);
             annotationTypeSelectionForVisualization.Show();
         }
