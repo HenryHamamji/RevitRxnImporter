@@ -262,8 +262,14 @@ namespace RevitReactionImporter
 
         public void VisualizeData(string annotationToVisualize)
         {
+            var viewType = _document.ActiveView.ViewType;
+            if(viewType.ToString() != "EngineeringPlan")
+            {
+                return;
+            }
             ResultsVisualizer resultsVisualizer = new ResultsVisualizer(_document);
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
+
             resultsVisualizer.ColorMembers(_analyticalModel, annotationToVisualize, Results.MappedRevitBeams, Results.ModelBeamList);
         }
 
