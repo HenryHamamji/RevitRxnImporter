@@ -995,6 +995,7 @@ namespace RevitReactionImporter
                                 revitBeam.ToleranceForSuccessFulMapping = tolerance;
                                 revitBeamTolerancesForMappingSuccess[revitBeam.ElementId.ToString()] = tolerance;
                                 ramBeam.IsMappedToRevitBeam = true;
+                                revitBeam.RAMSize = ramBeam.Size.ToUpper();
                                 results.MappedRevitBeams.Add(revitBeam);
                                 //continue;
                             }
@@ -1007,6 +1008,7 @@ namespace RevitReactionImporter
                                 revitBeam.ToleranceForSuccessFulMapping = tolerance;
                                 revitBeamTolerancesForMappingSuccess[revitBeam.ElementId.ToString()] = tolerance;
                                 ramBeam.IsMappedToRevitBeam = true;
+                                revitBeam.RAMSize = ramBeam.Size.ToUpper();
                                 results.MappedRevitBeams.Add(revitBeam);
 
                                 //continue;
