@@ -37,12 +37,14 @@ namespace RevitReactionImporter
             if (!IsReactionsPressed)
             {
                 IsReactionsPressed = true;
+                ClearAnnotationsMain.IsReactionsPressed = true;
                 button.Background = Brushes.LightSteelBlue;
                 Keyboard.ClearFocus();
             }
             else
             {
                 IsReactionsPressed = false;
+                ClearAnnotationsMain.IsReactionsPressed = false;
                 button.ClearValue(Control.BackgroundProperty);
                 Keyboard.ClearFocus();
             }
@@ -54,12 +56,14 @@ namespace RevitReactionImporter
             if (!IsStudCountsPressed)
             {
                 IsStudCountsPressed = true;
+                ClearAnnotationsMain.IsStudCountsPressed = true;        
                 button.Background = Brushes.LightSteelBlue;
                 Keyboard.ClearFocus();
             }
             else
             {
                 IsStudCountsPressed = false;
+                ClearAnnotationsMain.IsStudCountsPressed = false;
                 button.ClearValue(Control.BackgroundProperty);
                 Keyboard.ClearFocus();
             }
@@ -71,12 +75,14 @@ namespace RevitReactionImporter
             if (!IsCamberValuesPressed)
             {
                 IsCamberValuesPressed = true;
+                ClearAnnotationsMain.IsCamberValuesPressed = true;
                 button.Background = Brushes.LightSteelBlue;
                 Keyboard.ClearFocus();
             }
             else
             {
                 IsCamberValuesPressed = false;
+                ClearAnnotationsMain.IsCamberValuesPressed = false;
                 button.ClearValue(Control.BackgroundProperty);
                 Keyboard.ClearFocus();
             }
@@ -84,6 +90,11 @@ namespace RevitReactionImporter
 
         private void OnSelectLevelsToClearClick(object sender, RoutedEventArgs e)
         {
+            if (!ClearAnnotationsMain.IsReactionsPressed && !ClearAnnotationsMain.IsCamberValuesPressed && !ClearAnnotationsMain.IsStudCountsPressed)
+            {
+                System.Windows.Forms.MessageBox.Show("No beam annotation to clear has been selected. Please choose at least one.");
+                return;
+            }
             ClearAnnotationsMain.ContentHolder.Content = new RevitLevels(ClearAnnotationsMain);
 
         }

@@ -26,8 +26,7 @@ namespace RevitReactionImporter
         private ExternalEvent showDataFilesBrowserEvent;
         private ExternalEvent showAnnotationSelectionToVisualizeBrowserEvent;
         private ExternalEvent resetVisualizationEvent;
-        private ExternalEvent clearDataEvent;
-
+        private ExternalEvent showClearBeamAnnotationsWindowEvent;
 
         internal ObservableCollection<string> ConnectionTypes = new ObservableCollection<string>();
 
@@ -71,10 +70,9 @@ namespace RevitReactionImporter
             resetVisualizationHandler.View = this;
             resetVisualizationEvent = ExternalEvent.Create(resetVisualizationHandler);
 
-            var clearDataHandler = new ClearDataHandler();
-            clearDataHandler.View = this;
-            clearDataEvent = ExternalEvent.Create(clearDataHandler);
-
+            var showClearBeamAnnotationsWindowHandler = new ShowClearBeamAnnotationsWindowHandler();
+            showClearBeamAnnotationsWindowHandler.ControlInterfaceView = this;
+            showClearBeamAnnotationsWindowEvent = ExternalEvent.Create(showClearBeamAnnotationsWindowHandler);
         }
 
         public void SetupDockablePane(DockablePaneProviderData data)
@@ -155,14 +153,18 @@ namespace RevitReactionImporter
                 MessageBox.Show("resetVisualizationEvent event handler is null");
         }
 
-        private void OnClearDataClick(object sender, RoutedEventArgs e)
+        private void OnShowClearBeamAnnotationsWindowClick(object sender, RoutedEventArgs e)
         {
-            if (clearDataEvent != null)
-                clearDataEvent.Raise();
+            if (showClearBeamAnnotationsWindowEvent != null)
+                showClearBeamAnnotationsWindowEvent.Raise();
             else
-                MessageBox.Show("clearDataEvent event handler is null");
+                MessageBox.Show("showClearBeamAnnotationsWindowEvent event handler is null");
         }
 
+        private void OnClearDataClick(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ShowClearBeamAnnotationsWindow();
+        }
 
 
     }

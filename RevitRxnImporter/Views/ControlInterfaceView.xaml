@@ -180,7 +180,7 @@
                     Margin="25 7 7 7"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    Click="OnClearDataClick">
+                    Click="OnShowClearBeamAnnotationsWindowClick">
                     <Image Source="/RevitReactionImporterApp;component/Resources/reset.PNG"
                        Width="50"
                        Height="50" RenderTransformOrigin="0.568,0.223"/>

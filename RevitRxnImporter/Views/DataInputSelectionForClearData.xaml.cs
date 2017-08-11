@@ -37,12 +37,14 @@ namespace RevitReactionImporter
             if (!IsRAMImportDataTypePressed)
             {
                 IsRAMImportDataTypePressed = true;
+                ClearAnnotationsMain.IsRAMImportDataTypePressed = true;
                 button.Background = Brushes.LightSteelBlue;
                 Keyboard.ClearFocus();
             }
             else
             {
                 IsRAMImportDataTypePressed = false;
+                ClearAnnotationsMain.IsRAMImportDataTypePressed = false;
                 button.ClearValue(Control.BackgroundProperty);
                 Keyboard.ClearFocus();
             }
@@ -54,12 +56,14 @@ namespace RevitReactionImporter
             if (!IsUserInputDataTypePressed)
             {
                 IsUserInputDataTypePressed = true;
+                ClearAnnotationsMain.IsUserInputDataTypePressed = true;
                 button.Background = Brushes.LightSteelBlue;
                 Keyboard.ClearFocus();
             }
             else
             {
                 IsUserInputDataTypePressed = false;
+                ClearAnnotationsMain.IsUserInputDataTypePressed = false;
                 button.ClearValue(Control.BackgroundProperty);
                 Keyboard.ClearFocus();
             }
@@ -67,6 +71,11 @@ namespace RevitReactionImporter
 
         private void OnSelectDataTypesToClearClick(object sender, RoutedEventArgs e)
         {
+            if (!ClearAnnotationsMain.IsUserInputDataTypePressed && !ClearAnnotationsMain.IsRAMImportDataTypePressed)
+            {
+                System.Windows.Forms.MessageBox.Show("No input data type is selected. Please choose at least one.");
+                return;
+            }
             ClearAnnotationsMain.ContentHolder.Content = new BeamAnnotationToClear(ClearAnnotationsMain);
         }
 

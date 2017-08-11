@@ -23,6 +23,8 @@ namespace RevitReactionImporter
     {
         public ClearAnnotationsMain ClearAnnotationsMain { get; set; }
         public ObservableCollection<string> RevitLevelNames { get; set; }
+        public ObservableCollection<string> SelectedRevitLevelNames { get; set; }
+
         public RevitLevels(ClearAnnotationsMain clearAnnotationsMain)
         {
             ClearAnnotationsMain = clearAnnotationsMain;
@@ -34,21 +36,60 @@ namespace RevitReactionImporter
 
         }
 
+        private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            RevitLevelListBoxes.SelectionMode = SelectionMode.Multiple;
+            foreach (string item in e.RemovedItems)
+            {
+               RevitLevelListBoxes.SelectedItems.Remove(item);
+            }
+
+            foreach (string item in e.AddedItems)
+            {
+                RevitLevelListBoxes.SelectedItems.Add(item);
+            }
+        }
 
         public void PopulateRevitLevels(ClearAnnotationsMain clearAnnotationsMain)
         {
             var revitLevelInfo = clearAnnotationsMain.LevelInfo;
-            RevitLevelListBoxes = new ListBox();
             foreach (var revitLevel in revitLevelInfo.Levels)
             {
                 RevitLevelNames.Add(revitLevel.Name);
+
             }
             double multiple = 19.0;
             clearAnnotationsMain.Height = (revitLevelInfo.Levels.Count * multiple) + 20.0;
             this.Height = (revitLevelInfo.Levels.Count * multiple) + 5.0;
             RevitLevelListBoxes.Height = revitLevelInfo.Levels.Count * multiple;
+
         }
 
+        public ObservableCollection<string> GetSelectedRevitLevels()
+        {
+            var selectedRevitLevels = new ObservableCollection<string>();
+            for (int i = 0; i < RevitLevelListBoxes.SelectedItems.Count; i++)
+            {
+                string listitemcontents_str = RevitLevelListBoxes.SelectedItems[i].ToString();
+                selectedRevitLevels.Add(listitemcontents_str);
+            }
+
+            return selectedRevitLevels;
+        }
+
+        private void OnClearSelectionsClick(object sender, RoutedEventArgs e)
+        {
+            SelectedRevitLevelNames = GetSelectedRevitLevels();
+            if (SelectedRevitLevelNames.Count==0)
+            {
+                System.Windows.Forms.MessageBox.Show("No levels have been selected. Please choose at least one.");
+                return;
+            }
+            ClearAnnotationsMain.RevitLevelNamesSelected = SelectedRevitLevelNames;
+            ClearAnnotationsMain.Close();
+            ClearAnnotationsMain.ClearSelectedAnnotations();
+
+        }
 
 
 

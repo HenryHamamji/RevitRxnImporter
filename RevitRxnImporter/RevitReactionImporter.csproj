@@ -80,6 +80,7 @@
     <Compile Include="ExternalEvents\ResetVisualizationHandler.cs" />
     <Compile Include="ExternalEvents\SelectAnnotationToVisualizeHandler.cs" />
     <Compile Include="ExternalEvents\ShowAnnotationSelectionToVisualizeBrowser.cs" />
+    <Compile Include="ExternalEvents\ShowClearBeamAnnotationsWindowHandler.cs" />
     <Compile Include="ExternalEvents\ShowDataFilesBrowserHandler.cs" />
     <Compile Include="ExternalEvents\BaseIdleHandler.cs" />
     <Compile Include="ExternalEvents\ClearDataHandler.cs" />

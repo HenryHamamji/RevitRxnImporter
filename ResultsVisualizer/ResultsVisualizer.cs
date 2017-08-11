@@ -252,6 +252,12 @@ namespace RevitReactionImporter
             }
         }
 
+        // CLEAR DATA.
+        public void ClearSelectedAnnotations()
+        {
+
+        }
+
 
         }
 }

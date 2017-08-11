@@ -250,15 +250,84 @@ namespace RevitReactionImporter
             return System.IO.Path.Combine(dir, string.Format("Project-{0}_metadata.csv", projectId));
         }
 
-
-
-        public void ClearBeamData()
+        public void ClearSelectedBeamAnnotations(ClearAnnotationsMain clearAnnotationsMain)
         {
-            //DataInputSelectionForClearData dataInputSelectionForClearData = new DataInputSelectionForClearData();
-            //dataInputSelectionForClearData.Show();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
+            var beamsToReset = new List<Beam>();
+            beamsToReset = FilterOutBeamsToResetByInputDataType(clearAnnotationsMain);
+            beamsToReset = FilterOutBeamsToResetByLevels(beamsToReset, clearAnnotationsMain);
+            ResetBeamsParametersBySelectedAnnotations(clearAnnotationsMain, beamsToReset);
+        }
 
-            ClearAnnotationsMain clearAnnotationsMain = new ClearAnnotationsMain(_analyticalModel.LevelInfo);
+        public List<Beam> FilterOutBeamsToResetByInputDataType(ClearAnnotationsMain clearAnnotationsMain)
+        {
+            var beamList = new List<Beam>();
+            if(clearAnnotationsMain.IsUserInputDataTypePressed && clearAnnotationsMain.IsRAMImportDataTypePressed)
+            {
+                beamList = Results.ModelBeamList;
+            }
+            else if(clearAnnotationsMain.IsUserInputDataTypePressed && !clearAnnotationsMain.IsRAMImportDataTypePressed)
+            {
+                beamList = Results.UnMappedBeamList;
+            }
+            else if (!clearAnnotationsMain.IsUserInputDataTypePressed && clearAnnotationsMain.IsRAMImportDataTypePressed)
+            {
+                beamList = Results.MappedRevitBeams;
+            }
+            return beamList;
+        }
+
+        public List<Beam> FilterOutBeamsToResetByLevels(List<Beam> beamsToReset, ClearAnnotationsMain clearAnnotationsMain)
+        {
+            var beamList = new List<Beam>();
+            foreach (var beamToReset in beamsToReset)
+            {
+                string beamToResetLevel = beamToReset.ElementLevel;
+                if(clearAnnotationsMain.RevitLevelNamesSelected.Contains(beamToResetLevel))
+                {
+                    beamList.Add(beamToReset);
+                }
+            }
+            return beamList;
+        }
+
+        public void ResetBeamsParametersBySelectedAnnotations(ClearAnnotationsMain clearAnnotationsMain , List<Beam> beamsToReset)
+        {
+            var clearBeamAnnoationsTransaction = new Transaction(_document, "Clear Beam Annotations");
+            clearBeamAnnoationsTransaction.Start();
+            foreach (var beamToReset in beamsToReset)
+            {
+                ElementId beamId = new ElementId(beamToReset.ElementId);
+                var beam = _document.GetElement(beamId) as FamilyInstance;
+
+                if (clearAnnotationsMain.IsReactionsPressed)
+                {
+                    beam.LookupParameter("Start Reaction - Total").SetValueString("");
+                    beam.LookupParameter("End Reaction - Total").SetValueString("");
+                }
+
+                if (clearAnnotationsMain.IsStudCountsPressed)
+                {
+                    beam.LookupParameter("Number of studs").SetValueString("");
+                }
+
+                if (clearAnnotationsMain.IsCamberValuesPressed)
+                {
+                    beam.LookupParameter("Camber Size").SetValueString("");
+                }
+            }
+            clearBeamAnnoationsTransaction.Commit();
+        }
+
+        public void ShowClearBeamAnnotationsWindow()
+        {
+            if(Results==null)
+            {
+                System.Windows.Forms.MessageBox.Show("No RAM data imported. Import RAM data in order to visualize import results.");
+                return;
+            }
+
+            ClearAnnotationsMain clearAnnotationsMain = new ClearAnnotationsMain(_analyticalModel.LevelInfo, _view);
             clearAnnotationsMain.Show();
         }
 

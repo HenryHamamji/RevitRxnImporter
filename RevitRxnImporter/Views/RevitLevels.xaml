@@ -1,13 +1,57 @@
 ﻿<UserControl x:Class="RevitReactionImporter.RevitLevels"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="360">
+    <UserControl.Resources>
+        <Style x:Key="MyButtonStyle2" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+    </UserControl.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Background="White">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="0.5*" />
+
             </Grid.ColumnDefinitions>
-            <ListBox Name="RevitLevelListBoxes" SelectionMode="Multiple" Margin=" 0,10,0,10">
+            <ListBox Name="RevitLevelListBoxes" SelectionMode="Multiple" Margin=" 5,10,0,10" SelectionChanged="ListBox_SelectionChanged">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                    </Style>
+                </ListBox.ItemContainerStyle>
             </ListBox>
+
+
+            <StackPanel 
+            Grid.Column ="1"
+            Orientation="Horizontal"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Margin="0,0,5,0">
+                <Button x:Name="ClearSelectionAnnotations"
+                    Width="Auto"
+                    Height="Auto"
+                    Click="OnClearSelectionsClick"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    Style="{StaticResource MyButtonStyle2}"
+                    Cursor="Hand">
+                    <Image Source="/RevitReactionImporterApp;component/Resources/go.png"
+                       Width="40"
+                       Height="40"/>
+                </Button>
+
+            </StackPanel>
         </Grid>
     </ScrollViewer>
 </UserControl>
