@@ -1,27 +1,58 @@
 ﻿<UserControl x:Class="RevitReactionImporter.BeamAnnotationToClear"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-         Height="150" Width="360">
+         Height="Auto" Width="360">
+    <UserControl.Resources>
+        <Style x:Key="MyButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                            <Rectangle Name="r1" StrokeThickness="0.5" Stroke="Black"/>
+
+                            <Border Name="border" Width="{TemplateBinding ActualWidth}" Height="{TemplateBinding ActualHeight}"  CornerRadius="2" BorderThickness="1" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="MyButtonStyle2" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="50" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*" />
             <ColumnDefinition Width="1*" />
             <ColumnDefinition Width="1*" />
-            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="0.5*" />
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0"
-                    Orientation="Horizontal">
+                    Orientation="Horizontal"
+                    Margin="0,10,0,5"
+                     HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
             <Button Name="ClearReactions"
                     Width="60"
                     Height="60"
-                    Margin="15 10 10 10"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    Click="OnAnnotationToClearClick">
+                    Style="{StaticResource MyButtonStyle}"
+                Click="OnReactionsToClearClick"
+                    >
                 <Image Source="/RevitReactionImporterApp;component/Resources/import.png"
                        Width="50"
                        Height="60"/>
@@ -30,21 +61,23 @@
         <TextBlock Grid.Column ="0" Grid.Row ="1" Name="ClearReactionsText"
                        Width="Auto"
                    Height="Auto"
-                       Margin="10,0,10,10"
+                       Margin="10,0,10,5"
                        Text="Clear Beam Reactions"
                        TextAlignment="Center"
                        FontSize="9"
                    TextWrapping="Wrap"/>
         <StackPanel Grid.Row="0"
                     Grid.Column ="1"
-                    Orientation="Horizontal">
+                    Orientation="Horizontal"
+                    Margin="0,10,0,5"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+>
             <Button Name="ClearStuds"
                     Width="60"
                     Height="60"
-                    Margin="10 10 10 10"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    Click="OnAnnotationToClearClick">
+                    Style="{StaticResource MyButtonStyle}"
+                    Click="OnStudCountsToClearClick">
                 <Image Source="/RevitReactionImporterApp;component/Resources/stud.png"
                        Width="50"
                        Height="60"/>
@@ -53,21 +86,23 @@
         <TextBlock Grid.Row ="1" Grid.Column ="1" Name="ClearStudCountsText"
                        Width="Auto"
                    Height="Auto"
-                       Margin="10,0,10,10"
+                       Margin="10,0,10,5"
                        Text="Clear Beam Stud Counts"
                        TextAlignment="Center"
                        FontSize="9"
                    TextWrapping="Wrap"/>
         <StackPanel Grid.Row="0"
                     Grid.Column ="2"
-                    Orientation="Horizontal">
+                    Orientation="Horizontal"
+                    Margin="0,10,0,5"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
             <Button Name="ClearCamber"
                     Width="60"
                     Height="60"
-                    Margin="10 10 15 10"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    Click="OnAnnotationToClearClick">
+                    Style="{StaticResource MyButtonStyle}"
+
+                    Click="OnCamberValuesToClearClick">
                 <Image Source="/RevitReactionImporterApp;component/Resources/deflection.png"
                        Width="50"
                        Height="60"/>
@@ -76,10 +111,33 @@
         <TextBlock Grid.Row ="1" Grid.Column ="2" Name="ClearCamberText"
                        Width="Auto"
                    Height="Auto"
-                       Margin="10,0,15,10"
+                       Margin="10,0,10,5"
                        Text="Clear Beam Camber Values"
                        TextAlignment="Center"
                        FontSize="9"
                    TextWrapping="Wrap"/>
+
+        <StackPanel 
+            Grid.Column ="3"
+                    Orientation="Horizontal" Grid.RowSpan="2"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Right"
+            Margin="0,0,5,0">
+            <Button x:Name="LoadBeamAnnotationsToClearBtn"
+                    Width="Auto"
+                    Height="Auto"
+                    Click="OnSelectLevelsToClearClick"
+                    Background="Transparent"
+                    Style="{StaticResource MyButtonStyle2}"
+
+                    BorderBrush="Transparent"
+                    Cursor="Hand"
+                    >
+                <Image Source="/RevitReactionImporterApp;component/Resources/go.png"
+                       Width="40"
+                       Height="40"/>
+            </Button>
+
+        </StackPanel>
     </Grid>
 </UserControl>

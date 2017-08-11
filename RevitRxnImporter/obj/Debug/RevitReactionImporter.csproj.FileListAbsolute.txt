@@ -92,3 +92,5 @@ C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\BeamAnnotationToClear.b
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\BeamAnnotationToClear.g.cs
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\ClearAnnotationsMain.baml
 C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\ClearAnnotationsMain.g.cs
+C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\RevitLevels.baml
+C:\dev\RevitRxnImporter\RevitRxnImporter\obj\Debug\Views\RevitLevels.g.cs

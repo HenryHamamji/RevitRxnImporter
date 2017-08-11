@@ -12,13 +12,23 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Collections.ObjectModel;
 
 namespace RevitReactionImporter
 {
     public partial class ClearAnnotationsMain : Window
     {
-        public ClearAnnotationsMain()
+        public LevelInfo LevelInfo { get; set;}
+        public bool IsRAMImportDataTypePressed { get; set; }
+        public bool IsUserInputDataTypePressed { get; set; }
+        public bool IsReactionsPressed { get; set; }
+        public bool IsStudCountsPressed { get; set; }
+        public bool IsCamberValuesPressed { get; set; }
+        public ObservableCollection<string> RevitLevelNames { get; set; }
+
+        public ClearAnnotationsMain(LevelInfo levelInfo)
         {
+            LevelInfo = levelInfo;
             InitializeComponent();
             this.ContentHolder.Content = new DataInputSelectionForClearData(this);
 

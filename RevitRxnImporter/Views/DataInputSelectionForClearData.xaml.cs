@@ -67,7 +67,7 @@ namespace RevitReactionImporter
 
         private void OnSelectDataTypesToClearClick(object sender, RoutedEventArgs e)
         {
-            ClearAnnotationsMain.ContentHolder.Content = new BeamAnnotationToClear();
+            ClearAnnotationsMain.ContentHolder.Content = new BeamAnnotationToClear(ClearAnnotationsMain);
         }
 
     }

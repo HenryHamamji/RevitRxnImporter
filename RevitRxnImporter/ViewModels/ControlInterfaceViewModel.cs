@@ -256,7 +256,9 @@ namespace RevitReactionImporter
         {
             //DataInputSelectionForClearData dataInputSelectionForClearData = new DataInputSelectionForClearData();
             //dataInputSelectionForClearData.Show();
-            ClearAnnotationsMain clearAnnotationsMain = new ClearAnnotationsMain();
+            _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
+
+            ClearAnnotationsMain clearAnnotationsMain = new ClearAnnotationsMain(_analyticalModel.LevelInfo);
             clearAnnotationsMain.Show();
         }
 

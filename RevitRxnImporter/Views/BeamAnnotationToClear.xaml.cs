@@ -17,14 +17,77 @@ namespace RevitReactionImporter
 {
     public partial class BeamAnnotationToClear : UserControl
     {
-        public BeamAnnotationToClear()
+        public bool IsReactionsPressed { get; set; }
+        public bool IsStudCountsPressed { get; set; }
+        public bool IsCamberValuesPressed { get; set; }
+        public ClearAnnotationsMain ClearAnnotationsMain { get; set; }
+
+        public BeamAnnotationToClear(ClearAnnotationsMain clearAnnotationsMain)
         {
+            IsReactionsPressed = false;
+            IsStudCountsPressed = false;
+            IsCamberValuesPressed = false;
+            ClearAnnotationsMain = clearAnnotationsMain;
             InitializeComponent();
         }
 
-        private void OnAnnotationToClearClick(object sender, RoutedEventArgs e)
+        private void OnReactionsToClearClick(object sender, RoutedEventArgs e)
         {
+            var button = sender as Button;
+            if (!IsReactionsPressed)
+            {
+                IsReactionsPressed = true;
+                button.Background = Brushes.LightSteelBlue;
+                Keyboard.ClearFocus();
+            }
+            else
+            {
+                IsReactionsPressed = false;
+                button.ClearValue(Control.BackgroundProperty);
+                Keyboard.ClearFocus();
+            }
+        }
+
+        private void OnStudCountsToClearClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (!IsStudCountsPressed)
+            {
+                IsStudCountsPressed = true;
+                button.Background = Brushes.LightSteelBlue;
+                Keyboard.ClearFocus();
+            }
+            else
+            {
+                IsStudCountsPressed = false;
+                button.ClearValue(Control.BackgroundProperty);
+                Keyboard.ClearFocus();
+            }
+        }
+
+        private void OnCamberValuesToClearClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (!IsCamberValuesPressed)
+            {
+                IsCamberValuesPressed = true;
+                button.Background = Brushes.LightSteelBlue;
+                Keyboard.ClearFocus();
+            }
+            else
+            {
+                IsCamberValuesPressed = false;
+                button.ClearValue(Control.BackgroundProperty);
+                Keyboard.ClearFocus();
+            }
+        }
+
+        private void OnSelectLevelsToClearClick(object sender, RoutedEventArgs e)
+        {
+            ClearAnnotationsMain.ContentHolder.Content = new RevitLevels(ClearAnnotationsMain);
 
         }
+
+
     }
 }

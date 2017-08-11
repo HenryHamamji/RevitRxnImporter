@@ -1,0 +1,13 @@
+﻿<UserControl x:Class="RevitReactionImporter.RevitLevels"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="360">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Background="White">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <ListBox Name="RevitLevelListBoxes" SelectionMode="Multiple" Margin=" 0,10,0,10">
+            </ListBox>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

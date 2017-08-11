@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 
-7-919308268
+8599534311
 
-30949697440
+31801979012
 342119903561
-Views\ClearAnnotationsMain.xaml;Views\ControlInterfaceView.xaml;Views\DataFileBrowser.xaml;Views\LevelMapping.xaml;Views\AnnotationTypeSelectionForVisualization.xaml;Views\DataInputSelectionForClearData.xaml;Views\BeamAnnotationToClear.xaml;
+Views\ClearAnnotationsMain.xaml;Views\ControlInterfaceView.xaml;Views\DataFileBrowser.xaml;Views\LevelMapping.xaml;Views\AnnotationTypeSelectionForVisualization.xaml;Views\DataInputSelectionForClearData.xaml;Views\BeamAnnotationToClear.xaml;Views\RevitLevels.xaml;
 
 False
 
