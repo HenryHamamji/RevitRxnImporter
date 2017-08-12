@@ -73,6 +73,16 @@ namespace RevitReactionImporter.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap checkbox {
+            get {
+                object obj = ResourceManager.GetObject("checkbox", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap configure {
             get {
                 object obj = ResourceManager.GetObject("configure", resourceCulture);
@@ -136,6 +146,16 @@ namespace RevitReactionImporter.Properties {
         internal static System.Drawing.Bitmap paint_brush {
             get {
                 object obj = ResourceManager.GetObject("paint_brush", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap parallelogram {
+            get {
+                object obj = ResourceManager.GetObject("parallelogram", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

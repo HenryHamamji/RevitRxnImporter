@@ -160,25 +160,25 @@ namespace RevitReactionImporter
             }
         }
 
-        public void SetValueOfRAMFloorLayoutTypeComboBoxesFromAlgorithm(List<string> filePaths)
-        {
-            RAMModel.ExecutePythonScript(filePaths);
-            RAMModel ramModel = RAMModel.DeserializeRAMModel();
-            var analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
+        //public void SetValueOfRAMFloorLayoutTypeComboBoxesFromAlgorithm(List<string> filePaths)
+        //{
+        //    RAMModel.ExecutePythonScript(filePaths);
+        //    RAMModel ramModel = RAMModel.DeserializeRAMModel();
+        //    var analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
 
-            ModelCompare.Results results = ModelCompare.CompareModels(ramModel, analyticalModel, LevelMappingFromUser);
+        //    ModelCompare.Results results = ModelCompare.CompareModels(ramModel, analyticalModel, LevelMappingFromUser);
 
-            for (int i = 0; i < _view.RevitLevelTextBlocks.Children.Count; i++)
-            {
-                var revitLevelStackPanelItem = (System.Windows.Controls.TextBlock)_view.RevitLevelTextBlocks.Children[i];
-                string revitLevelName = revitLevelStackPanelItem.Text;
-                int revitLevelId = GetRevitLevelIdFromName(revitLevelName, analyticalModel.LevelInfo);
-                var ramFloorLayoutTypes = _view.RevitLevelsComboBoxes.Children;
-                var ramFloorLayoutTypeComboBox = (System.Windows.Controls.ComboBox)ramFloorLayoutTypes[i];
-                string selectedValue = results.LevelMapping[revitLevelId];
-                ramFloorLayoutTypeComboBox.SelectedValue = selectedValue;
-            }
-        }
+        //    for (int i = 0; i < _view.RevitLevelTextBlocks.Children.Count; i++)
+        //    {
+        //        var revitLevelStackPanelItem = (System.Windows.Controls.TextBlock)_view.RevitLevelTextBlocks.Children[i];
+        //        string revitLevelName = revitLevelStackPanelItem.Text;
+        //        int revitLevelId = GetRevitLevelIdFromName(revitLevelName, analyticalModel.LevelInfo);
+        //        var ramFloorLayoutTypes = _view.RevitLevelsComboBoxes.Children;
+        //        var ramFloorLayoutTypeComboBox = (System.Windows.Controls.ComboBox)ramFloorLayoutTypes[i];
+        //        string selectedValue = results.LevelMapping[revitLevelId];
+        //        ramFloorLayoutTypeComboBox.SelectedValue = selectedValue;
+        //    }
+        //}
 
         public void SetLevelMappingFromUser()
         {
@@ -216,7 +216,7 @@ namespace RevitReactionImporter
             string fullPath = GetLevelMappingHistoryFile(ProjectId);
 
             if (!File.Exists(fullPath))
-                return new MappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser);
+                return new MappingHistory(false, LevelMappingFromUser);
 
             var text = File.ReadAllText(fullPath);
 

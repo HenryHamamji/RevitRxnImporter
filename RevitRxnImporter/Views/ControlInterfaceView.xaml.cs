@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Collections.Generic;
-
+using System.Windows.Media;
 using Autodesk.Revit.UI;
 using System.Windows.Threading;
 using System.Collections.ObjectModel;
@@ -12,6 +12,9 @@ namespace RevitReactionImporter
 {
     public partial class ControlInterfaceView : Page, IDockablePaneProvider
     {
+
+        public bool IsSingleImportPressed { get; set; }
+        public bool IsMultipleImportPressed { get; set; }
 
         internal ControlInterfaceViewModel ViewModel { get; set; }
 
@@ -34,6 +37,8 @@ namespace RevitReactionImporter
 
         public ControlInterfaceView()
         {
+            IsMultipleImportPressed = false;
+            IsSingleImportPressed = false;
             InitializeComponent();
 
             ViewModel = null;
@@ -79,12 +84,11 @@ namespace RevitReactionImporter
         {
             data.FrameworkElement = this;
 
-            data.InitialState.SetFloatingRectangle(new Rectangle(200, 150, 500, 350));
+            data.InitialState.SetFloatingRectangle(new Rectangle(200, 150, 600, 500));
             data.InitialState.DockPosition = DockPosition.Floating;
 
-            data.FrameworkElement.MaxHeight = 200;
-            data.FrameworkElement.MaxWidth = 300;
-
+            data.FrameworkElement.MaxHeight = 350;
+            data.FrameworkElement.MaxWidth = 400;
             _paneProviderData = data;
         }
 
@@ -166,6 +170,55 @@ namespace RevitReactionImporter
             ViewModel.ShowClearBeamAnnotationsWindow();
         }
 
+        private void OnSingleImportClick(object sender, RoutedEventArgs e)
+        {
+            SingleImportButtonIsPressed(sender, e);
+        }
+
+        private void OnMultipleImportClick(object sender, RoutedEventArgs e)
+        {
+            MultipleImportButtonIsPressed(sender, e);
+        }
+
+        private void SingleImportButtonIsPressed(object sender, RoutedEventArgs e)
+        {
+            var button = sender as System.Windows.Controls.Button;
+            if (!IsSingleImportPressed)
+            {
+                IsSingleImportPressed = true;
+                ViewModel.IsSingleImportPressed = true;
+                IsMultipleImportPressed = false;
+                ViewModel.IsMultipleImportPressed = false;
+                button.Background = Brushes.LightSteelBlue;
+                Keyboard.ClearFocus();
+                MultipleImport.ClearValue(Control.BackgroundProperty);
+                Keyboard.ClearFocus();
+            }
+            else
+            {
+
+            }
+        }
+
+        private void MultipleImportButtonIsPressed(object sender, RoutedEventArgs e)
+        {
+            var button = sender as System.Windows.Controls.Button;
+            if (!IsMultipleImportPressed)
+            {
+                IsMultipleImportPressed = true;
+                ViewModel.IsMultipleImportPressed = true;
+                IsSingleImportPressed = false;
+                ViewModel.IsSingleImportPressed = false;
+                button.Background = Brushes.LightSteelBlue;
+                Keyboard.ClearFocus();
+                SingleImport.ClearValue(Control.BackgroundProperty);
+                Keyboard.ClearFocus();
+            }
+            else
+            {
+
+            }
+        }
 
     }
 

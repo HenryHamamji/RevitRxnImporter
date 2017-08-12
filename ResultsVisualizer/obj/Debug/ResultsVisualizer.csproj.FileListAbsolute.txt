@@ -62,3 +62,7 @@ C:\dev\RevitRxnImporter\ResultsVisualizer\obj\Debug\ResultsVisualizer.pdb
 C:\dev\RevitRxnImporter\ResultsVisualizer\bin\Debug\AnalyticalModel.dll
 C:\dev\RevitRxnImporter\ResultsVisualizer\bin\Debug\AnalyticalModel.pdb
 C:\dev\RevitRxnImporter\ResultsVisualizer\obj\Debug\ResultsVisualizer.csprojResolveAssemblyReference.cache
+C:\dev\RevitRxnImporter\ResultsVisualizer\bin\Debug\ModelCompare.dll
+C:\dev\RevitRxnImporter\ResultsVisualizer\bin\Debug\RAMModel.dll
+C:\dev\RevitRxnImporter\ResultsVisualizer\bin\Debug\ModelCompare.pdb
+C:\dev\RevitRxnImporter\ResultsVisualizer\bin\Debug\RAMModel.pdb

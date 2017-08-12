@@ -54,6 +54,14 @@
       <Project>{e20417ec-0db9-4abe-ad4c-a43f7d153441}</Project>
       <Name>AnalyticalModel</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ModelCompare\ModelCompare.csproj">
+      <Project>{8468d0f4-67bc-47a9-89c1-bc6fa9f17f77}</Project>
+      <Name>ModelCompare</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RAMModel\RAMModel.csproj">
+      <Project>{7579ccca-0a51-41e7-85ec-9aaca38a1f1e}</Project>
+      <Name>RAMModel</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

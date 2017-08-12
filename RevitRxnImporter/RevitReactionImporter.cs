@@ -81,7 +81,7 @@ namespace RevitReactionImporter
             try
             {
                 uiApp.CreateRibbonTab(APP_TAB_NAME);
-                RibbonPanel = uiApp.CreateRibbonPanel(APP_TAB_NAME, "RAM Reaction Importer");
+                RibbonPanel = uiApp.CreateRibbonPanel(APP_TAB_NAME, "RAM Data Importer");
                 AddPushButton(RibbonPanel);
                 //browserPanel = uiApp.CreateRibbonPanel(APP_TAB_NAME, BROWSER_PANEL_NAME);
 
@@ -97,7 +97,7 @@ namespace RevitReactionImporter
                 LevelMappingPaneView = new LevelMappingView(_levelMappingId);
                 LevelMappingPaneVisibilityChanged = true;
 
-                RevitApplication.RegisterDockablePane(_controlPaneId, "RAM to Revit Reaction Importer", ControlInterfaceView);
+                RevitApplication.RegisterDockablePane(_controlPaneId, "RAM to Revit Data Importer", ControlInterfaceView);
                 RevitApplication.RegisterDockablePane(_levelMappingId, "Level Mapping User Confirmation", LevelMappingPaneView);
 
                 uiApp.Idling += UiIdlingHandler;
@@ -194,8 +194,8 @@ namespace RevitReactionImporter
 
         private void AddPushButton(Autodesk.Revit.UI.RibbonPanel panel)
         {
-            PushButton appButton = panel.AddItem(new PushButtonData("RAM Reaction Importer", "Import RAM Reactions", _assemblyPath, "RevitReactionImporter.ControlInterfaceDockingPane")) as PushButton;
-            appButton.ToolTip = "RAM Reaction Importer";
+            PushButton appButton = panel.AddItem(new PushButtonData("RAM Data Importer", "Import RAM Data", _assemblyPath, "RevitReactionImporter.ControlInterfaceDockingPane")) as PushButton;
+            appButton.ToolTip = "RAM Data Importer";
             System.Windows.Media.Imaging.BitmapImage imagePushButton = new System.Windows.Media.Imaging.BitmapImage();
             imagePushButton.BeginInit();
             imagePushButton.UriSource = new Uri(@"C:\dev\RevitRxnImporter\RevitRxnImporter\Resources\icon.jpeg");

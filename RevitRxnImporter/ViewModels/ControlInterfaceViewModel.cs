@@ -31,7 +31,7 @@ namespace RevitReactionImporter
         public AnalyticalModel AnalyticalModel { get { return _analyticalModel; } }
         public ModelCompare ModelCompare { get { return _modelCompare; } }
         public RAMModel RAMModel { get { return _ramModel; } }
-        //public bool IsLevelMappingSetByUser { get; set; }
+        public bool IsLevelMappingSetByUser { get; set; }
         //public Dictionary<int, string> LevelMappingFromUser { get; private set; }
         public string RAMModelMetaDataFilePath { get; set; }
         public string RAMModelReactionsFilePath { get; set; }
@@ -39,10 +39,21 @@ namespace RevitReactionImporter
         public string RAMModelCamberFilePath { get; set; }
         public List<string> RAMFiles { get; set; }
         public ModelCompare.Results Results { get; set; }
+        public bool IsSingleImportPressed { get; set; }
+        public bool IsMultipleImportPressed { get; set; }
+        //public enum AnnotationType
+        //{
+        //    None,
+        //    Reaction,
+        //    StudCount,
+        //    Camber,
+        //    Size
+        //}
 
         public ControlInterfaceViewModel(ControlInterfaceView view, Document doc,
             RevitReactionImporterApp rria, LevelMappingViewModel levelMappingViewModel, string projectId)
         {
+            IsLevelMappingSetByUser = false;
             _rria = rria;
 
             _view = view;
@@ -54,6 +65,7 @@ namespace RevitReactionImporter
 
             IList<RibbonItem> ribbonItems = _rria.RibbonPanel.GetItems();
             RAMFiles = new List<string>();
+            IsLevelMappingSetByUser = LevelMappingViewModel.IsLevelMappingSetByUser;
         }
 
         public void DocumentClosed()
@@ -61,10 +73,61 @@ namespace RevitReactionImporter
             // Document already closed, we can't do anything.
         }
 
+        public int GetLevelIdOfActiveView()
+        {
+            var activeView = _document.ActiveView;
+            var viewType = activeView.ViewType;
+            if (viewType.ToString() != "EngineeringPlan")
+            {
+                System.Windows.Forms.MessageBox.Show("Please go to a Framing Plan View in order to import the relevant RAM data.");
+                return -1;
+            }
+            var level = activeView.GenLevel;
+            return Int32.Parse(level.Id.ToString());
+        }
+
+        public bool IsImportModeSingle(bool isSingleImportPressed, bool isMultipleImportPressed)
+        {
+            bool isImportModeSingle;
+            if (IsSingleImportPressed && !IsMultipleImportPressed)
+            {
+                isImportModeSingle = true;
+            }
+            else if (!IsSingleImportPressed && IsMultipleImportPressed)
+            {
+                isImportModeSingle = false;
+            }
+            else
+            {
+                throw new Exception("Need to debug: No import mode selected or more than one import mode selected.");
+            }
+            return isImportModeSingle;
+        }
+
+        public bool CheckLevelMappingRequirement()
+        {
+            if (!IsLevelMappingSetByUser)
+            {
+                System.Windows.Forms.MessageBox.Show("Level mapping has not been set. Please set the Revit Level to RAM Floor Layout Type Mapping.");
+                return false;
+            }
+            return true;
+        }
+
+        public bool ImportModeSelected()
+        {
+            if (!IsMultipleImportPressed && !IsSingleImportPressed)
+            {
+                System.Windows.Forms.MessageBox.Show("Please select an import mode: Single level or multiple level import.");
+                return false;
+            }
+            return true;
+        }
 
         public void ImportBeamReactions()
         {
-
+            AnnotationType annotationType = AnnotationType.Reaction;
+            int singleLevelId = -1;
             // Gather the input files.
             GatherRAMFiles();
             // Check if required files are loaded.
@@ -74,29 +137,48 @@ namespace RevitReactionImporter
                 return;
             }
 
+            if (!CheckLevelMappingRequirement())
+                return;
+            if (!ImportModeSelected())
+                return;
+            var isImportModeSingle = IsImportModeSingle(IsSingleImportPressed, IsMultipleImportPressed);
+            if(isImportModeSingle)
+            {
+                singleLevelId = GetLevelIdOfActiveView();
+                if (singleLevelId < 0)
+                    return;
+            }
             RAMModel.ExecutePythonScript(RAMFiles);
-
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
-            //if(!LevelMappingViewModel.IsLevelMappingSetByUser)
-            //{
+            if(!LevelMappingViewModel.IsLevelMappingSetByUser)
+            {
                 ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
-            //}
-            ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser);
+            }
+            ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser, isImportModeSingle, singleLevelId);
             Results = results;
-            System.Windows.Forms.MessageBox.Show("Model Compare Working");
+            ResultsAnnotator.AnnotateBeams(_document, results, annotationType);
+            System.Windows.Forms.MessageBox.Show("Mapped Beam Count= " + results.MappedRevitBeams.Count.ToString());
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
         }
 
         public void ImportStudCounts(string ramStudsFilePath)
         {
+            // Gather the input files.
+            GatherRAMFiles();
             if (!AreRequiredFilesForBeamStudsLoaded())
             {
                 System.Windows.Forms.MessageBox.Show("RAM Model, RAM Beam Reaction, & RAM Studs Files Have Not Been Loaded. Please Load these two files.");
                 return;
             }
-            GatherRAMFiles();
+
+            if (!CheckLevelMappingRequirement())
+                return;
+            if (!ImportModeSelected())
+                return;
+            var isImportModeSingle = IsImportModeSingle(IsSingleImportPressed, IsMultipleImportPressed);
+
             RAMModel.ExecutePythonScript(RAMFiles);
 
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
@@ -106,14 +188,21 @@ namespace RevitReactionImporter
 
         public void ImportCamberValues(string ramCamberFilePath)
         {
+            // Gather the input files.
+            GatherRAMFiles();
             if (!AreRequiredFilesForBeamCamberLoaded())
             {
                 System.Windows.Forms.MessageBox.Show("RAM Model, RAM Beam Reaction, & RAM Camber Files Have Not Been Loaded. Please Load these two files.");
                 return;
             }
-            GatherRAMFiles();
-            RAMModel.ExecutePythonScript(RAMFiles);
 
+            if (!CheckLevelMappingRequirement())
+                return;
+            if (!ImportModeSelected())
+                return;
+            var isImportModeSingle = IsImportModeSingle(IsSingleImportPressed, IsMultipleImportPressed);
+
+            RAMModel.ExecutePythonScript(RAMFiles);
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             var beamsFromCamberFile = RAMModel.CamberParser.ParseCamberFile(ramCamberFilePath);
             _ramModel.MapCamberToRAMBeams(beamsFromCamberFile, _ramModel.RamBeams);
@@ -130,6 +219,11 @@ namespace RevitReactionImporter
                 return;
             }
 
+            if (!CheckLevelMappingRequirement())
+                return;
+            if (!ImportModeSelected())
+                return;
+            var isImportModeSingle = IsImportModeSingle(IsSingleImportPressed, IsMultipleImportPressed);
             RAMModel.ExecutePythonScript(RAMFiles);
 
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
@@ -138,7 +232,7 @@ namespace RevitReactionImporter
             //{
             ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
             //}
-            ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser);
+            //ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser);
         }
 
 

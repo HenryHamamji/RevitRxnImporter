@@ -8,7 +8,131 @@ using Autodesk.Revit.UI;
 
 namespace RevitReactionImporter
 {
-    public class ResultsVisualizer
+    public enum AnnotationType
+    {
+        None,
+        Reaction,
+        StudCount,
+        Camber,
+        Size
+    }
+
+    public class ResultsAnnotator
+    {
+        private Document _document = null;
+        private ModelCompare.Results Results { get; set; }
+
+        
+
+        public ResultsAnnotator(Document document, ModelCompare.Results results, AnnotationType annotationType)
+        {
+            Results = results;
+
+            _document = document;
+        }
+
+        public static void AnnotateBeams(Document document, ModelCompare.Results results, AnnotationType annotationType)
+        {
+            if(annotationType == AnnotationType.Reaction)
+            {
+                AnnotateReactions(document, results);
+            }
+            else if (annotationType == AnnotationType.StudCount)
+            {
+                AnnotateStudCounts(document, results);
+            }
+            else if (annotationType == AnnotationType.Camber)
+            {
+                AnnotateCamberValues(document, results);
+            }
+            else if (annotationType == AnnotationType.Size)
+            {
+                return;
+                // TODO:
+                //ChangeSize(document, results);
+            }
+            else
+            {
+                throw new Exception("Need to debug: No Annotation Type has been defined.");
+            }
+        }
+
+        public static void AnnotateReactions(Document document, ModelCompare.Results results)
+        {
+            var revitBeamToRAMBeamMappingDict = results.RevitBeamToRAMBeamMapping;
+            var annotateReactionsTransaction = new Transaction(document, "Get Instanced Beams");
+            annotateReactionsTransaction.Start();
+            foreach (var revitBeam in revitBeamToRAMBeamMappingDict.Keys)
+            {
+                revitBeam.StartReactionTotal = revitBeamToRAMBeamMappingDict[revitBeam].StartTotalReactionPositive.ToString();
+                revitBeam.EndReactionTotal = revitBeamToRAMBeamMappingDict[revitBeam].EndTotalReactionPositive.ToString();
+                ElementId beamId = new ElementId(revitBeam.ElementId);
+                var revitBeamInstance = document.GetElement(beamId) as FamilyInstance;
+                var startReactionTotalParameter = revitBeamInstance.LookupParameter("Start Reaction - Total");
+                var endReactionTotalParameter = revitBeamInstance.LookupParameter("End Reaction - Total");
+                startReactionTotalParameter.SetValueString(revitBeam.StartReactionTotal);
+                endReactionTotalParameter.SetValueString(revitBeam.EndReactionTotal);
+            }
+            annotateReactionsTransaction.Commit();
+        }
+
+        public static void AnnotateStudCounts(Document document, ModelCompare.Results results)
+        {
+            var revitBeamToRAMBeamMappingDict = results.RevitBeamToRAMBeamMapping;
+            foreach (var revitBeam in revitBeamToRAMBeamMappingDict.Keys)
+            {
+                revitBeam.StudCount = revitBeamToRAMBeamMappingDict[revitBeam].StudCount.ToString();
+                ElementId beamId = new ElementId(revitBeam.ElementId);
+                var revitBeamInstance = document.GetElement(beamId) as FamilyInstance;
+                var studCountParameter = revitBeamInstance.LookupParameter("Number of studs");
+                studCountParameter.SetValueString(revitBeam.StudCount);
+            }
+        }
+
+        public static void AnnotateCamberValues(Document document, ModelCompare.Results results)
+        {
+            var revitBeamToRAMBeamMappingDict = results.RevitBeamToRAMBeamMapping;
+            foreach (var revitBeam in revitBeamToRAMBeamMappingDict.Keys)
+            {
+                revitBeam.Camber = revitBeamToRAMBeamMappingDict[revitBeam].Camber.ToString();
+                ElementId beamId = new ElementId(revitBeam.ElementId);
+                var revitBeamInstance = document.GetElement(beamId) as FamilyInstance;
+                var camberParameter = revitBeamInstance.LookupParameter("Camber Size");
+                camberParameter.SetValueString(revitBeam.Camber);
+            }
+        }
+
+        // TODO:
+        public static void ChangeSize(Document document, ModelCompare.Results results)
+        {
+            var beamsToAnnotate = results.MappedRevitBeams;
+            foreach (var beamToAnnotate in beamsToAnnotate)
+            {
+                ElementId beamId = new ElementId(beamToAnnotate.ElementId);
+                var revitBeam = document.GetElement(beamId) as FamilyInstance;
+                var revitBeamSize = beamToAnnotate.Size;
+                revitBeamSize = revitBeamSize.Replace(" ", "");
+                var beamToAnnotateRAMSize = beamToAnnotate.RAMSize;
+                if(revitBeamSize != beamToAnnotateRAMSize)
+                {
+                    //revitBeam.Symbol = new FamilySymbol()
+                }
+                else
+                {
+                    continue;
+                }
+
+
+            }
+        }
+
+
+
+
+
+    }
+
+        public class ResultsVisualizer
     {
         private Document _document = null;
 

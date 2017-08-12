@@ -1,88 +1,98 @@
 ﻿<Page x:Class="RevitReactionImporter.ControlInterfaceView"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="RevitReactionnImporterApp"
-      Width="300"
+      Title="RAMDataImporterApp"
+      Width="400"
       Height="350">
 
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <Style x:Key="MyButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                            <Rectangle Name="r1" StrokeThickness="0.5" Stroke="Black"/>
+
+                            <Border Name="border" Width="{TemplateBinding ActualWidth}" Height="{TemplateBinding ActualHeight}"  CornerRadius="2" BorderThickness="1" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Page.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Background="White">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="25" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="25" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="25" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="25" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="25" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="25" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="25" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="25" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.4*"/>
+                <ColumnDefinition Width="0.8*"/>
+                <ColumnDefinition Width="2.2*"/>
 
-            <StackPanel Grid.Row="0"
-                    Orientation="Horizontal">
+            </Grid.ColumnDefinitions>
 
+            <StackPanel Grid.Row="0" Grid.Column="0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0">
                 <Button Name="ImportRAMReactions"
                     Width="60"
                     Height="60"
-                    Margin="25 7 7 7"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
                     Click="OnImportBeamReactionsClick">
                     <Image Source="/RevitReactionImporterApp;component/Resources/import.png"
                        Width="50"
                        Height="60"/>
                 </Button>
             </StackPanel>
-            <StackPanel Grid.Row="1"
-                    Orientation="Horizontal">
+            <StackPanel Grid.Row="1" Grid.Column="0" 
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Name="ImportReactionsText"
                        Width="100"
-                       Margin="5,0,5,7"
                        Text="Import Beam Reactions"
                        TextAlignment="Center"
                        FontSize="9"/>
             </StackPanel>
-            <StackPanel Grid.Row="2"
-                    Orientation="Horizontal">
-
+            <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,10,0,0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Button Name="ImportRAMStuds"
                     Width="60"
                     Height="60"
-                    Margin="25 7 7 7"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
                     Click="OnImportBeamStudsClick">
                     <Image Source="/RevitReactionImporterApp;component/Resources/stud.PNG"
                        Width="50"
                        Height="50" RenderTransformOrigin="0.568,0.223"/>
                 </Button>
             </StackPanel>
-            <StackPanel Grid.Row="3"
-                    Orientation="Horizontal">
+            <StackPanel Grid.Row="3" Grid.Column="0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Name="ImportStudsText"
                        Width="100"
-                       Margin="5,0,5,7"
                        Text="Import Beam Stud Count"
                        TextAlignment="Center"
                        FontSize="9"/>
             </StackPanel>
-            <StackPanel Grid.Row="4"
-                    Orientation="Horizontal">
+            <StackPanel Grid.Row="4" Grid.Column="0" Margin="0,10,0,0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Button Name="ImportRAMCamber"
                     Width="60"
                     Height="60"
-                    Margin="25 7 7 7"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     Click="OnImportBeamCamberClick">
@@ -91,45 +101,38 @@
                        Height="50" RenderTransformOrigin="0.568,0.223"/>
                 </Button>
             </StackPanel>
-            <StackPanel Grid.Row="5"
-                    Orientation="Horizontal">
+            <StackPanel Grid.Row="5" Grid.Column="0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Name="ImportCamberText"
                        Width="100"
-                       Margin="5,0,5,7"
                        Text="Import Beam Camber"
                        TextAlignment="Center"
                        FontSize="9"/>
             </StackPanel>
-            <StackPanel Grid.Row="6"
-                    Orientation="Horizontal">
+            <StackPanel Grid.Row="6" Grid.Column="0" Margin="0,10,0,0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Button Name="ImportRAMBeamSizes"
                     Width="60"
                     Height="60"
-                    Margin="25 7 7 7"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
                     Click="OnImportBeamSizesClick">
                     <Image Source="/RevitReactionImporterApp;component/Resources/beam.png"
                        Width="50"
                        Height="50" RenderTransformOrigin="0.568,0.223"/>
                 </Button>
             </StackPanel>
-            <StackPanel Grid.Row="7"
-                    Orientation="Horizontal">
+            <StackPanel Grid.Row="7" Grid.Column="0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Name="ImportBeamSizesText"
                        Width="100"
-                       Margin="5,0,5,7"
                        Text="Import Beam Sizes"
                        TextAlignment="Center"
                        FontSize="9"/>
             </StackPanel>
-            <StackPanel Grid.Row="8"
-                    Orientation="Horizontal">
-
+            <StackPanel Grid.Row="8" Grid.Column="0" Margin="0,10,0,0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Button Name="Visualize"
                     Width="60"
                     Height="60"
-                    Margin="25 7 7 7"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     Click="OnVisualizeClick">
@@ -138,22 +141,19 @@
                        Height="50" RenderTransformOrigin="0.568,0.223"/>
                 </Button>
             </StackPanel>
-            <StackPanel Grid.Row="9"
-                    Orientation="Horizontal">
+            <StackPanel Grid.Row="9" Grid.Column="0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Name="VizualizeBtnText"
                        Width="100"
-                       Margin="5,0,5,7"
                        Text="Visualize"
                        TextAlignment="Center"
                        FontSize="9"/>
             </StackPanel>
-            <StackPanel Grid.Row="10"
-                    Orientation="Horizontal">
-
+            <StackPanel Grid.Row="10" Grid.Column="0" Margin="0,10,0,0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Button Name="ResetVizualization"
                     Width="60"
                     Height="60"
-                    Margin="25 7 7 7"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     Click="OnResetVisualizationClick">
@@ -162,22 +162,19 @@
                        Height="50" RenderTransformOrigin="0.568,0.223"/>
                 </Button>
             </StackPanel>
-            <StackPanel Grid.Row="11"
-                    Orientation="Horizontal">
+            <StackPanel Grid.Row="11" Grid.Column="0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Name="ResetVizualizationText"
                        Width="100"
-                       Margin="5,0,5,7"
                        Text="Reset Vizualization"
                        TextAlignment="Center"
                        FontSize="9"/>
             </StackPanel>
-            <StackPanel Grid.Row="12"
-                    Orientation="Horizontal">
-
+            <StackPanel Grid.Row="12" Grid.Column="0" Margin="0,10,0,0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Button Name="ClearData"
                     Width="60"
                     Height="60"
-                    Margin="25 7 7 7"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     Click="OnShowClearBeamAnnotationsWindowClick">
@@ -186,21 +183,19 @@
                        Height="50" RenderTransformOrigin="0.568,0.223"/>
                 </Button>
             </StackPanel>
-            <StackPanel Grid.Row="13"
-                    Orientation="Horizontal">
+            <StackPanel Grid.Row="13" Grid.Column="0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Name="ClearDataText"
                        Width="100"
-                       Margin="5,0,5,7"
                        Text="Clear Beam Annotations"
                        TextAlignment="Center"
                        FontSize="9"/>
             </StackPanel>
-            <StackPanel Grid.Row="14"
-                    Orientation="Horizontal">
+            <StackPanel Grid.Row="14" Grid.Column="0" Margin="0,10,0,0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Button x:Name="ConfigureLevelMapping"
             	Width="60"
             	Height="60"
-            	Margin="25 7 7 7"
             	HorizontalAlignment="Left"
             	VerticalAlignment="Top"
             	Click="OnConfigureClick" RenderTransformOrigin="2.427,0.448">
@@ -208,34 +203,58 @@
                        Width="60"
                        Height="50"/>
                 </Button>
-                <Button x:Name="AssignDataFiles"
+            </StackPanel>
+            <StackPanel Grid.Row="14" Grid.Column="1" Margin="0,10,0,0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Button x:Name="AssignDataFiles"
             	Width="60"
             	Height="60"
-            	Margin="50,7,7,0"
-            	HorizontalAlignment="Left"
-            	VerticalAlignment="Top"
             	Click="OnShowDataFilesBrowserClick" RenderTransformOrigin="2.427,0.448">
                     <Image Source="/RevitReactionImporterApp;component/Resources/files.png"
                        Width="60"
                        Height="50"/>
                 </Button>
             </StackPanel>
-            <StackPanel Grid.Row="15"
-                    Orientation="Horizontal">
+            <StackPanel Grid.Row="15" Grid.Column ="0" Margin="0,10,0,0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Name="ConfigureText"
                        Width="100"
-                       Margin="5,0,5,7"
                        Text="Configure Level Mapping"
                        TextAlignment="Center"
                        FontSize="9"/>
-                <TextBlock Name="AssignDataFilesText"
+            </StackPanel>
+            <StackPanel Grid.Row="15" Grid.Column ="1" Margin="0,10,0,0"
+                    Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Name="AssignDataFilesText"
                        Width="100"
-                       Margin="15,0,5,7"
                        Text="Assign Data Files"
                        TextAlignment="Center"
                        FontSize="9"/>
             </StackPanel>
-
+            <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,10,78,0"
+                    Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Button x:Name="SingleImport" Style="{StaticResource MyButtonStyle}" Cursor="Hand"
+            	Width="60"
+            	Height="60"
+            	Click="OnSingleImportClick">
+                    <Image Source="/RevitReactionImporterApp;component/Resources/parallelogram.png"
+                       Width="Auto"
+                       Height="auto"/>
+                </Button>
+            </StackPanel>
+            <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,10,10,0" 
+                    Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Button x:Name="MultipleImport" Style="{StaticResource MyButtonStyle}" Cursor="Hand"
+            	Width="60"
+            	Height="60"
+            	Click="OnMultipleImportClick">
+                    <Image Source="/RevitReactionImporterApp;component/Resources/checkbox.png"
+                       Width="Auto"
+                       Height="auto"
+                           RenderOptions.BitmapScalingMode="Fant"
+                           Stretch="Fill"/>
+                </Button>
+            </StackPanel>
         </Grid>
     </ScrollViewer>
 </Page>
