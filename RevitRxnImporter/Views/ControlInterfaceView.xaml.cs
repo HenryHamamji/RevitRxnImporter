@@ -84,11 +84,11 @@ namespace RevitReactionImporter
         {
             data.FrameworkElement = this;
 
-            data.InitialState.SetFloatingRectangle(new Rectangle(200, 150, 600, 500));
+            data.InitialState.SetFloatingRectangle(new Rectangle(200, 150, 620, 510));
             data.InitialState.DockPosition = DockPosition.Floating;
-
-            data.FrameworkElement.MaxHeight = 350;
-            data.FrameworkElement.MaxWidth = 400;
+            data.FrameworkElement.ClipToBounds = true;
+            data.FrameworkElement.MaxHeight = 360;
+            data.FrameworkElement.MaxWidth = 420;
             _paneProviderData = data;
         }
 

@@ -201,12 +201,13 @@ namespace RevitReactionImporter
             var startInfo = new System.Diagnostics.ProcessStartInfo
             {
                 WorkingDirectory = @"C:\dev\RAM Reaction Importer\RAM-Reaction-Importer",
-                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Minimized,
                 FileName = "cmd.exe",
                 Arguments = string.Format("{0} {1}", "getLevels.py", args),
                 RedirectStandardInput = true,
-                UseShellExecute = false
-            };
+                UseShellExecute = false,
+                CreateNoWindow = true
+        };
             startInfo.RedirectStandardError = true;
             startInfo.RedirectStandardOutput = true;
             process.StartInfo = startInfo;
