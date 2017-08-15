@@ -7,6 +7,7 @@ using System.Linq;
 
 namespace RevitReactionImporter
 {
+    
     public class RAMModel
     {
         public List<RAMBeam> RamBeams {get; set;}
@@ -107,13 +108,17 @@ namespace RevitReactionImporter
             public double[] EndPoint { get; set; }
             public double StartTotalReactionPositive { get; set; }
             public double EndTotalReactionPositive { get; set; }
+            public double StartDeadLoadReactionPositive { get; set; }
+            public double EndDeadLoadReactionPositive { get; set; }
+            public double StartLiveLoadReactionPositive { get; set; }
+            public double EndLiveLoadReactionPositive { get; set; }
             public int Id { get; set; }
             public bool IsMappedToRevitBeam { get; set; }
             public int StudCount { get; set; }
             public double Camber { get; set; }
 
 
-            public RAMBeam(string floorLayoutType, string size, double startPointX, double startPointY, double endPointX, double endPointY, double startReactionTotalPositive, double endReactionTotalPositive )
+            public RAMBeam(string floorLayoutType, string size, double startPointX, double startPointY, double endPointX, double endPointY, double startDeadLoadReactionPositive, double endDeadLoadReactionPositive, double startLiveLoadReactionPositive, double endLiveLoadReactionPositive)
             {
                 StartPoint = new double[3];
                 EndPoint = new double[3];
@@ -123,8 +128,10 @@ namespace RevitReactionImporter
                 StartPoint[1] = startPointY;
                 EndPoint[0] = endPointX;
                 EndPoint[1] = endPointY;
-                StartTotalReactionPositive = startReactionTotalPositive;
-                EndTotalReactionPositive = endReactionTotalPositive;
+                StartDeadLoadReactionPositive = startDeadLoadReactionPositive;
+                EndDeadLoadReactionPositive = endDeadLoadReactionPositive;
+                StartLiveLoadReactionPositive = startLiveLoadReactionPositive;
+                EndLiveLoadReactionPositive = endLiveLoadReactionPositive;
                 IsCantilevered = false;
                 IsMappedToRevitBeam = false;
             }
@@ -251,22 +258,26 @@ namespace RevitReactionImporter
             {
                 bool isCantilevered = false;
                 string[] beamProperties = singleBeamData.Split(propertyDelimiter);
+                    if (beamProperties[5] == "NA")
+                    {
+                        beamProperties[5] = "0";
+                    }
+                    if (beamProperties[6] == "NA")
+                    {
+                        beamProperties[6] = "0";
+                    }
+                    if (beamProperties[8] == "NA")
+                    {
+                        beamProperties[8] = "0";
+                    }
+                    if (beamProperties[10] == "NA")
+                    {
+                        beamProperties[10] = "0";
+                        isCantilevered = true;
+                    }
 
-                if(beamProperties[5] == "NA")
-                {
-                    beamProperties[5] = "0";
-                }
-                if (beamProperties[6] == "NA")
-                {
-                    beamProperties[6] = "0";
-                }
-                if (beamProperties[8] == "NA")
-                {
-                    beamProperties[8] = "0";
-                    isCantilevered = true;
-                }
                 RAMBeam ramBeam = new RAMBeam(beamProperties[0], beamProperties[2], Convert.ToDouble(beamProperties[3])*12.0, Convert.ToDouble(beamProperties[4])*12.0,
-                    Convert.ToDouble(beamProperties[5])*12.0, Convert.ToDouble(beamProperties[6])*12.0, Convert.ToDouble(beamProperties[7]), Convert.ToDouble(beamProperties[8]));
+                    Convert.ToDouble(beamProperties[5])*12.0, Convert.ToDouble(beamProperties[6])*12.0, Convert.ToDouble(beamProperties[6]), Convert.ToDouble(beamProperties[7]), Convert.ToDouble(beamProperties[8]), Convert.ToDouble(beamProperties[9]));
                 ramBeam.IsCantilevered = isCantilevered;
                 ramBeam.Id = Int32.Parse(beamProperties[1]);
                 //id += 1;
@@ -702,5 +713,11 @@ namespace RevitReactionImporter
         }
 
 
+    }
+
+    public enum DesignCode
+    {
+        LRFD,
+        ASD
     }
 }

@@ -148,6 +148,7 @@ namespace RevitReactionImporter
                 if (singleLevelId < 0)
                     return;
             }
+            
             RAMModel.ExecutePythonScript(RAMFiles);
             RAMModel _ramModel = RAMModel.DeserializeRAMModel();
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);

@@ -31,14 +31,12 @@ namespace RevitReactionImporter
         public string RAMModelCamberFilePath { get; set; }
         public string TempButtonName { get; set; }
         private ExternalEvent assignDataFilesEvent;
+        public DesignCode UserSetDesignCode {get; set;}
 
 
-        public DataFileBrowser(string projectId, ControlInterfaceView controlInterfaceView)
+    public DataFileBrowser(string projectId, ControlInterfaceView controlInterfaceView)
         {
-            //txtEditorRAMModel.Text = controlInterfaceView.ViewModel.
-            //txtEditorRAMReactions.Text = RAMModelReactionsFilePath;
-            //txtEditorRAMStuds.Text = RAMModelStudsFilePath;
-            //txtEditorRAMCamber.Text = RAMModelCamberFilePath;
+            UserSetDesignCode = DesignCode.LRFD;
             ProjectId = projectId;
             LoadRAMMetaDataFileHistoryFromDisk();
             InitializeComponent();
@@ -46,12 +44,61 @@ namespace RevitReactionImporter
             txtEditorRAMReactions.Text = RAMModelReactionsFilePath;
             txtEditorRAMStuds.Text = RAMModelStudsFilePath;
             txtEditorRAMCamber.Text = RAMModelCamberFilePath;
-        
+            btnDesignCode.Content = UserSetDesignCode;
+
             var assignDataFilesHandler = new AssignDataFilesHandler();
             assignDataFilesHandler.DataFileBrowser = this;
             assignDataFilesHandler.ControlInterfaceView = controlInterfaceView;
             assignDataFilesEvent = ExternalEvent.Create(assignDataFilesHandler);
 
+        }
+        private void onChangeDesignCodeClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            string designCode = button.Content.ToString();
+            if(designCode == "LRFD")
+            {
+                button.Content = "ASD";
+                UserSetDesignCode = DesignCode.ASD;
+                WriteRAMMetaDetaFilePathsToFile();
+            }
+            else if (designCode == "ASD")
+            {
+                button.Content = "LRFD";
+                UserSetDesignCode = DesignCode.LRFD;
+                WriteRAMMetaDetaFilePathsToFile();
+            }
+            else
+            {
+                throw new Exception("Need to debug: Invalid Design Code Set By User");
+            }
+        }
+
+        private void ClearTextOnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            var textBox = sender as System.Windows.Controls.TextBox;
+            if (Keyboard.IsKeyDown(Key.Back) || Keyboard.IsKeyDown(Key.Delete))
+            {
+                textBox.Text = "";
+            }
+            if (textBox.Name == "txtEditorRAMModel")
+            {
+                RAMModelCamberFilePath = textBox.Text;
+            }
+            else if (textBox.Name == "txtEditorRAMReactions")
+            {
+                RAMModelCamberFilePath = textBox.Text;
+            }
+            else if (textBox.Name == "txtEditorRAMStuds")
+            {
+                RAMModelCamberFilePath = textBox.Text;
+            }
+            else if (textBox.Name == "txtEditorRAMCamber")
+            {
+                RAMModelCamberFilePath = textBox.Text;
+            }
+            else throw new Exception("Need to debug: Could not find TextBox Name to Clear.");
+            WriteRAMMetaDetaFilePathsToFile();
         }
 
         private void onBrowseFileClick(object sender, RoutedEventArgs e)
@@ -152,10 +199,11 @@ namespace RevitReactionImporter
             {
                 using (var writer = new StreamWriter(stream))
                 {
-                    writer.Write(RAMModelMetaDataFilePath + Environment.NewLine);
-                    writer.Write(RAMModelReactionsFilePath + Environment.NewLine);
-                    writer.Write(RAMModelStudsFilePath + Environment.NewLine);
-                    writer.Write(RAMModelCamberFilePath);
+                    writer.Write("Model;" + RAMModelMetaDataFilePath + Environment.NewLine);
+                    writer.Write("Reaction;" + RAMModelReactionsFilePath + Environment.NewLine);
+                    writer.Write("Stud;" + RAMModelStudsFilePath + Environment.NewLine);
+                    writer.Write("Camber;" + RAMModelCamberFilePath + Environment.NewLine);
+                    writer.Write("DesignCode;" + UserSetDesignCode.ToString());
 
                 }
             }
@@ -180,14 +228,31 @@ namespace RevitReactionImporter
                 return;
 
             var text = File.ReadAllLines(fullPath);
-
-            //MappingHistory levelMappingHistory;
-            RAMModelMetaDataFilePath = text[0];
-            RAMModelReactionsFilePath = text[1];
-            RAMModelStudsFilePath = text[2];
-            RAMModelCamberFilePath = text[3];
-
-            //return levelMappingHistory;
+            for(int i=0; i < text.Length; i++)
+            {
+                if (text[i].Split(';')[0] == "Model")
+                {
+                    RAMModelMetaDataFilePath = text[i].Split(';')[1];
+                }
+                else if (text[i].Split(';')[0] == "Reaction")
+                {
+                    RAMModelReactionsFilePath = text[i].Split(';')[1];
+                }
+                else if (text[i].Split(';')[0] == "Stud")
+                {
+                    RAMModelStudsFilePath = text[i].Split(';')[1];
+                }
+                else if (text[i].Split(';')[0] == "Camber")
+                {
+                    RAMModelCamberFilePath = text[i].Split(';')[1];
+                }
+                else if (text[i].Split(';')[0] == "DesignCode")
+                {
+                   DesignCode designCode = (DesignCode) Enum.Parse(typeof(DesignCode), text[i].Split(';')[1]);
+                    UserSetDesignCode = designCode;
+                }
+                else throw new Exception("Need to debug: Error loading data file paths.");
+            }
         }
 
 
