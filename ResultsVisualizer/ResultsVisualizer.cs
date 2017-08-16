@@ -60,7 +60,7 @@ namespace RevitReactionImporter
         public static void AnnotateReactions(Document document, ModelCompare.Results results)
         {
             var revitBeamToRAMBeamMappingDict = results.RevitBeamToRAMBeamMapping;
-            var annotateReactionsTransaction = new Transaction(document, "Get Instanced Beams");
+            var annotateReactionsTransaction = new Transaction(document, "Annotate Beam Reactions");
             annotateReactionsTransaction.Start();
             foreach (var revitBeam in revitBeamToRAMBeamMappingDict.Keys)
             {
@@ -79,27 +79,35 @@ namespace RevitReactionImporter
         public static void AnnotateStudCounts(Document document, ModelCompare.Results results)
         {
             var revitBeamToRAMBeamMappingDict = results.RevitBeamToRAMBeamMapping;
+            var annotateStudCountsTransaction = new Transaction(document, "Annotate Beam Stud Counts");
+            annotateStudCountsTransaction.Start();
             foreach (var revitBeam in revitBeamToRAMBeamMappingDict.Keys)
             {
                 revitBeam.StudCount = revitBeamToRAMBeamMappingDict[revitBeam].StudCount.ToString();
                 ElementId beamId = new ElementId(revitBeam.ElementId);
                 var revitBeamInstance = document.GetElement(beamId) as FamilyInstance;
                 var studCountParameter = revitBeamInstance.LookupParameter("Number of studs");
-                studCountParameter.SetValueString(revitBeam.StudCount);
+                studCountParameter.Set(revitBeam.StudCount);//.ToString();
             }
+            annotateStudCountsTransaction.Commit();
+
         }
 
         public static void AnnotateCamberValues(Document document, ModelCompare.Results results)
         {
             var revitBeamToRAMBeamMappingDict = results.RevitBeamToRAMBeamMapping;
+            var annotateCamberValuesTransaction = new Transaction(document, "Annotate Beam Camber Values");
+            annotateCamberValuesTransaction.Start();
             foreach (var revitBeam in revitBeamToRAMBeamMappingDict.Keys)
             {
                 revitBeam.Camber = revitBeamToRAMBeamMappingDict[revitBeam].Camber.ToString();
                 ElementId beamId = new ElementId(revitBeam.ElementId);
                 var revitBeamInstance = document.GetElement(beamId) as FamilyInstance;
                 var camberParameter = revitBeamInstance.LookupParameter("Camber Size");
-                camberParameter.SetValueString(revitBeam.Camber);
+                camberParameter.Set(revitBeam.Camber).ToString();
             }
+            annotateCamberValuesTransaction.Commit();
+
         }
 
         // TODO:

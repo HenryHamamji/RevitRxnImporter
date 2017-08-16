@@ -41,14 +41,7 @@ namespace RevitReactionImporter
         public ModelCompare.Results Results { get; set; }
         public bool IsSingleImportPressed { get; set; }
         public bool IsMultipleImportPressed { get; set; }
-        //public enum AnnotationType
-        //{
-        //    None,
-        //    Reaction,
-        //    StudCount,
-        //    Camber,
-        //    Size
-        //}
+        public DesignCode UserSetDesignCode { get; set; }
 
         public ControlInterfaceViewModel(ControlInterfaceView view, Document doc,
             RevitReactionImporterApp rria, LevelMappingViewModel levelMappingViewModel, string projectId)
@@ -150,7 +143,7 @@ namespace RevitReactionImporter
             }
             
             RAMModel.ExecutePythonScript(RAMFiles);
-            RAMModel _ramModel = RAMModel.DeserializeRAMModel();
+            RAMModel _ramModel = RAMModel.DeserializeRAMModel(UserSetDesignCode);
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
             if(!LevelMappingViewModel.IsLevelMappingSetByUser)
             {
@@ -159,15 +152,19 @@ namespace RevitReactionImporter
             ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser, isImportModeSingle, singleLevelId);
             Results = results;
             ResultsAnnotator.AnnotateBeams(_document, results, annotationType);
-            System.Windows.Forms.MessageBox.Show("Mapped Beam Count= " + results.MappedRevitBeams.Count.ToString());
+            //System.Windows.Forms.MessageBox.Show("Mapped Beam Count= " + results.MappedRevitBeams.Count.ToString());
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
         }
 
-        public void ImportStudCounts(string ramStudsFilePath)
+        public void ImportStudCounts()
         {
+            AnnotationType annotationType = AnnotationType.StudCount;
+            int singleLevelId = -1;
+
             // Gather the input files.
             GatherRAMFiles();
+            
             if (!AreRequiredFilesForBeamStudsLoaded())
             {
                 System.Windows.Forms.MessageBox.Show("RAM Model, RAM Beam Reaction, & RAM Studs Files Have Not Been Loaded. Please Load these two files.");
@@ -179,18 +176,37 @@ namespace RevitReactionImporter
             if (!ImportModeSelected())
                 return;
             var isImportModeSingle = IsImportModeSingle(IsSingleImportPressed, IsMultipleImportPressed);
-
+            if (isImportModeSingle)
+            {
+                singleLevelId = GetLevelIdOfActiveView();
+                if (singleLevelId < 0)
+                    return;
+            }
             RAMModel.ExecutePythonScript(RAMFiles);
+            RAMModel _ramModel = RAMModel.DeserializeRAMModel(UserSetDesignCode);
+            _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
 
-            RAMModel _ramModel = RAMModel.DeserializeRAMModel();
-            var dict = _ramModel.ParseStudFile(ramStudsFilePath);
+
+            if (!LevelMappingViewModel.IsLevelMappingSetByUser)
+            {
+                ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
+            }
+            ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser, isImportModeSingle, singleLevelId);
+            Results = results;
+            var dict = _ramModel.ParseStudFile(RAMModelStudsFilePath);
             _ramModel.MapStudCountsToRAMBeams(dict, _ramModel.RamBeams);
+            ResultsAnnotator.AnnotateBeams(_document, results, annotationType);
+            var logger = new Logger(_projectId, results);
+            Logger.LocalLog();
         }
 
-        public void ImportCamberValues(string ramCamberFilePath)
+        public void ImportCamberValues()
         {
+            AnnotationType annotationType = AnnotationType.Camber;
+            int singleLevelId = -1;
             // Gather the input files.
             GatherRAMFiles();
+
             if (!AreRequiredFilesForBeamCamberLoaded())
             {
                 System.Windows.Forms.MessageBox.Show("RAM Model, RAM Beam Reaction, & RAM Camber Files Have Not Been Loaded. Please Load these two files.");
@@ -202,15 +218,34 @@ namespace RevitReactionImporter
             if (!ImportModeSelected())
                 return;
             var isImportModeSingle = IsImportModeSingle(IsSingleImportPressed, IsMultipleImportPressed);
-
+            if (isImportModeSingle)
+            {
+                singleLevelId = GetLevelIdOfActiveView();
+                if (singleLevelId < 0)
+                    return;
+            }
             RAMModel.ExecutePythonScript(RAMFiles);
-            RAMModel _ramModel = RAMModel.DeserializeRAMModel();
-            var beamsFromCamberFile = RAMModel.CamberParser.ParseCamberFile(ramCamberFilePath);
+            RAMModel _ramModel = RAMModel.DeserializeRAMModel(UserSetDesignCode);
+            _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
+
+            var beamsFromCamberFile = RAMModel.CamberParser.ParseCamberFile(RAMModelCamberFilePath);
             _ramModel.MapCamberToRAMBeams(beamsFromCamberFile, _ramModel.RamBeams);
+            if (!LevelMappingViewModel.IsLevelMappingSetByUser)
+            {
+                ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
+            }
+            ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser, isImportModeSingle, singleLevelId);
+            Results = results;
+            ResultsAnnotator.AnnotateBeams(_document, results, annotationType);
+            var logger = new Logger(_projectId, results);
+            Logger.LocalLog();
         }
 
         public void ImportBeamSizes()
         {
+            return;
+            AnnotationType annotationType = AnnotationType.Size;
+            int singleLevelId = -1;
             // Gather the input files.
             GatherRAMFiles();
             // Check if required files are loaded.
@@ -225,14 +260,19 @@ namespace RevitReactionImporter
             if (!ImportModeSelected())
                 return;
             var isImportModeSingle = IsImportModeSingle(IsSingleImportPressed, IsMultipleImportPressed);
+            if (isImportModeSingle)
+            {
+                singleLevelId = GetLevelIdOfActiveView();
+                if (singleLevelId < 0)
+                    return;
+            }
             RAMModel.ExecutePythonScript(RAMFiles);
-
-            RAMModel _ramModel = RAMModel.DeserializeRAMModel();
+            RAMModel _ramModel = RAMModel.DeserializeRAMModel(UserSetDesignCode);
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
-            //if(!LevelMappingViewModel.IsLevelMappingSetByUser)
-            //{
-            ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
-            //}
+            if(!LevelMappingViewModel.IsLevelMappingSetByUser)
+            {
+                ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
+            }
             //ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser);
         }
 
@@ -320,6 +360,22 @@ namespace RevitReactionImporter
             RAMFiles = files;
         }
 
+        //private void LoadRAMMetaDataFileHistoryFromDisk()
+        //{
+        //    string fullPath = GetMetaDataFile(_projectId);
+
+        //    if (!File.Exists(fullPath))
+        //        return;
+
+        //    var text = File.ReadAllLines(fullPath);
+
+        //    RAMModelMetaDataFilePath = text[0];
+        //    RAMModelReactionsFilePath = text[1];
+        //    RAMModelStudsFilePath = text[2];
+        //    RAMModelCamberFilePath = text[3];
+
+        //}
+
         private void LoadRAMMetaDataFileHistoryFromDisk()
         {
             string fullPath = GetMetaDataFile(_projectId);
@@ -328,12 +384,31 @@ namespace RevitReactionImporter
                 return;
 
             var text = File.ReadAllLines(fullPath);
-
-            RAMModelMetaDataFilePath = text[0];
-            RAMModelReactionsFilePath = text[1];
-            RAMModelStudsFilePath = text[2];
-            RAMModelCamberFilePath = text[3];
-
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (text[i].Split(';')[0] == "Model")
+                {
+                    RAMModelMetaDataFilePath = text[i].Split(';')[1];
+                }
+                else if (text[i].Split(';')[0] == "Reaction")
+                {
+                    RAMModelReactionsFilePath = text[i].Split(';')[1];
+                }
+                else if (text[i].Split(';')[0] == "Stud")
+                {
+                    RAMModelStudsFilePath = text[i].Split(';')[1];
+                }
+                else if (text[i].Split(';')[0] == "Camber")
+                {
+                    RAMModelCamberFilePath = text[i].Split(';')[1];
+                }
+                else if (text[i].Split(';')[0] == "DesignCode")
+                {
+                    DesignCode designCode = (DesignCode)Enum.Parse(typeof(DesignCode), text[i].Split(';')[1]);
+                    UserSetDesignCode = designCode;
+                }
+                else throw new Exception("Need to debug: Error loading data file paths.");
+            }
         }
 
         internal static string GetMetaDataFile(string projectId)
@@ -483,7 +558,7 @@ namespace RevitReactionImporter
         {
             GatherRAMFiles();
             RAMModel.ExecutePythonScript(RAMFiles);
-            RAMModel _ramModel = RAMModel.DeserializeRAMModel();
+            RAMModel _ramModel = RAMModel.DeserializeRAMModel(UserSetDesignCode);
 
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
             ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);

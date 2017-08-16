@@ -47,7 +47,6 @@ namespace RevitReactionImporter
                 clearDataEvent.Raise();
             else
                 MessageBox.Show("clearDataEvent event handler is null");
-            //ControlInterfaceView.ViewModel.ClearSelectedBeamAnnotations(this);
         }
     }
 }

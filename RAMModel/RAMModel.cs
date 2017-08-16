@@ -21,9 +21,10 @@ namespace RevitReactionImporter
         public List<RAMGrid> VerticalGrids { get; set; }
         public List<RAMGrid> OtherGrids { get; set; }
         public double[] ReferencePointDataTransfer { get; set; }
+        public DesignCode UserSetDesignCode { get; set; }
 
 
-        public RAMModel()
+        public RAMModel(DesignCode designCode)
         {
             RamBeams = new List<RAMBeam>();
             OriginRAM = new double[3];
@@ -34,6 +35,7 @@ namespace RevitReactionImporter
             LetteredGrids = new List<RAMGrid>();
             NumberedGrids = new List<RAMGrid>();
             OtherGrids = new List<RAMGrid>();
+            UserSetDesignCode = designCode;
         }
 
         public enum GridDirectionalityClassification
@@ -235,10 +237,57 @@ namespace RevitReactionImporter
 
         }
 
-
-        public static RAMModel DeserializeRAMModel()
+        private static List<double> ChooseLoadFactorsBasedOnDesignCode(DesignCode designCode)
         {
-            var ramModel = new RAMModel();
+            var factors = new List<double>();
+            if (designCode == DesignCode.ASD)
+            {
+                double deadLoadFactorASD1 = 1.0;
+                double liveLoadFactorASD1 = 1.0;
+                factors.Add(deadLoadFactorASD1);
+                factors.Add(liveLoadFactorASD1);
+            }
+            else if (designCode == DesignCode.LRFD)
+            {
+                double deadLoadFactorLRFD1 = 1.4;
+                double deadLoadFactorLRFD2 = 1.2;
+                double liveLoadFactorLRFD1 = 0.0;
+                double liveLoadFactorLRFD2 = 1.6;
+                factors.Add(deadLoadFactorLRFD1);
+                factors.Add(liveLoadFactorLRFD1);
+                factors.Add(deadLoadFactorLRFD2);
+                factors.Add(liveLoadFactorLRFD2);
+            }
+            else throw new Exception("Need to debug: Design Code not specified.");
+
+            return factors;
+        }
+
+        private static void ApplyLoadFactors(DesignCode designCode, List<double> loadFactors, RAMBeam ramBeam)
+        {
+            if(designCode == DesignCode.ASD)
+            {
+                ramBeam.StartTotalReactionPositive = (loadFactors[0] * ramBeam.StartDeadLoadReactionPositive) + (loadFactors[1] * ramBeam.StartLiveLoadReactionPositive);
+                ramBeam.EndTotalReactionPositive = (loadFactors[0] * ramBeam.EndDeadLoadReactionPositive) + (loadFactors[1] * ramBeam.EndLiveLoadReactionPositive);
+
+            }
+            if (designCode == DesignCode.LRFD)
+            {
+                double startTotalReactionPositive1 = (loadFactors[0] * ramBeam.StartDeadLoadReactionPositive) + (loadFactors[1] * ramBeam.StartLiveLoadReactionPositive);
+                double endTotalReactionPositive1 = (loadFactors[0] * ramBeam.EndDeadLoadReactionPositive) + (loadFactors[1] * ramBeam.EndLiveLoadReactionPositive);
+                double startTotalReactionPositive2 = (loadFactors[2] * ramBeam.StartDeadLoadReactionPositive) + (loadFactors[3] * ramBeam.StartLiveLoadReactionPositive);
+                double endTotalReactionPositive2 = (loadFactors[2] * ramBeam.EndDeadLoadReactionPositive) + (loadFactors[3] * ramBeam.EndLiveLoadReactionPositive);
+
+                ramBeam.StartTotalReactionPositive = Math.Max(Math.Ceiling(startTotalReactionPositive1), Math.Ceiling(startTotalReactionPositive2));
+                ramBeam.EndTotalReactionPositive = Math.Max(Math.Ceiling(endTotalReactionPositive1), Math.Ceiling(endTotalReactionPositive2));
+
+            }
+        }
+
+        public static RAMModel DeserializeRAMModel(DesignCode designCode)
+        {
+            List<double> loadFactors = ChooseLoadFactorsBasedOnDesignCode(designCode);
+            var ramModel = new RAMModel(designCode);
 
             // TODO: Beam Data in its own function
             string path = @"C:\dev\RAM Reaction Importer\RAM-Reaction-Importer\beamData.txt";
@@ -280,7 +329,9 @@ namespace RevitReactionImporter
                     Convert.ToDouble(beamProperties[5])*12.0, Convert.ToDouble(beamProperties[6])*12.0, Convert.ToDouble(beamProperties[6]), Convert.ToDouble(beamProperties[7]), Convert.ToDouble(beamProperties[8]), Convert.ToDouble(beamProperties[9]));
                 ramBeam.IsCantilevered = isCantilevered;
                 ramBeam.Id = Int32.Parse(beamProperties[1]);
-                //id += 1;
+
+                // Calculate Total Factored Reactions based on design code critera.
+                ApplyLoadFactors(designCode, loadFactors, ramBeam);
                 ramModel.RamBeams.Add(ramBeam);
             }
             DeserializeRAMStoryData(ramModel);
@@ -530,13 +581,13 @@ namespace RevitReactionImporter
                     if (beamIds.Contains("Floor Type:"))
                     {
                         string layoutType = beamIds.Substring(12, beamIds.Length - 12);
-                        System.Console.WriteLine(rowIndex + "," + layoutType);
+                        //System.Console.WriteLine(rowIndex + "," + layoutType);
                         layoutTypeRowIndexes.Add(layoutType, rowIndex);
                     }
                     if (beamIds.Contains("*"))
                     {
                         lastRowIndex = rowIndex;
-                        System.Console.WriteLine(lastRowIndex);
+                        //System.Console.WriteLine(lastRowIndex);
                     }
                 }
             }

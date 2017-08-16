@@ -11,7 +11,7 @@ namespace RevitReactionImporter
             if (View.ViewModel == null)
                 return;
 
-            View.ViewModel.ImportCamberValues(View.ViewModel.RAMModelCamberFilePath);
+            View.ViewModel.ImportCamberValues();// View.ViewModel.RAMModelCamberFilePath);
         }
 
         public override string GetName()

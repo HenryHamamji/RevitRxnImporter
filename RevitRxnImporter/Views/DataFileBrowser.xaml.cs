@@ -32,13 +32,17 @@ namespace RevitReactionImporter
         public string TempButtonName { get; set; }
         private ExternalEvent assignDataFilesEvent;
         public DesignCode UserSetDesignCode {get; set;}
+        public ControlInterfaceView ControlInterfaceView { get; set; }
+
 
 
     public DataFileBrowser(string projectId, ControlInterfaceView controlInterfaceView)
         {
+            ControlInterfaceView = controlInterfaceView;
             UserSetDesignCode = DesignCode.LRFD;
             ProjectId = projectId;
             LoadRAMMetaDataFileHistoryFromDisk();
+            controlInterfaceView.ViewModel.UserSetDesignCode = UserSetDesignCode;
             InitializeComponent();
             txtEditorRAMModel.Text = RAMModelMetaDataFilePath;
             txtEditorRAMReactions.Text = RAMModelReactionsFilePath;
@@ -50,8 +54,8 @@ namespace RevitReactionImporter
             assignDataFilesHandler.DataFileBrowser = this;
             assignDataFilesHandler.ControlInterfaceView = controlInterfaceView;
             assignDataFilesEvent = ExternalEvent.Create(assignDataFilesHandler);
-
         }
+
         private void onChangeDesignCodeClick(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
@@ -61,12 +65,16 @@ namespace RevitReactionImporter
                 button.Content = "ASD";
                 UserSetDesignCode = DesignCode.ASD;
                 WriteRAMMetaDetaFilePathsToFile();
+                ControlInterfaceView.ViewModel.UserSetDesignCode = UserSetDesignCode;
+
             }
             else if (designCode == "ASD")
             {
                 button.Content = "LRFD";
                 UserSetDesignCode = DesignCode.LRFD;
                 WriteRAMMetaDetaFilePathsToFile();
+                ControlInterfaceView.ViewModel.UserSetDesignCode = UserSetDesignCode;
+
             }
             else
             {
@@ -83,15 +91,15 @@ namespace RevitReactionImporter
             }
             if (textBox.Name == "txtEditorRAMModel")
             {
-                RAMModelCamberFilePath = textBox.Text;
+                RAMModelMetaDataFilePath = textBox.Text;
             }
             else if (textBox.Name == "txtEditorRAMReactions")
             {
-                RAMModelCamberFilePath = textBox.Text;
+                RAMModelReactionsFilePath = textBox.Text;
             }
             else if (textBox.Name == "txtEditorRAMStuds")
             {
-                RAMModelCamberFilePath = textBox.Text;
+                RAMModelStudsFilePath = textBox.Text;
             }
             else if (textBox.Name == "txtEditorRAMCamber")
             {
@@ -167,8 +175,6 @@ namespace RevitReactionImporter
                     }
                     txtEditorRAMCamber.Text = fileName;
                     RAMModelCamberFilePath = fileName;
-                    //Settings1.Default.RAMCamberFilePathSetting = fileName;
-                    //Settings1.Default.Save();
                 }
 
                 else
