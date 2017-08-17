@@ -9,7 +9,7 @@ using System.Windows.Media;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using System.Reflection;
-//using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 
 namespace RevitReactionImporter
@@ -32,7 +32,7 @@ namespace RevitReactionImporter
         public ModelCompare ModelCompare { get { return _modelCompare; } }
         public RAMModel RAMModel { get { return _ramModel; } }
         public bool IsLevelMappingSetByUser { get; set; }
-        //public Dictionary<int, string> LevelMappingFromUser { get; private set; }
+        public Dictionary<int, string> LevelMappingFromUser { get; private set; }
         public string RAMModelMetaDataFilePath { get; set; }
         public string RAMModelReactionsFilePath { get; set; }
         public string RAMModelStudsFilePath { get; set; }
@@ -42,28 +42,67 @@ namespace RevitReactionImporter
         public bool IsSingleImportPressed { get; set; }
         public bool IsMultipleImportPressed { get; set; }
         public DesignCode UserSetDesignCode { get; set; }
+        public LevelMappingView LevelMappingView { get; set; }
+
 
         public ControlInterfaceViewModel(ControlInterfaceView view, Document doc,
-            RevitReactionImporterApp rria, LevelMappingViewModel levelMappingViewModel, string projectId)
+            RevitReactionImporterApp rria, string projectId)
         {
             IsLevelMappingSetByUser = false;
             _rria = rria;
-
             _view = view;
             _view.ViewModel = this;
-            LevelMappingViewModel = levelMappingViewModel;
+           // LevelMappingView = _rria.LevelMappingPaneView;
 
             _document = doc;
             _projectId = projectId;
 
-            IList<RibbonItem> ribbonItems = _rria.RibbonPanel.GetItems();
+            //IList<RibbonItem> ribbonItems = _rria.RibbonPanel.GetItems();
             RAMFiles = new List<string>();
-            IsLevelMappingSetByUser = LevelMappingViewModel.IsLevelMappingSetByUser;
+
+            LevelMappingView LevelMappingView = new LevelMappingView();
+            LevelMappingViewModel = new LevelMappingViewModel(LevelMappingView, _document, _projectId);
+            LevelMappingView.ViewModel = LevelMappingViewModel;
+
+            var mappingHistory = LoadMappingHistoryFromDisk();
+            IsLevelMappingSetByUser = mappingHistory.IsLevelMappingSetByUser;
         }
 
         public void DocumentClosed()
         {
             // Document already closed, we can't do anything.
+        }
+
+        private static string GetLevelMappingHistoryFile(string projectId)
+        {
+            var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var dir = System.IO.Path.Combine(folder, @"RevitRxnImporter\history");
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            return System.IO.Path.Combine(dir, string.Format("Project-{0}_history.txt", projectId));
+        }
+
+        public MappingHistory LoadMappingHistoryFromDisk()
+        {
+            string fullPath = GetLevelMappingHistoryFile(_projectId);
+
+            if (!File.Exists(fullPath))
+                return new MappingHistory(false, LevelMappingFromUser);
+
+            var text = File.ReadAllText(fullPath);
+
+            MappingHistory levelMappingHistory;
+
+            try
+            {
+                levelMappingHistory = JsonConvert.DeserializeObject<MappingHistory>(text);
+            }
+            catch
+            {
+                return new MappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser);
+            }
+
+            return levelMappingHistory;
         }
 
         public int GetLevelIdOfActiveView()
@@ -549,9 +588,14 @@ namespace RevitReactionImporter
 
         internal void ShowLevelMappingPane(LevelInfo revitLevelInfo, List<RAMModel.Story> ramStories, List<string> filePaths)
         {
+            //LevelMappingView LevelMappingView = new LevelMappingView();
+            //LevelMappingViewModel = new LevelMappingViewModel(LevelMappingView, _document, _projectId);
+            //LevelMappingView.ViewModel = LevelMappingViewModel;
             LevelMappingViewModel.PopulateRevitLevelsAndRAMFloorLayoutTypesOptions(revitLevelInfo, ramStories);
             LevelMappingViewModel.PopulateLevelMapping(LevelMappingViewModel.LoadMappingHistoryFromDisk());
-            _rria.SetupLevelMappingPane();
+            LevelMappingView.SetupWindowSize();
+            LevelMappingView.Show();
+            LevelMappingView.Activate();
         }
 
         internal void ConfigureLevelMapping()

@@ -326,7 +326,7 @@ namespace RevitReactionImporter
                     }
 
                 RAMBeam ramBeam = new RAMBeam(beamProperties[0], beamProperties[2], Convert.ToDouble(beamProperties[3])*12.0, Convert.ToDouble(beamProperties[4])*12.0,
-                    Convert.ToDouble(beamProperties[5])*12.0, Convert.ToDouble(beamProperties[6])*12.0, Convert.ToDouble(beamProperties[6]), Convert.ToDouble(beamProperties[7]), Convert.ToDouble(beamProperties[8]), Convert.ToDouble(beamProperties[9]));
+                    Convert.ToDouble(beamProperties[5])*12.0, Convert.ToDouble(beamProperties[6])*12.0, Convert.ToDouble(beamProperties[7]), Convert.ToDouble(beamProperties[8]), Convert.ToDouble(beamProperties[9]), Convert.ToDouble(beamProperties[10]));
                 ramBeam.IsCantilevered = isCantilevered;
                 ramBeam.Id = Int32.Parse(beamProperties[1]);
 

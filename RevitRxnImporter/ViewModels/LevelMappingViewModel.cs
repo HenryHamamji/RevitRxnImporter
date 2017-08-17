@@ -26,7 +26,7 @@ namespace RevitReactionImporter
         //private readonly JsonSerializerSettings jsonSettings;
         private AnalyticalModel _analyticalModel = null;
         private RAMModel _ramModel = null;
-
+        private ControlInterfaceViewModel ControlInterfaceViewModel { get; set;}
         private LevelMappingView _view = null; // TODO: replace this connection with data binding
         //private LevelMappingView _view { get { return _view; } }
         private Document _document;
@@ -37,8 +37,7 @@ namespace RevitReactionImporter
         public Dictionary<int, string> LevelMappingFromUser { get; private set; }
         public bool IsLevelMappingSetByUser { get; set; }
 
-        public LevelMappingViewModel(LevelMappingView view, Document doc,
-            RevitReactionImporterApp rria, string projectId)
+        public LevelMappingViewModel(LevelMappingView view, Document doc, string projectId)
         {
             RevitLevelNames = new ObservableCollection<string>();
             //if(_analyticalModel!=null)
@@ -47,9 +46,9 @@ namespace RevitReactionImporter
 
             //}
 
-            _rria = rria;
+            //_rria = rria;
             _view = view;
-            _view.ViewModel = this;
+            //_view.ViewModel = this;
             _document = doc;
             ProjectId = projectId;
             LevelMappingFromUser = new Dictionary<int, string>();

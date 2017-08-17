@@ -11,6 +11,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using System.Windows.Shapes;
+using System.IO;
+using Microsoft.Win32;
 using Autodesk.Revit.UI;
 using System.Windows.Threading;
 using System.Collections.ObjectModel;
@@ -28,46 +31,36 @@ namespace RevitReactionImporter
     //        InitializeComponent();
     //    }
     //}
-    public partial class LevelMappingView : Page, IDockablePaneProvider
+    public partial class LevelMappingView : Window
     {
         public ObservableCollection<string> RevitLevels { get; set; }
         internal LevelMappingViewModel ViewModel { get; set; }
-        internal DockablePaneProviderData _paneProviderData = null;
-        public DockablePaneId LevelMappingPaneId { get; set; }
-
         private ExternalEvent setLevelMappingFromUserEvent;
-        //private ExternalEvent clearReactionsEvent;
-
         public ObservableCollection<string> RevitLevelNames { get; set; }
 
-        public LevelMappingView(DockablePaneId paneId)
+        public LevelMappingView()
         {
             InitializeComponent();
-            LevelMappingPaneId = paneId;
             if(ViewModel!=null)
             {
                 RevitLevelNames = ViewModel.RevitLevelNames;
-
             }
-            DataContext = this;
-
 
             var setLevelMappingFromUserHandler = new SetLevelMappingFromUserHandler();
             setLevelMappingFromUserHandler.View = this;
             setLevelMappingFromUserEvent = ExternalEvent.Create(setLevelMappingFromUserHandler);
         }
 
-        public void SetupDockablePane(DockablePaneProviderData data)
+        public void SetupWindowSize()
         {
-            data.FrameworkElement = this;
-
-            data.InitialState.SetFloatingRectangle(new Rectangle(200, 150, 500, 350));
-            data.InitialState.DockPosition = DockPosition.Floating;
-
-            //data.FrameworkElement.MaxHeight = 200;
-            //data.FrameworkElement.MaxWidth = 300;
-
-            _paneProviderData = data;
+            int height = 200;
+            int width = 580;
+            if(RevitLevelNames!=null)
+            {
+                height = RevitLevelNames.Count * 40;
+            }
+            Height = height;
+            Width = width;
         }
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

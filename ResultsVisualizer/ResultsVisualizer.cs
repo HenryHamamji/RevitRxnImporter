@@ -200,7 +200,7 @@ namespace RevitReactionImporter
             projectPatterns.OfClass(typeof(FillPatternElement));
             var patternIds = (IList<ElementId>)projectPatterns.ToElementIds();
             var ogs = new OverrideGraphicSettings();
-
+            ogs.SetProjectionLineWeight(10);
             if (annotationToVisualize == "VisualizeRAMSizes")
             {
                 // Color Un-mapped Beams in Red.
