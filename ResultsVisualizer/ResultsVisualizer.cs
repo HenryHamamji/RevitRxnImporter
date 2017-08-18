@@ -237,9 +237,16 @@ namespace RevitReactionImporter
                 var colorNullElem = new Transaction(_document, "Color Null Beams");
                 colorNullElem.Start();
                 Color nullColor = ColorMap[ColorMapCategories.Null];
+                Color userInputColor = ColorMap[ColorMapCategories.UserInput];
+
                 foreach (var beam in nullBeams)
                 {
                     ogs.SetProjectionLineColor(nullColor);
+                    _document.ActiveView.SetElementOverrides(new ElementId(beam.ElementId), ogs);
+                }
+                foreach (var beam in userInputBeams)
+                {
+                    ogs.SetProjectionLineColor(userInputColor);
                     _document.ActiveView.SetElementOverrides(new ElementId(beam.ElementId), ogs);
                 }
                 colorNullElem.Commit();

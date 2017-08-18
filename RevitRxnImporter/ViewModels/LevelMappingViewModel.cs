@@ -26,7 +26,7 @@ namespace RevitReactionImporter
         //private readonly JsonSerializerSettings jsonSettings;
         private AnalyticalModel _analyticalModel = null;
         private RAMModel _ramModel = null;
-        private ControlInterfaceViewModel ControlInterfaceViewModel { get; set;}
+        //private ControlInterfaceViewModel ControlInterfaceViewModel { get; set;}
         private LevelMappingView _view = null; // TODO: replace this connection with data binding
         //private LevelMappingView _view { get { return _view; } }
         private Document _document;
@@ -36,8 +36,12 @@ namespace RevitReactionImporter
         public ObservableCollection<string> RevitLevelNames { get; private set; }
         public Dictionary<int, string> LevelMappingFromUser { get; private set; }
         public bool IsLevelMappingSetByUser { get; set; }
+        public bool BeamReactionsImported { get; set; }
+        public bool BeamStudCountsImported { get; set; }
+        public bool BeamCamberValuesImported { get; set; }
+        public bool BeamSizesImported { get; set; }
 
-        public LevelMappingViewModel(LevelMappingView view, Document doc, string projectId)
+        public LevelMappingViewModel(LevelMappingView view, Document doc, string projectId, bool beamReactionsImported, bool beamStudCountsImported, bool beamCamberValuesImported, bool beamSizesImported)
         {
             RevitLevelNames = new ObservableCollection<string>();
             //if(_analyticalModel!=null)
@@ -53,8 +57,17 @@ namespace RevitReactionImporter
             ProjectId = projectId;
             LevelMappingFromUser = new Dictionary<int, string>();
             IsLevelMappingSetByUser = false;
+            BeamReactionsImported = beamReactionsImported;
+            BeamStudCountsImported = beamStudCountsImported;
+            BeamCamberValuesImported = beamCamberValuesImported;
+            BeamSizesImported = beamSizesImported;
+
             var mappingHistory = LoadMappingHistoryFromDisk();
             IsLevelMappingSetByUser = mappingHistory.IsLevelMappingSetByUser;
+            BeamReactionsImported = mappingHistory.BeamReactionsImported;
+            BeamStudCountsImported = mappingHistory.BeamStudCountsImported;
+            BeamCamberValuesImported = mappingHistory.BeamCamberValuesImported;
+            BeamSizesImported = mappingHistory.BeamSizesImported;
             PopulateLevelMapping(mappingHistory);
         }
 
@@ -215,7 +228,7 @@ namespace RevitReactionImporter
             string fullPath = GetLevelMappingHistoryFile(ProjectId);
 
             if (!File.Exists(fullPath))
-                return new MappingHistory(false, LevelMappingFromUser);
+                return new MappingHistory(false, LevelMappingFromUser, false, false, false, false);
 
             var text = File.ReadAllText(fullPath);
 
@@ -227,7 +240,7 @@ namespace RevitReactionImporter
             }
             catch
             {
-                return new MappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser);
+                return new MappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser, BeamReactionsImported, BeamStudCountsImported, BeamCamberValuesImported, BeamSizesImported);
             }
 
             return levelMappingHistory;
@@ -239,7 +252,7 @@ namespace RevitReactionImporter
 
             string fullPath = GetLevelMappingHistoryFile(ProjectId);
 
-            var history = new MappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser);
+            var history = new MappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser, BeamReactionsImported, BeamStudCountsImported, BeamCamberValuesImported, BeamSizesImported);
             var histJson = JsonConvert.SerializeObject(history, Formatting.Indented);
 
             System.IO.File.WriteAllText(fullPath, histJson);
@@ -248,7 +261,7 @@ namespace RevitReactionImporter
         private void EnsureLevelMappingHistoryDirectoryExists()
         {
             var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var dir = System.IO.Path.Combine(folder, "RAMDataImporter");
+            var dir = System.IO.Path.Combine(folder, "RevitRxnImporter");
 
             if (Directory.Exists(dir))
                 return;

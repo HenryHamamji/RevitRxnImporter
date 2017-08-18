@@ -12,6 +12,7 @@ namespace RevitReactionImporter
                 return;
 
             View.ViewModel.SetLevelMappingFromUser();
+            View.ControlInterfaceViewModel.LoadMappingHistoryFromDisk();
         }
 
         public override string GetName()

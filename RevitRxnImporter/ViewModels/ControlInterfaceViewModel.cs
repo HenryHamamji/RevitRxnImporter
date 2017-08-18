@@ -43,29 +43,36 @@ namespace RevitReactionImporter
         public bool IsMultipleImportPressed { get; set; }
         public DesignCode UserSetDesignCode { get; set; }
         public LevelMappingView LevelMappingView { get; set; }
+        public bool BeamReactionsImported { get; set; }
+        public bool BeamStudCountsImported { get; set; }
+        public bool BeamCamberValuesImported { get; set; }
+        public bool BeamSizesImported { get; set; }
 
 
         public ControlInterfaceViewModel(ControlInterfaceView view, Document doc,
             RevitReactionImporterApp rria, string projectId)
         {
             IsLevelMappingSetByUser = false;
+            BeamReactionsImported = false;
+            BeamStudCountsImported = false;
+            BeamCamberValuesImported = false;
+            BeamSizesImported = false;
+
             _rria = rria;
             _view = view;
             _view.ViewModel = this;
-           // LevelMappingView = _rria.LevelMappingPaneView;
 
             _document = doc;
             _projectId = projectId;
-
-            //IList<RibbonItem> ribbonItems = _rria.RibbonPanel.GetItems();
             RAMFiles = new List<string>();
 
-            LevelMappingView LevelMappingView = new LevelMappingView();
-            LevelMappingViewModel = new LevelMappingViewModel(LevelMappingView, _document, _projectId);
+            LevelMappingView = new LevelMappingView(this);
+            LevelMappingViewModel = new LevelMappingViewModel(LevelMappingView, _document, _projectId, BeamReactionsImported, BeamStudCountsImported, BeamCamberValuesImported, BeamSizesImported);
             LevelMappingView.ViewModel = LevelMappingViewModel;
-
+     
             var mappingHistory = LoadMappingHistoryFromDisk();
-            IsLevelMappingSetByUser = mappingHistory.IsLevelMappingSetByUser;
+
+
         }
 
         public void DocumentClosed()
@@ -87,7 +94,7 @@ namespace RevitReactionImporter
             string fullPath = GetLevelMappingHistoryFile(_projectId);
 
             if (!File.Exists(fullPath))
-                return new MappingHistory(false, LevelMappingFromUser);
+                return new MappingHistory(false, LevelMappingFromUser, false, false, false, false);
 
             var text = File.ReadAllText(fullPath);
 
@@ -99,10 +106,40 @@ namespace RevitReactionImporter
             }
             catch
             {
-                return new MappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser);
+                return new MappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser, BeamReactionsImported, BeamStudCountsImported, BeamCamberValuesImported, BeamSizesImported);
             }
 
+            IsLevelMappingSetByUser = levelMappingHistory.IsLevelMappingSetByUser;
+            LevelMappingFromUser = levelMappingHistory.LevelMappingFromUser;
+            BeamReactionsImported = levelMappingHistory.BeamReactionsImported;
+            BeamStudCountsImported = levelMappingHistory.BeamStudCountsImported;
+            BeamCamberValuesImported = levelMappingHistory.BeamCamberValuesImported;
+            BeamSizesImported = levelMappingHistory.BeamSizesImported;
+
             return levelMappingHistory;
+        }
+
+        public void SaveLevelMappingHistoryToDisk()
+        {
+            EnsureLevelMappingHistoryDirectoryExists();
+
+            string fullPath = GetLevelMappingHistoryFile(_projectId);
+
+            var history = new MappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser, BeamReactionsImported, BeamStudCountsImported, BeamCamberValuesImported, BeamSizesImported);
+            var histJson = JsonConvert.SerializeObject(history, Formatting.Indented);
+
+            System.IO.File.WriteAllText(fullPath, histJson);
+        }
+
+        private void EnsureLevelMappingHistoryDirectoryExists()
+        {
+            var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var dir = System.IO.Path.Combine(folder, "RevitRxnImporter");
+
+            if (Directory.Exists(dir))
+                return;
+
+            Directory.CreateDirectory(dir);
         }
 
         public int GetLevelIdOfActiveView()
@@ -194,6 +231,8 @@ namespace RevitReactionImporter
             //System.Windows.Forms.MessageBox.Show("Mapped Beam Count= " + results.MappedRevitBeams.Count.ToString());
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
+            BeamReactionsImported = true;
+            SaveLevelMappingHistoryToDisk();
         }
 
         public void ImportStudCounts()
@@ -237,6 +276,9 @@ namespace RevitReactionImporter
             ResultsAnnotator.AnnotateBeams(_document, results, annotationType);
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
+            BeamStudCountsImported = true;
+            SaveLevelMappingHistoryToDisk();
+
         }
 
         public void ImportCamberValues()
@@ -278,6 +320,9 @@ namespace RevitReactionImporter
             ResultsAnnotator.AnnotateBeams(_document, results, annotationType);
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
+            BeamCamberValuesImported = true;
+            SaveLevelMappingHistoryToDisk();
+
         }
 
         public void ImportBeamSizes()
@@ -313,6 +358,9 @@ namespace RevitReactionImporter
                 ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
             }
             //ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser);
+            BeamSizesImported = true;
+            SaveLevelMappingHistoryToDisk();
+
         }
 
 
@@ -582,7 +630,10 @@ namespace RevitReactionImporter
 
             ResultsVisualizer resultsVisualizer = new ResultsVisualizer(_document);
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
-
+            // Update Model Beam List.
+            var modelBeamList = ModelCompare.FilterOutNonRAMBeamsFromRevitBeamList(_analyticalModel.StructuralMembers.Beams);
+            modelBeamList = ModelCompare.FilterRevitBeamListByType(modelBeamList);
+            Results.ModelBeamList = modelBeamList;
             resultsVisualizer.ColorMembers(_analyticalModel, annotationToVisualize, Results.MappedRevitBeams, Results.ModelBeamList);
         }
 

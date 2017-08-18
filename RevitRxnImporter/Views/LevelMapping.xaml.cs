@@ -37,15 +37,16 @@ namespace RevitReactionImporter
         internal LevelMappingViewModel ViewModel { get; set; }
         private ExternalEvent setLevelMappingFromUserEvent;
         public ObservableCollection<string> RevitLevelNames { get; set; }
+        public ControlInterfaceViewModel ControlInterfaceViewModel { get; set; }
 
-        public LevelMappingView()
+        public LevelMappingView(ControlInterfaceViewModel controlInterfaceViewModel)
         {
             InitializeComponent();
             if(ViewModel!=null)
             {
                 RevitLevelNames = ViewModel.RevitLevelNames;
             }
-
+            ControlInterfaceViewModel = controlInterfaceViewModel;
             var setLevelMappingFromUserHandler = new SetLevelMappingFromUserHandler();
             setLevelMappingFromUserHandler.View = this;
             setLevelMappingFromUserEvent = ExternalEvent.Create(setLevelMappingFromUserHandler);
@@ -75,5 +76,12 @@ namespace RevitReactionImporter
             else
                 MessageBox.Show("SetLevelMappingFromUser event handler is null");
         }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = true;
+            this.Visibility = Visibility.Hidden;
+        }
+
     }
 }
