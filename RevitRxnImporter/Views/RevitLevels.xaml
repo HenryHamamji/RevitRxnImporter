@@ -21,9 +21,15 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*" />
                 <ColumnDefinition Width="0.5*" />
-
             </Grid.ColumnDefinitions>
-            <ListBox Name="RevitLevelListBoxes" SelectionMode="Multiple" Margin=" 5,10,0,10" SelectionChanged="ListBox_SelectionChanged">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Column ="0" Grid.Row="0">
+                <Label Content="Revit Levels"  FontSize="20" FontWeight="Bold"/>
+            </StackPanel>
+            <ListBox Grid.Column="0" Grid.Row="1" Name="RevitLevelListBoxes" SelectionMode="Multiple" Margin=" 5,10,0,10" SelectionChanged="ListBox_SelectionChanged">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="{x:Type ListBoxItem}">
                         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
@@ -34,6 +40,7 @@
 
             <StackPanel 
             Grid.Column ="1"
+                Grid.Row="1"
             Orientation="Horizontal"
             HorizontalAlignment="Right"
             VerticalAlignment="Center"

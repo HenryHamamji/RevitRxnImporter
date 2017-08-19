@@ -227,7 +227,9 @@ namespace RevitReactionImporter
             }
             ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser, isImportModeSingle, singleLevelId);
             Results = results;
-            ResultsAnnotator.AnnotateBeams(_document, results, annotationType);
+            ResultsAnnotator.FillInBeamParameterValues(_document, results, annotationType);
+            var resultsAnnotator = new ResultsAnnotator(_document, results, annotationType);
+            resultsAnnotator.AddReactionTags(_document, results);
             //System.Windows.Forms.MessageBox.Show("Mapped Beam Count= " + results.MappedRevitBeams.Count.ToString());
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
@@ -273,7 +275,7 @@ namespace RevitReactionImporter
             Results = results;
             var dict = _ramModel.ParseStudFile(RAMModelStudsFilePath);
             _ramModel.MapStudCountsToRAMBeams(dict, _ramModel.RamBeams);
-            ResultsAnnotator.AnnotateBeams(_document, results, annotationType);
+            ResultsAnnotator.FillInBeamParameterValues(_document, results, annotationType);
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
             BeamStudCountsImported = true;
@@ -317,7 +319,7 @@ namespace RevitReactionImporter
             }
             ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser, isImportModeSingle, singleLevelId);
             Results = results;
-            ResultsAnnotator.AnnotateBeams(_document, results, annotationType);
+            ResultsAnnotator.FillInBeamParameterValues(_document, results, annotationType);
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
             BeamCamberValuesImported = true;
@@ -559,18 +561,18 @@ namespace RevitReactionImporter
 
                 if (clearAnnotationsMain.IsReactionsPressed)
                 {
-                    beam.LookupParameter("Start Reaction - Total").SetValueString("");
-                    beam.LookupParameter("End Reaction - Total").SetValueString("");
+                    beam.LookupParameter("Start Reaction - Total").SetValueString("0");
+                    beam.LookupParameter("End Reaction - Total").SetValueString("0");
                 }
 
                 if (clearAnnotationsMain.IsStudCountsPressed)
                 {
-                    beam.LookupParameter("Number of studs").SetValueString("");
+                    beam.LookupParameter("Number of studs").Set("");
                 }
 
                 if (clearAnnotationsMain.IsCamberValuesPressed)
                 {
-                    beam.LookupParameter("Camber Size").SetValueString("");
+                    beam.LookupParameter("Camber Size").Set("");
                 }
             }
             clearBeamAnnoationsTransaction.Commit();
@@ -628,7 +630,7 @@ namespace RevitReactionImporter
                 return;
             }
 
-            ResultsVisualizer resultsVisualizer = new ResultsVisualizer(_document);
+            ResultsVisualizer resultsVisualizer = new ResultsVisualizer(_document, BeamReactionsImported, BeamStudCountsImported, BeamCamberValuesImported, BeamSizesImported);
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
             // Update Model Beam List.
             var modelBeamList = ModelCompare.FilterOutNonRAMBeamsFromRevitBeamList(_analyticalModel.StructuralMembers.Beams);

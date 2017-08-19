@@ -24,13 +24,6 @@ namespace RevitReactionImporter
     /// <summary>
     /// Interaction logic for LevelMapping.xaml
     /// </summary>
-    //public partial class LevelMapping : UserControl
-    //{
-    //    public LevelMapping()
-    //    {
-    //        InitializeComponent();
-    //    }
-    //}
     public partial class LevelMappingView : Window
     {
         public ObservableCollection<string> RevitLevels { get; set; }
