@@ -554,6 +554,12 @@ namespace RevitReactionImporter
         {
             var clearBeamAnnoationsTransaction = new Transaction(_document, "Clear Beam Annotations");
             clearBeamAnnoationsTransaction.Start();
+
+            if(clearAnnotationsMain.IsReactionsPressed)
+            {
+                DeleteRelevantReactionTags(beamsToReset);
+            }
+
             foreach (var beamToReset in beamsToReset)
             {
                 ElementId beamId = new ElementId(beamToReset.ElementId);
@@ -563,6 +569,7 @@ namespace RevitReactionImporter
                 {
                     beam.LookupParameter("Start Reaction - Total").SetValueString("0");
                     beam.LookupParameter("End Reaction - Total").SetValueString("0");
+                    //TODO: Delete reaction tags.
                 }
 
                 if (clearAnnotationsMain.IsStudCountsPressed)
@@ -576,6 +583,45 @@ namespace RevitReactionImporter
                 }
             }
             clearBeamAnnoationsTransaction.Commit();
+        }
+
+        private void DeleteRelevantReactionTags(List<Beam> beamsToReset)
+        {
+            var allBeamReactionTags = GetReactionTags();
+            var collectorElements = allBeamReactionTags.ToElements();
+            var collectorList = collectorElements.ToList();
+            var target = collectorList.ConvertAll(x => (IndependentTag)x);
+
+            ICollection<ElementId> reactionTagIdsToDelete = new List<ElementId>();
+            foreach (var beamToReset in beamsToReset)
+            {
+                int beamToResetId = beamToReset.ElementId;
+                foreach (var tag in target)
+                {
+                    if(tag.TaggedLocalElementId.IntegerValue == beamToResetId)
+                    {
+                        reactionTagIdsToDelete.Add(tag.Id);
+                    }
+                }
+            }
+            _document.Delete(reactionTagIdsToDelete);
+        }
+
+        private FilteredElementCollector GetReactionTags()
+        {
+            var allFramingTagInstances = GetElementsOfType(_document, typeof(IndependentTag), BuiltInCategory.OST_StructuralFramingTags);
+            return allFramingTagInstances;
+        }
+
+        static FilteredElementCollector GetElementsOfType(Document doc, Type type, BuiltInCategory bic)
+        {
+            FilteredElementCollector collector
+              = new FilteredElementCollector(doc);
+
+            collector.OfCategory(bic);
+            collector.OfClass(type);
+
+            return collector;
         }
 
         public void ShowClearBeamAnnotationsWindow()

@@ -62,8 +62,8 @@ namespace RevitReactionImporter
             //clearAnnotationsMain.Height = (revitLevelInfo.Levels.Count * multiple) + 25.0;
             //this.Height = (revitLevelInfo.Levels.Count * userControlMultiple) + 5.0;
             // RevitLevelListBoxes.Height = revitLevelInfo.Levels.Count * userControlMultiple;
-            clearAnnotationsMain.Height = 280;
-            this.Height = 220;
+            clearAnnotationsMain.Height = 300;
+            this.Height = 260;
             RevitLevelListBoxes.Height = 180;
 
         }

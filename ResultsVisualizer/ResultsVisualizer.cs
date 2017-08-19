@@ -64,7 +64,6 @@ namespace RevitReactionImporter
             MiddleReactionTagId = GetFamilySymbolId(document, BuiltInCategory.OST_StructuralFramingTags, middleReactionTagFileName);
             EndReactionTagId = GetFamilySymbolId(document, BuiltInCategory.OST_StructuralFramingTags, endReactionTagFileName);
 
-
         }
 
         private void LoadUnloadedFamilyFromFile(Family family, Document document, string fileName)
@@ -332,7 +331,7 @@ namespace RevitReactionImporter
                 }
                 else
                 {
-                    studCountParameter.Set(revitBeam.StudCount);//.ToString();
+                    studCountParameter.Set(revitBeam.StudCount);
                 }
             }
             annotateStudCountsTransaction.Commit();
@@ -350,7 +349,15 @@ namespace RevitReactionImporter
                 ElementId beamId = new ElementId(revitBeam.ElementId);
                 var revitBeamInstance = document.GetElement(beamId) as FamilyInstance;
                 var camberParameter = revitBeamInstance.LookupParameter("Camber Size");
-                camberParameter.Set(revitBeam.Camber).ToString();
+                Double.TryParse(revitBeam.Camber, out double camber);
+                if(camber == 0)
+                {
+                    camberParameter.Set("");
+                }
+                else
+                {
+                    camberParameter.Set(revitBeam.Camber).ToString();
+                }
             }
             annotateCamberValuesTransaction.Commit();
 
