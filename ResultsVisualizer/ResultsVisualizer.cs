@@ -106,9 +106,12 @@ namespace RevitReactionImporter
             bool areReactionsEqual = AreReactionsEqual(startReaction, endReaction);
             if(areReactionsEqual)
             {
+                double[] offsetAwayFromBeam = DetermineOffsetAwayFromBeam(revitBeam);
                 double locX = ((revitBeam.StartPoint[0] / 12.0) + (revitBeam.EndPoint[0] / 12.0)) / 2.0;
                 double locY = ((revitBeam.StartPoint[1] / 12.0) + (revitBeam.EndPoint[1] / 12.0)) / 2.0;
                 double locZ = ((revitBeam.StartPoint[2] / 12.0) + (revitBeam.EndPoint[2] / 12.0)) / 2.0;
+                locX += offsetAwayFromBeam[0];
+                locY += offsetAwayFromBeam[1];
 
                 var location = new XYZ(locX, locY, locZ);
                 IndependentTag tag = createDoc.NewTag(document.ActiveView, revitBeamInstance, false, TagMode.TM_ADDBY_CATEGORY, TagOrientation.Horizontal, location);
@@ -128,9 +131,18 @@ namespace RevitReactionImporter
             }
         }
 
+        private double DetermineInwardOffsetDirection(double start, double end)
+        {
+            if (start > end)
+                return -1.0;
+            return 1.0;
+        }
+
         private void AddStartReactionTag(Beam revitBeam, Document document, FamilyInstance revitBeamInstance, Autodesk.Revit.Creation.Document createDoc)
         {
-            double offsetFactor = 0.1;
+            double[] offsetFactorsInwards = DetermineOffsetInwards(revitBeam);
+            
+            double[] offsetAwayFromBeam = DetermineOffsetAwayFromBeam(revitBeam);
             double startX = (revitBeam.StartPoint[0] / 12.0);
             double startY = (revitBeam.StartPoint[1] / 12.0);
             double endX = (revitBeam.EndPoint[0] / 12.0);
@@ -139,9 +151,8 @@ namespace RevitReactionImporter
             double locX = (startX+endX) / 2.0;
             double locY = (startY+endY) / 2.0;
             double locZ = ((revitBeam.StartPoint[2] / 12.0) + (revitBeam.EndPoint[2] / 12.0)) / 2.0;
-
-            locX = locX + ((endX - startX) * offsetFactor);
-            locY = locY + ((endY - startY) * offsetFactor);
+            locX = locX + offsetAwayFromBeam[0] + (offsetFactorsInwards[0] * DetermineInwardOffsetDirection(startX, endX));
+            locY = locY + offsetAwayFromBeam[1] + (offsetFactorsInwards[1] * DetermineInwardOffsetDirection(startY, endY));
 
             var startLocation = new XYZ(locX, locY, locZ);
             IndependentTag startTag = createDoc.NewTag(document.ActiveView, revitBeamInstance, false, TagMode.TM_ADDBY_CATEGORY, TagOrientation.Horizontal, startLocation);
@@ -177,22 +188,61 @@ namespace RevitReactionImporter
 
         private void AddEndReactionTag(Beam revitBeam, Document document, FamilyInstance revitBeamInstance, Autodesk.Revit.Creation.Document createDoc)
         {
-            double offsetFactor = 0.1;
+            double[] offsetFactorsInwards = DetermineOffsetInwards(revitBeam);
+            double[] offsetAwayFromBeam = DetermineOffsetAwayFromBeam(revitBeam);
+
             double startX = (revitBeam.StartPoint[0] / 12.0);
             double startY = (revitBeam.StartPoint[1] / 12.0);
             double endX = (revitBeam.EndPoint[0] / 12.0);
             double endY = (revitBeam.EndPoint[1] / 12.0);
 
-            double locX = (startX + endX) / 2.0;
-            double locY = (startY + endY) / 2.0;
+            double locX = ((startX + endX) / 2.0) + offsetAwayFromBeam[0] - (offsetFactorsInwards[0]*DetermineInwardOffsetDirection(startX, endX));
+            double locY = ((startY + endY) / 2.0)  + offsetAwayFromBeam[1] - (offsetFactorsInwards[1] * DetermineInwardOffsetDirection(startY, endY));
             double locZ = ((revitBeam.StartPoint[2] / 12.0) + (revitBeam.EndPoint[2] / 12.0)) / 2.0;
 
-            locX = locX - ((endX - startX) * offsetFactor);
-            locY = locY - ((endY - startY) * offsetFactor);
             var location = new XYZ(locX, locY, locZ);
             IndependentTag endTag = createDoc.NewTag(document.ActiveView, revitBeamInstance, false, TagMode.TM_ADDBY_CATEGORY, TagOrientation.Horizontal, location);
             endTag.ChangeTypeId(new ElementId(EndReactionTagId));
 
+        }
+
+        private static double GetBeamOrientationRelativeToXAxis(Beam revitBeam)
+        {
+            double angle = 0.0;
+            double startX = revitBeam.StartPoint[0] / 12.0;
+            double startY = revitBeam.StartPoint[1] / 12.0;
+            double endX = revitBeam.EndPoint[0] / 12.0;
+            double endY = revitBeam.EndPoint[1] / 12.0;
+            if(Math.Abs(endX-startX) < 0.1)
+            {
+                angle = Math.PI/ 2.0;
+            }
+            else
+            {
+                double slope = (endY - startY) / (endX - startX);
+                angle = Math.Atan(slope); // radians.
+            }
+            return angle;
+        }
+
+        private static double[] DetermineOffsetAwayFromBeam(Beam revitBeam)
+        {
+            double tagHeightOffset = 1.0;
+            double angle = GetBeamOrientationRelativeToXAxis(revitBeam);
+            double[] offsets = new double[2];
+            offsets[0] = Math.Sin(angle) * tagHeightOffset;
+            offsets[1] = -1.0 * Math.Cos(angle) * tagHeightOffset;
+            return offsets;
+        }
+
+        private static double[] DetermineOffsetInwards(Beam revitBeam)
+        {
+            double tagWidthOffset = 1.5;
+            double angle = GetBeamOrientationRelativeToXAxis(revitBeam);
+            double[] offsets = new double[2];
+            offsets[0] = Math.Cos(angle) * tagWidthOffset;
+            offsets[1] = Math.Sin(angle) * tagWidthOffset;
+            return offsets;
         }
 
         private static bool AreReactionsEqual(double startReaxtion, double endReaction)
