@@ -91,6 +91,7 @@ namespace RevitReactionImporter
 
         private void AddReactionTagsSingleBeam(Document document, FamilyInstance revitBeamInstance, Beam revitBeam)
         {
+
             double reactionLimit = 14.0; // TODO: un hardcode.
             double startReaction = Double.Parse(revitBeam.StartReactionTotal);
             double endReaction = Double.Parse(revitBeam.EndReactionTotal);
@@ -108,6 +109,7 @@ namespace RevitReactionImporter
                 double locX = ((revitBeam.StartPoint[0] / 12.0) + (revitBeam.EndPoint[0] / 12.0)) / 2.0;
                 double locY = ((revitBeam.StartPoint[1] / 12.0) + (revitBeam.EndPoint[1] / 12.0)) / 2.0;
                 double locZ = ((revitBeam.StartPoint[2] / 12.0) + (revitBeam.EndPoint[2] / 12.0)) / 2.0;
+
                 var location = new XYZ(locX, locY, locZ);
                 IndependentTag tag = createDoc.NewTag(document.ActiveView, revitBeamInstance, false, TagMode.TM_ADDBY_CATEGORY, TagOrientation.Horizontal, location);
                 tag.ChangeTypeId(new ElementId(MiddleReactionTagId));
@@ -128,9 +130,19 @@ namespace RevitReactionImporter
 
         private void AddStartReactionTag(Beam revitBeam, Document document, FamilyInstance revitBeamInstance, Autodesk.Revit.Creation.Document createDoc)
         {
-            double locX = ((revitBeam.StartPoint[0] / 12.0) + (revitBeam.EndPoint[0] / 12.0)) / 2.0;
-            double locY = ((revitBeam.StartPoint[1] / 12.0) + (revitBeam.EndPoint[1] / 12.0)) / 2.0;
+            double offsetFactor = 0.1;
+            double startX = (revitBeam.StartPoint[0] / 12.0);
+            double startY = (revitBeam.StartPoint[1] / 12.0);
+            double endX = (revitBeam.EndPoint[0] / 12.0);
+            double endY = (revitBeam.EndPoint[1] / 12.0);
+
+            double locX = (startX+endX) / 2.0;
+            double locY = (startY+endY) / 2.0;
             double locZ = ((revitBeam.StartPoint[2] / 12.0) + (revitBeam.EndPoint[2] / 12.0)) / 2.0;
+
+            locX = locX + ((endX - startX) * offsetFactor);
+            locY = locY + ((endY - startY) * offsetFactor);
+
             var startLocation = new XYZ(locX, locY, locZ);
             IndependentTag startTag = createDoc.NewTag(document.ActiveView, revitBeamInstance, false, TagMode.TM_ADDBY_CATEGORY, TagOrientation.Horizontal, startLocation);
             startTag.ChangeTypeId(new ElementId(StartReactionTagId));
@@ -165,11 +177,20 @@ namespace RevitReactionImporter
 
         private void AddEndReactionTag(Beam revitBeam, Document document, FamilyInstance revitBeamInstance, Autodesk.Revit.Creation.Document createDoc)
         {
-            double locX = ((revitBeam.StartPoint[0] / 12.0) + (revitBeam.EndPoint[0] / 12.0)) / 2.0;
-            double locY = ((revitBeam.StartPoint[1] / 12.0) + (revitBeam.EndPoint[1] / 12.0)) / 2.0;
+            double offsetFactor = 0.1;
+            double startX = (revitBeam.StartPoint[0] / 12.0);
+            double startY = (revitBeam.StartPoint[1] / 12.0);
+            double endX = (revitBeam.EndPoint[0] / 12.0);
+            double endY = (revitBeam.EndPoint[1] / 12.0);
+
+            double locX = (startX + endX) / 2.0;
+            double locY = (startY + endY) / 2.0;
             double locZ = ((revitBeam.StartPoint[2] / 12.0) + (revitBeam.EndPoint[2] / 12.0)) / 2.0;
-            var endLocation = new XYZ(locX, locY, locZ);
-            IndependentTag endTag = createDoc.NewTag(document.ActiveView, revitBeamInstance, false, TagMode.TM_ADDBY_CATEGORY, TagOrientation.Horizontal, endLocation);
+
+            locX = locX - ((endX - startX) * offsetFactor);
+            locY = locY - ((endY - startY) * offsetFactor);
+            var location = new XYZ(locX, locY, locZ);
+            IndependentTag endTag = createDoc.NewTag(document.ActiveView, revitBeamInstance, false, TagMode.TM_ADDBY_CATEGORY, TagOrientation.Horizontal, location);
             endTag.ChangeTypeId(new ElementId(EndReactionTagId));
 
         }
