@@ -87,6 +87,7 @@
     <Compile Include="ExternalEvents\ConfigureHandler.cs" />
     <Compile Include="ExternalEvents\ImportRAMReactionsHandler.cs" />
     <Compile Include="ExternalEvents\SetLevelMappingFromUserHandler.cs" />
+    <Compile Include="ExternalEvents\VisualizationTaskEndedHandler.cs" />
     <Compile Include="MappingHistory.cs" />
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

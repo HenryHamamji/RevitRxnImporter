@@ -1094,13 +1094,14 @@ namespace RevitReactionImporter
                 iterationCount++;
                 tolerance += 4.0;
             }
-            GetUnMappedBeams(results.MappedRevitBeams, results.ModelBeamList);
+            results.UnMappedBeamList  = GetUnMappedBeams(results.MappedRevitBeams, results.ModelBeamList);
             // Populate results.
             results.RAMMappingResultsByFloor = beamRamMappingByLevelResults;
             results.RevitMappingResultsByFloor = beamRevitMappingByLevelResults;
             results.RevitLevelToRAMFloorLayoutTypeMapping = revitLevelToRAMLevelMappingResults;
             results.TotalMappedBeamCount = numMappedBeamsTotal;
             results.RevitBeamTolerancesForMappingSuccess = revitBeamTolerancesForMappingSuccess;
+            
             return results;
         }
 

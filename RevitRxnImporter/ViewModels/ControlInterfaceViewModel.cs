@@ -47,7 +47,7 @@ namespace RevitReactionImporter
         public bool BeamStudCountsImported { get; set; }
         public bool BeamCamberValuesImported { get; set; }
         public bool BeamSizesImported { get; set; }
-
+        public ResultsVisualizer.ParameterUpdater _updater { get; set; }
 
         public ControlInterfaceViewModel(ControlInterfaceView view, Document doc,
             RevitReactionImporterApp rria, string projectId)
@@ -636,11 +636,11 @@ namespace RevitReactionImporter
             clearAnnotationsMain.Show();
         }
 
-        internal void ShowSelectDataInputWindow()
-        {
-            var annotationTypeSelectionForVisualization = new AnnotationTypeSelectionForVisualization(_view);
-            annotationTypeSelectionForVisualization.Show();
-        }
+        //internal void ShowSelectDataInputWindow()
+        //{
+        //    var annotationTypeSelectionForVisualization = new AnnotationTypeSelectionForVisualization(_view);
+        //    annotationTypeSelectionForVisualization.Show();
+        //}
 
         public void ResetVisualization()
         {
@@ -683,7 +683,11 @@ namespace RevitReactionImporter
             modelBeamList = ModelCompare.FilterRevitBeamListByType(modelBeamList);
             Results.ModelBeamList = modelBeamList;
             resultsVisualizer.ColorMembers(_analyticalModel, annotationToVisualize, Results.MappedRevitBeams, Results.ModelBeamList);
+            resultsVisualizer.VisualizationTrigger(Results.UnMappedBeamList, _updater, annotationToVisualize);
+
         }
+
+
 
         internal void ShowLevelMappingPane(LevelInfo revitLevelInfo, List<RAMModel.Story> ramStories, List<string> filePaths)
         {
@@ -720,7 +724,10 @@ namespace RevitReactionImporter
                 System.Windows.Forms.MessageBox.Show("No RAM data imported. Import RAM data in order to visualize import results.");
                 return;
             }
-            var annotationTypeSelectionForVisualization = new AnnotationTypeSelectionForVisualization(_view);
+            _updater = new ResultsVisualizer.ParameterUpdater(new Guid("{E305C880-2918-4FB0-8062-EE1FA70FABD6}"));
+            UpdaterRegistry.RegisterUpdater(_updater, true);
+
+            var annotationTypeSelectionForVisualization = new AnnotationTypeSelectionForVisualization(_view, _updater);
             annotationTypeSelectionForVisualization.Show();
         }
 

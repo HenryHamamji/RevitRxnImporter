@@ -20,8 +20,9 @@ namespace RevitReactionImporter
     {
         public string AnnotationToVisualize { get; set; }
         private ExternalEvent annotationTypeForVisualizationSelected;
+        private ExternalEvent visualizationTaskEnded;
 
-        public AnnotationTypeSelectionForVisualization(ControlInterfaceView controlInterfaceView)
+        public AnnotationTypeSelectionForVisualization(ControlInterfaceView controlInterfaceView, ResultsVisualizer.ParameterUpdater parameterUpdater)
         {
             InitializeComponent();
 
@@ -29,23 +30,42 @@ namespace RevitReactionImporter
             selectAnnotationToVisualizeHandler.AnnotationTypeSelectionForVisualization = this;
             selectAnnotationToVisualizeHandler.ControlInterfaceView = controlInterfaceView;
             annotationTypeForVisualizationSelected = ExternalEvent.Create(selectAnnotationToVisualizeHandler);
+
+            var visualizationTaskEndedHandler = new VisualizationTaskEndedHandler();
+            //visualizationTaskEndedHandler.AnnotationTypeSelectionForVisualization = this;
+            visualizationTaskEndedHandler._parameterUpdater = parameterUpdater;
+            visualizationTaskEnded = ExternalEvent.Create(visualizationTaskEndedHandler);
         }
 
         public void OnAnnotationToVisualizeClick(object sender, RoutedEventArgs e)
         {
+            OnVisualizationTaskEnded(sender, e);
+
             var button = sender as System.Windows.Controls.Button;
             AnnotationToVisualize = button.Name;
             if (annotationTypeForVisualizationSelected != null)
             {
-                Close();
+                //Close();
                 annotationTypeForVisualizationSelected.Raise();
             }
             else
                 MessageBox.Show("AnnotationTypeForVisualizationSelectedEvent event handler is null");
         }
 
+        
+        public void AnnotationToVisualizeWindowClosed(object sender, RoutedEventArgs e)
+        {
+            return;
+        }
 
-
-
+        private void OnVisualizationTaskEnded(object sender, EventArgs e)
+        {
+            if (visualizationTaskEnded != null)
+            {
+                visualizationTaskEnded.Raise();
+            }
+            else
+                MessageBox.Show("VisualizationTaskEndedEvent event handler is null");
+        }
     }
 }

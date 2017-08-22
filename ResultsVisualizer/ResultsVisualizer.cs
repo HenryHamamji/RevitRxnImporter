@@ -640,6 +640,51 @@ namespace RevitReactionImporter
             ogs.SetProjectionLineWeight(10);
 
             ColorMembersBasedOnData(ogs, mappedBeams, modelBeams, unMappedBeams, nullBeams, userInputBeams, wrongSizedBeams, rightSizedBeams, annotationToVisualize);
+        }
+
+        public void VisualizationTrigger(List<Beam> unmappedBeams, ParameterUpdater updater, string annotationToVisualize)
+        {
+            Parameter parameterToTrack1 = null;
+            Parameter parameterToTrack2 = null;
+
+            var unmappedBeamIds = new List<ElementId>();
+            var revitBeamForParam = _document.GetElement(new ElementId(unmappedBeams[0].ElementId)) as FamilyInstance;
+            if (annotationToVisualize == "VisualizeRAMReactions")
+            {
+                parameterToTrack1 = revitBeamForParam.LookupParameter("Start Reaction - Total");
+                parameterToTrack2 = revitBeamForParam.LookupParameter("End Reaction - Total"); ;
+            }
+            if (annotationToVisualize == "VisualizeRAMSizes")
+            {
+                //parameterToTrack = revitBeamForParam.LookupParameter("Number of studs"); ;
+            }
+            if (annotationToVisualize == "VisualizeRAMStuds")
+            {
+                parameterToTrack1 = revitBeamForParam.LookupParameter("Number of studs"); ;
+            }
+            if (annotationToVisualize == "VisualizeRAMCamber")
+            {
+                parameterToTrack1 = revitBeamForParam.LookupParameter("Cember Size"); ;
+            }
+
+
+            foreach (var unmappedBeam in unmappedBeams)
+            {
+                ElementId beamId = new ElementId(unmappedBeam.ElementId);
+                unmappedBeamIds.Add(beamId);
+                var revitBeam = _document.GetElement(beamId) as FamilyInstance;
+                var studCount = revitBeam.LookupParameter("Number of studs");
+            }
+
+            UpdaterRegistry.AddTrigger(updater.GetUpdaterId(), _document,
+                unmappedBeamIds, Element.GetChangeTypeParameter(parameterToTrack1));
+
+            if (annotationToVisualize == "VisualizeRAMReactions")
+            {
+                UpdaterRegistry.AddTrigger(updater.GetUpdaterId(), _document,
+                    unmappedBeamIds, Element.GetChangeTypeParameter(parameterToTrack2));
+            }
+
 
         }
 
@@ -815,6 +860,59 @@ namespace RevitReactionImporter
 
         }
 
+        public class ParameterUpdater : IUpdater
+        {
+            public UpdaterId _uid;
+            public ParameterUpdater(Guid guid)
+            {
+                _uid = new UpdaterId(new AddInId(
+                    new Guid("46e366ec-491c-4fad-906d-51c00f43c9c8")), // addin id
+                    guid); // updater id
+            }
+
+            public void Execute(UpdaterData data)
+            {
+                MessageBox.Show("DMU Working");
+            }
+
+            public string GetAdditionalInformation()
+            {
+                return "N/A";
+            }
+
+            public ChangePriority GetChangePriority()
+            {
+                return ChangePriority.FreeStandingComponents;
+            }
+
+            public UpdaterId GetUpdaterId()
+            {
+                return _uid;
+            }
+
+            public string GetUpdaterName()
+            {
+                return "ParameterUpdater";
+            }
+
+            public void CleanUpdaterRegistry()
+            {
+                UpdaterRegistry.UnregisterUpdater(_uid);
+            }
+
+            public void RemoveAllTriggers()
+            {
+                UpdaterRegistry.RemoveAllTriggers(_uid);
+            }
+
+            public void StopTracking()
+            {
+                RemoveAllTriggers();
+                CleanUpdaterRegistry();
+            }
 
         }
+
+
+    }
 }
