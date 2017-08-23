@@ -7,7 +7,7 @@ namespace RevitReactionImporter
 {
     public enum VisualizationStatus
     {
-        NoDataImported,
+        //NoDataImported,
         Unmapped,
         Mapped,
         UserDefined

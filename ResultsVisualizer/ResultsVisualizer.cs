@@ -8,6 +8,7 @@ using Autodesk.Revit.UI;
 using System.IO;
 using System.Windows.Forms;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace RevitReactionImporter
 {
@@ -26,15 +27,33 @@ namespace RevitReactionImporter
         public class BeamVisualizationStatus
         {
             public int BeamId { get; set; }
+            [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
             public VisualizationStatus Reactions { get; set; }
             public VisualizationStatus Studcount { get; set; }
             public VisualizationStatus CamberSize { get; set; }
             public VisualizationStatus BeamSize { get; set; }
+
         }
 
         public VisualizationHistory()
         {
             BeamVisualizationStatuses = new List<BeamVisualizationStatus>();
+        }
+        public VisualizationHistory(List<int> beamIds)
+        {
+            var beamVisualizationStatuses = new List<BeamVisualizationStatus>();
+            for (int i = 0; i < beamIds.Count; i++)
+            {
+                var bvs = new BeamVisualizationStatus();
+                bvs.BeamId = beamIds[i];
+                bvs.BeamSize = VisualizationStatus.Unmapped;
+                bvs.Reactions = VisualizationStatus.Unmapped;
+                bvs.Studcount = VisualizationStatus.Unmapped;
+                bvs.CamberSize = VisualizationStatus.Unmapped;
+                beamVisualizationStatuses.Add(bvs);
+            }
+            this.BeamVisualizationStatuses = beamVisualizationStatuses;
+
         }
     }
 
@@ -335,13 +354,10 @@ namespace RevitReactionImporter
                 beamIds.Add(revitBeam.ElementId);
             }
             annotateReactionsTransaction.Commit();
-            if(visualizationHistory.BeamVisualizationStatuses.Count != 0)
-            {
-                UpdateVisualizationHistory(beamIds, visualizationHistory, annotationType);
-            }
+            UpdateVisualizationHistoryWithMappedBeams(beamIds, visualizationHistory, annotationType);
         }
 
-        private static void UpdateVisualizationHistory(List<int> beamIds, VisualizationHistory visualizationHistory, AnnotationType annotationType)
+        private static void UpdateVisualizationHistoryWithMappedBeams(List<int> beamIds, VisualizationHistory visualizationHistory, AnnotationType annotationType)
         {
             var beamVizStatuses = visualizationHistory.BeamVisualizationStatuses;
             foreach(var beamId in beamIds)
@@ -350,20 +366,24 @@ namespace RevitReactionImporter
                 if (annotationType == AnnotationType.Reaction)
                 {
                     beamVizStatus.Reactions = VisualizationStatus.Mapped;
+                    continue;
                 }
                 if (annotationType == AnnotationType.StudCount)
                 {
                     beamVizStatus.Studcount = VisualizationStatus.Mapped;
+                    continue;
                 }
                 if (annotationType == AnnotationType.Camber)
                 {
                     beamVizStatus.CamberSize = VisualizationStatus.Mapped;
+                    continue;
                 }
                 if (annotationType == AnnotationType.Size)
                 {
                     beamVizStatus.BeamSize = VisualizationStatus.Mapped;
+                    continue;
                 }
-                else throw new Exception("Need to debug: Annotation type not recognized.");
+                //else throw new Exception("Need to debug: Annotation type not recognized.");
             }
 
             
@@ -373,6 +393,8 @@ namespace RevitReactionImporter
 
         public static void AnnotateStudCounts(Document document, ModelCompare.Results results, VisualizationHistory visualizationHistory)
         {
+            var annotationType = AnnotationType.StudCount;
+            var beamIds = new List<int>();
             var revitBeamToRAMBeamMappingDict = results.RevitBeamToRAMBeamMapping;
             var annotateStudCountsTransaction = new Transaction(document, "Annotate Beam Stud Counts");
             annotateStudCountsTransaction.Start();
@@ -391,13 +413,17 @@ namespace RevitReactionImporter
                 {
                     studCountParameter.Set(revitBeam.StudCount);
                 }
+                beamIds.Add(revitBeam.ElementId);
             }
             annotateStudCountsTransaction.Commit();
+            UpdateVisualizationHistoryWithMappedBeams(beamIds, visualizationHistory, annotationType);
 
         }
 
         public static void AnnotateCamberValues(Document document, ModelCompare.Results results, VisualizationHistory visualizationHistory)
         {
+            var annotationType = AnnotationType.Camber;
+            var beamIds = new List<int>();
             var revitBeamToRAMBeamMappingDict = results.RevitBeamToRAMBeamMapping;
             var annotateCamberValuesTransaction = new Transaction(document, "Annotate Beam Camber Values");
             annotateCamberValuesTransaction.Start();
@@ -416,8 +442,10 @@ namespace RevitReactionImporter
                 {
                     camberParameter.Set(revitBeam.Camber).ToString();
                 }
+                beamIds.Add(revitBeam.ElementId);
             }
             annotateCamberValuesTransaction.Commit();
+            UpdateVisualizationHistoryWithMappedBeams(beamIds, visualizationHistory, annotationType);
 
         }
 
@@ -519,6 +547,75 @@ namespace RevitReactionImporter
             }
             return unMappedBeams;
         }
+
+        public List<Beam> GetUnMappedBeamsForVisualization(VisualizationHistory vh, List<Beam> modelBeams, string annotationToVisualize)
+        {
+            var unMappedBeams = new List<Beam>();
+            var bvses = vh.BeamVisualizationStatuses;
+            if (annotationToVisualize == "VisualizeRAMReactions")
+            {
+                unMappedBeams = GetUnmappedBeamsReactions(bvses, modelBeams);
+            }
+            else if (annotationToVisualize == "VisualizeRAMSizes")
+            {
+                return unMappedBeams;
+                // TODO:
+            }
+            else if (annotationToVisualize == "VisualizeRAMStuds")
+            {
+                unMappedBeams = GetUnmappedBeamsStuds(bvses, modelBeams);
+            }
+            else if (annotationToVisualize == "VisualizeRAMCamber")
+            {
+                unMappedBeams = GetUnmappedBeamsCamber(bvses, modelBeams);
+            }
+
+            UnMappedBeams = unMappedBeams;
+            return unMappedBeams;
+        }
+
+        private static List<Beam> GetUnmappedBeamsReactions(List<VisualizationHistory.BeamVisualizationStatus> bvses, List<Beam> modelBeams)
+        {
+            var unMappedBeams = new List<Beam>();
+            foreach (var beam in modelBeams)
+            {
+                var beamVizStatus = bvses.First(bvs => bvs.BeamId == beam.ElementId);
+                if (beamVizStatus.Reactions == VisualizationStatus.Unmapped)
+                {
+                    unMappedBeams.Add(beam);
+                }
+            }
+            return unMappedBeams;
+        }
+
+        private static List<Beam> GetUnmappedBeamsStuds(List<VisualizationHistory.BeamVisualizationStatus> bvses, List<Beam> modelBeams)
+        {
+            var unMappedBeams = new List<Beam>();
+            foreach (var beam in modelBeams)
+            {
+                var beamVizStatus = bvses.First(bvs => bvs.BeamId == beam.ElementId);
+                if (beamVizStatus.Studcount == VisualizationStatus.Unmapped)
+                {
+                    unMappedBeams.Add(beam);
+                }
+            }
+            return unMappedBeams;
+        }
+
+        private static List<Beam> GetUnmappedBeamsCamber(List<VisualizationHistory.BeamVisualizationStatus> bvses, List<Beam> modelBeams)
+        {
+            var unMappedBeams = new List<Beam>();
+            foreach (var beam in modelBeams)
+            {
+                var beamVizStatus = bvses.First(bvs => bvs.BeamId == beam.ElementId);
+                if (beamVizStatus.CamberSize == VisualizationStatus.Unmapped)
+                {
+                    unMappedBeams.Add(beam);
+                }
+            }
+            return unMappedBeams;
+        }
+
 
         private bool IsRelevantAnnotationDataImported(string annotationToVisualize)
         {
@@ -665,73 +762,6 @@ namespace RevitReactionImporter
             return mappedBeams;
         }
 
-        //private void ColorMembersNoDataImported(OverrideGraphicSettings ogs, List<Beam> modelBeams, List<Beam> nullBeams, List<Beam> userInputBeams, string annotationToVisualize)
-        //{
-        //    ChooseAnnotationToVisualizeDataNotImported(unMappedBeams, nullBeams, userInputBeams, annotationToVisualize, wrongSizedBeams, rightSizedBeams, mappedRevitBeams);
-
-        //    if (annotationToVisualize == "VisualizeRAMSizes")
-        //    {
-        //        // Color Un-mapped Beams in Red.
-        //        var colorNullElem = new Transaction(_document, "Color Unmapped Beams");
-        //        colorNullElem.Start();
-        //        Color nullColor = ColorMap[ColorMapCategories.Null];
-        //        foreach (var beam in unMappedBeams)
-        //        {
-        //            ogs.SetProjectionLineColor(nullColor);
-        //            _document.ActiveView.SetElementOverrides(new ElementId(beam.ElementId), ogs);
-        //        }
-        //        colorNullElem.Commit();
-
-        //        // Color Beams in Revit that were mapped with RAM.
-        //        var colorRAMImportElem = new Transaction(_document, "Color RAM Import Beams");
-        //        colorRAMImportElem.Start();
-        //        Color sameSizedBeamColor = ColorMap[ColorMapCategories.SameSizeBeam];
-        //        Color differentSizedBeamColor = ColorMap[ColorMapCategories.DifferentSizeBeam];
-
-        //        foreach (var beam in rightSizedBeams)
-        //        {
-        //            ogs.SetProjectionLineColor(sameSizedBeamColor);
-        //            _document.ActiveView.SetElementOverrides(new ElementId(beam.ElementId), ogs);
-        //        }
-        //        foreach (var beam in wrongSizedBeams)
-        //        {
-        //            ogs.SetProjectionLineColor(differentSizedBeamColor);
-        //            _document.ActiveView.SetElementOverrides(new ElementId(beam.ElementId), ogs);
-        //        }
-        //        colorRAMImportElem.Commit();
-        //    }
-        //    else
-        //    {
-        //        var colorNullElem = new Transaction(_document, "Color Null Beams");
-        //        colorNullElem.Start();
-        //        Color nullColor = ColorMap[ColorMapCategories.Null];
-        //        Color userInputColor = ColorMap[ColorMapCategories.UserInput];
-
-        //        foreach (var beam in nullBeams)
-        //        {
-        //            ogs.SetProjectionLineColor(nullColor);
-        //            _document.ActiveView.SetElementOverrides(new ElementId(beam.ElementId), ogs);
-        //        }
-        //        foreach (var beam in userInputBeams)
-        //        {
-        //            ogs.SetProjectionLineColor(userInputColor);
-        //            _document.ActiveView.SetElementOverrides(new ElementId(beam.ElementId), ogs);
-        //        }
-        //        colorNullElem.Commit();
-
-        //        // Color Beams in Revit that were mapped with RAM.
-        //        var colorRAMImportElem = new Transaction(_document, "Color RAM Import Beams");
-        //        colorRAMImportElem.Start();
-        //        Color ramImportColor = ColorMap[ColorMapCategories.RAMImport];
-        //        foreach (var beam in mappedRevitBeams)
-        //        {
-        //            ogs.SetProjectionLineColor(ramImportColor);
-        //            _document.ActiveView.SetElementOverrides(new ElementId(beam.ElementId), ogs);
-        //        }
-        //        colorRAMImportElem.Commit();
-        //    }
-        //}
-
         // REACTIONS.
         public List<Beam> UpdateVisulationHistoryWithUnMappedMembers(string annotationToVisualize, List<Beam> unMappedBeams, VisualizationHistory visualizationHistory)
         {
@@ -795,15 +825,80 @@ namespace RevitReactionImporter
             }
             UserDefinedBeams = userDefinedBeams;
             unMappedBeams = unMappedBeams.Except(userDefinedBeams).ToList();
-            UnMappedBeams = UnMappedBeams;
+            UnMappedBeams = unMappedBeams;
             return unMappedBeams;
+        }
+
+        public List<Beam> GetUserDefinedBeamsForVisualization(VisualizationHistory vh, List<Beam> modelBeams, string annotationToVisualize)
+        {
+            var userDefinedBeams = new List<Beam>();
+            var bvses = vh.BeamVisualizationStatuses;
+            if (annotationToVisualize == "VisualizeRAMReactions")
+            {
+                userDefinedBeams = GetUserDefinedBeamsReactions(modelBeams, bvses);
+            }
+            else if (annotationToVisualize == "VisualizeRAMSizes")
+            {
+                return userDefinedBeams;
+                // TODO:
+            }
+            else if (annotationToVisualize == "VisualizeRAMStuds")
+            {
+                userDefinedBeams = GetUserDefinedBeamsStuds(modelBeams, bvses);
+            }
+            else if (annotationToVisualize == "VisualizeRAMCamber")
+            {
+                userDefinedBeams = GetUserDefinedBeamsCamber(modelBeams, bvses);
+            }
+            UserDefinedBeams = userDefinedBeams;
+            return userDefinedBeams;
+        }
+
+        private List<Beam> GetUserDefinedBeamsReactions(List<Beam> modelBeams, List<VisualizationHistory.BeamVisualizationStatus> bvses)
+        {
+            var userDefinedBeams = new List<Beam>();
+            foreach (var beam in modelBeams)
+            {
+                var beamVizStatus = bvses.First(bvs => bvs.BeamId == beam.ElementId);
+                if (beamVizStatus.Reactions == VisualizationStatus.UserDefined)
+                {
+                    userDefinedBeams.Add(beam);
+                }
+            }
+            return userDefinedBeams;
+        }
+
+        private List<Beam> GetUserDefinedBeamsCamber(List<Beam> modelBeams, List<VisualizationHistory.BeamVisualizationStatus> bvses)
+        {
+            var userDefinedBeams = new List<Beam>();
+            foreach (var beam in modelBeams)
+            {
+                var beamVizStatus = bvses.First(bvs => bvs.BeamId == beam.ElementId);
+                if (beamVizStatus.CamberSize == VisualizationStatus.UserDefined)
+                {
+                    userDefinedBeams.Add(beam);
+                }
+            }
+            return userDefinedBeams;
+        }
+
+        private List<Beam> GetUserDefinedBeamsStuds(List<Beam> modelBeams, List<VisualizationHistory.BeamVisualizationStatus> bvses)
+        {
+            var userDefinedBeams = new List<Beam>();
+            foreach (var beam in modelBeams)
+            {
+                var beamVizStatus = bvses.First(bvs => bvs.BeamId == beam.ElementId);
+                if (beamVizStatus.Studcount == VisualizationStatus.UserDefined)
+                {
+                    userDefinedBeams.Add(beam);
+                }
+            }
+            return userDefinedBeams;
         }
 
         public void ColorMembers(AnalyticalModel model, string annotationToVisualize, List<Beam> mappedRevitBeams, List<Beam> modelBeams, VisualizationHistory visualizationHistory)
         {
             var unMappedBeams = UnMappedBeams;
-            var mappedBeams = new List<Beam>();
-
             //if (IsRelevantAnnotationDataImported(annotationToVisualize))
             //{
             //    unMappedBeams = GetUnMappedBeams(mappedRevitBeams, modelBeams);
@@ -827,13 +922,32 @@ namespace RevitReactionImporter
             ColorMembersBasedOnData(ogs, modelBeams, wrongSizedBeams, rightSizedBeams, annotationToVisualize, visualizationHistory);
         }
 
-        public void VisualizationTrigger(List<Beam> unmappedBeams, ParameterUpdater updater, string annotationToVisualize)
+        private List<ElementId> GetBeamsToTrack(Autodesk.Revit.DB.View activeView, List<Beam> modelBeams)
+        {
+            var beamsToTrack = new List<ElementId>();
+            var levelActiveView = activeView.GenLevel;
+            int levelIdOfActiveView = Int32.Parse(levelActiveView.Id.ToString());
+            foreach (var beam in modelBeams)
+            {
+                if(beam.ElementLevelId == levelIdOfActiveView)
+                {
+                    beamsToTrack.Add(new ElementId(beam.ElementId));
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            return beamsToTrack;
+        }
+
+        public void VisualizationTrigger(List<Beam> modelBeams, ParameterUpdater updater, string annotationToVisualize, Autodesk.Revit.DB.View activeView)
         {
             Parameter parameterToTrack1 = null;
             Parameter parameterToTrack2 = null;
 
-            var unmappedBeamIds = new List<ElementId>();
-            var revitBeamForParam = _document.GetElement(new ElementId(unmappedBeams[0].ElementId)) as FamilyInstance;
+            var beamsToTrack = GetBeamsToTrack(activeView, modelBeams);
+            var revitBeamForParam = _document.GetElement(new ElementId(modelBeams[0].ElementId)) as FamilyInstance;
             if (annotationToVisualize == "VisualizeRAMReactions")
             {
                 parameterToTrack1 = revitBeamForParam.LookupParameter("Start Reaction - Total");
@@ -849,25 +963,16 @@ namespace RevitReactionImporter
             }
             if (annotationToVisualize == "VisualizeRAMCamber")
             {
-                parameterToTrack1 = revitBeamForParam.LookupParameter("Cember Size"); ;
-            }
-
-
-            foreach (var unmappedBeam in unmappedBeams)
-            {
-                ElementId beamId = new ElementId(unmappedBeam.ElementId);
-                unmappedBeamIds.Add(beamId);
-                var revitBeam = _document.GetElement(beamId) as FamilyInstance;
-                var studCount = revitBeam.LookupParameter("Number of studs");
+                parameterToTrack1 = revitBeamForParam.LookupParameter("Camber Size"); ;
             }
 
             UpdaterRegistry.AddTrigger(updater.GetUpdaterId(), _document,
-                unmappedBeamIds, Element.GetChangeTypeParameter(parameterToTrack1));
+                beamsToTrack, Element.GetChangeTypeParameter(parameterToTrack1));
 
             if (annotationToVisualize == "VisualizeRAMReactions")
             {
                 UpdaterRegistry.AddTrigger(updater.GetUpdaterId(), _document,
-                    unmappedBeamIds, Element.GetChangeTypeParameter(parameterToTrack2));
+                    beamsToTrack, Element.GetChangeTypeParameter(parameterToTrack2));
             }
 
 
@@ -1069,7 +1174,7 @@ namespace RevitReactionImporter
                 var beamInstanceParamterModifedHandler = new BeamInstanceParamterModifedHandler();
                 beamInstanceParamterModifedHandler.ParamUpdater = this;
                 beamInstanceParameterHasBeenModified = ExternalEvent.Create(beamInstanceParamterModifedHandler);
-
+                ModifiedElementIds = new List<int>();
             }
 
             public void GetModifiedElementIds(List<ElementId> modifiedElementIds)
@@ -1091,7 +1196,7 @@ namespace RevitReactionImporter
                     var beamVizStatus = VisualizationHistory.BeamVisualizationStatuses.First(bvs => bvs.BeamId == id);
                     beamVizStatus.Reactions = VisualizationStatus.UserDefined;
                 }
-                
+                SaveVisualizationHistoryToDisk();
             }
 
             public void Execute(UpdaterData data)
@@ -1143,6 +1248,7 @@ namespace RevitReactionImporter
             {
                 RemoveAllTriggers();
                 CleanUpdaterRegistry();
+                this._uid.Dispose();
             }
 
             public void SaveVisualizationHistoryToDisk()
@@ -1151,7 +1257,7 @@ namespace RevitReactionImporter
 
                 string fullPath = GetVisualizationHistoryFile(ProjectId);
 
-                var histJson = JsonConvert.SerializeObject(VisualizationHistory, Formatting.Indented);
+                var histJson = JsonConvert.SerializeObject(VisualizationHistory, Formatting.Indented, new StringEnumConverter());
 
                 System.IO.File.WriteAllText(fullPath, histJson);
             }

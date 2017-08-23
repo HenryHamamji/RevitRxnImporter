@@ -10,6 +10,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using System.Reflection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 
 namespace RevitReactionImporter
@@ -225,14 +226,14 @@ namespace RevitReactionImporter
             {
                 ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
             }
-            VisualizationHistory = LoadVisualizationHistoryFromDisk();
 
             ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser, isImportModeSingle, singleLevelId);
             Results = results;
+            VisualizationHistory = LoadVisualizationHistoryFromDisk();
+
             ResultsAnnotator.FillInBeamParameterValues(_document, results, annotationType, VisualizationHistory, BeamReactionsImported);
             var resultsAnnotator = new ResultsAnnotator(_document, results, annotationType);
             resultsAnnotator.AddReactionTags(_document, results);
-            //System.Windows.Forms.MessageBox.Show("Mapped Beam Count= " + results.MappedRevitBeams.Count.ToString());
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
             BeamReactionsImported = true;
@@ -276,6 +277,8 @@ namespace RevitReactionImporter
             }
             ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser, isImportModeSingle, singleLevelId);
             Results = results;
+            VisualizationHistory = LoadVisualizationHistoryFromDisk();
+
             var dict = _ramModel.ParseStudFile(RAMModelStudsFilePath);
             _ramModel.MapStudCountsToRAMBeams(dict, _ramModel.RamBeams);
             ResultsAnnotator.FillInBeamParameterValues(_document, results, annotationType, VisualizationHistory, BeamReactionsImported);
@@ -283,6 +286,7 @@ namespace RevitReactionImporter
             Logger.LocalLog();
             BeamStudCountsImported = true;
             SaveLevelMappingHistoryToDisk();
+            SaveVisualizationHistoryToDisk();
 
         }
 
@@ -322,11 +326,14 @@ namespace RevitReactionImporter
             }
             ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser, isImportModeSingle, singleLevelId);
             Results = results;
+            VisualizationHistory = LoadVisualizationHistoryFromDisk();
+
             ResultsAnnotator.FillInBeamParameterValues(_document, results, annotationType, VisualizationHistory, BeamReactionsImported);
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
             BeamCamberValuesImported = true;
             SaveLevelMappingHistoryToDisk();
+            SaveVisualizationHistoryToDisk();
 
         }
 
@@ -685,11 +692,12 @@ namespace RevitReactionImporter
             var modelBeamList = ModelCompare.FilterOutNonRAMBeamsFromRevitBeamList(_analyticalModel.StructuralMembers.Beams);
             modelBeamList = ModelCompare.FilterRevitBeamListByType(modelBeamList);
             Results.ModelBeamList = modelBeamList;
-            var unMappedBeams = resultsVisualizer.GetUnMappedBeams(Results.MappedRevitBeams, Results.ModelBeamList);
-            resultsVisualizer.UpdateVisulationHistoryWithUnMappedMembers(annotationToVisualize, unMappedBeams, VisualizationHistory);
-            SaveVisualizationHistoryToDisk();
-            resultsVisualizer.ColorMembers(_analyticalModel, annotationToVisualize, Results.MappedRevitBeams, Results.ModelBeamList, VisualizationHistory);
-            resultsVisualizer.VisualizationTrigger(Results.UnMappedBeamList, _updater, annotationToVisualize);
+            VisualizationHistory = LoadVisualizationHistoryFromDisk();
+            var unMappedBeams = resultsVisualizer.GetUnMappedBeamsForVisualization(VisualizationHistory, Results.ModelBeamList, annotationToVisualize);
+            resultsVisualizer.GetUserDefinedBeamsForVisualization(VisualizationHistory, Results.ModelBeamList, annotationToVisualize);
+            //SaveVisualizationHistoryToDisk(); // TODO: not required???
+            resultsVisualizer.ColorMembers(_analyticalModel, annotationToVisualize, Results.MappedRevitBeams, Results.ModelBeamList, VisualizationHistory); // TODO: loop through vh.
+            resultsVisualizer.VisualizationTrigger(Results.ModelBeamList, _updater, annotationToVisualize, _document.ActiveView);
 
         }
 
@@ -730,6 +738,8 @@ namespace RevitReactionImporter
                 System.Windows.Forms.MessageBox.Show("No RAM data imported. Import RAM data in order to visualize import results.");
                 return;
             }
+
+            
             VisualizationHistory = LoadVisualizationHistoryFromDisk();
             _updater = new ResultsVisualizer.ParameterUpdater(new Guid("{E305C880-2918-4FB0-8062-EE1FA70FABD6}"), VisualizationHistory, _projectId);
             UpdaterRegistry.RegisterUpdater(_updater, true);
@@ -769,12 +779,25 @@ namespace RevitReactionImporter
             return System.IO.Path.Combine(dir, string.Format("Project-{0}_visualization_history.txt", projectId));
         }
 
+        public VisualizationHistory GenerateInitialDefaultHistory()
+        {
+            var modelBeams = _analyticalModel.StructuralMembers.Beams;
+            var beamIds = new List<int>();
+            foreach (var beam in modelBeams)
+            {
+                beamIds.Add(beam.ElementId);
+            }
+            VisualizationHistory vh = new VisualizationHistory(beamIds);
+            VisualizationHistory = vh;
+            return vh;
+        }
+
         public VisualizationHistory LoadVisualizationHistoryFromDisk()
         {
             string fullPath = GetVisualizationHistoryFile(_projectId);
 
             if (!File.Exists(fullPath))
-                return new VisualizationHistory();
+                return GenerateInitialDefaultHistory();
 
             var text = File.ReadAllText(fullPath);
 
@@ -786,11 +809,9 @@ namespace RevitReactionImporter
             }
             catch
             {
-                return new VisualizationHistory();
+                return GenerateInitialDefaultHistory();
             }
 
-            if(visualizationHistory.BeamVisualizationStatuses.Count !=0)
-            {
                 foreach (var beam in Results.ModelBeamList)
                 {
                     int beamId = beam.ElementId;
@@ -800,8 +821,6 @@ namespace RevitReactionImporter
                     beam.CamberSizeVisualizationStatus = beamVizStatus.CamberSize;
                     beam.BeamSizeVisualizationStatus = beamVizStatus.BeamSize;
                 }
-            }
-
 
             VisualizationHistory = visualizationHistory;
 
@@ -815,7 +834,7 @@ namespace RevitReactionImporter
             string fullPath = GetVisualizationHistoryFile(_projectId);
 
             //var history = new VisualizationHistory();
-            var histJson = JsonConvert.SerializeObject(VisualizationHistory, Formatting.Indented);
+            var histJson = JsonConvert.SerializeObject(VisualizationHistory, Formatting.Indented, new StringEnumConverter());
 
             System.IO.File.WriteAllText(fullPath, histJson);
         }
