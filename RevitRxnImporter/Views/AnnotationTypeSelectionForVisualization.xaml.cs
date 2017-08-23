@@ -21,6 +21,12 @@ namespace RevitReactionImporter
         public string AnnotationToVisualize { get; set; }
         private ExternalEvent annotationTypeForVisualizationSelected;
         private ExternalEvent visualizationTaskEnded;
+        public bool IsReactionsPressed { get; set; }
+        public bool IsStudCountsPressed { get; set; }
+        public bool IsCamberValuesPressed { get; set; }
+        public bool IsBeamSizesPressed { get; set; }
+        public ControlInterfaceView ControlInterfaceView { get; set; }
+
 
         public AnnotationTypeSelectionForVisualization(ControlInterfaceView controlInterfaceView, ResultsVisualizer.ParameterUpdater parameterUpdater)
         {
@@ -35,13 +41,19 @@ namespace RevitReactionImporter
             //visualizationTaskEndedHandler.AnnotationTypeSelectionForVisualization = this;
             visualizationTaskEndedHandler._parameterUpdater = parameterUpdater;
             visualizationTaskEnded = ExternalEvent.Create(visualizationTaskEndedHandler);
+            IsReactionsPressed = false;
+            IsStudCountsPressed = false;
+            IsCamberValuesPressed = false;
+            IsBeamSizesPressed = false;
+            ControlInterfaceView = controlInterfaceView;
         }
 
         public void OnAnnotationToVisualizeClick(object sender, RoutedEventArgs e)
         {
-            OnVisualizationTaskEnded(sender, e);
-
+            //OnVisualizationTaskEnded(sender, e);
+            ControlInterfaceView.ViewModel.LoadVisualizationHistoryFromDisk();
             var button = sender as System.Windows.Controls.Button;
+            UpdatePressed(button);
             AnnotationToVisualize = button.Name;
             if (annotationTypeForVisualizationSelected != null)
             {
@@ -66,6 +78,59 @@ namespace RevitReactionImporter
             }
             else
                 MessageBox.Show("VisualizationTaskEndedEvent event handler is null");
+        }
+
+        private void UpdatePressed(Button button)
+        {
+            if (button.Name == "VisualizeRAMReactions")
+            {
+                IsReactionsPressed = true;
+                IsStudCountsPressed = false;
+                IsCamberValuesPressed = false;
+                IsBeamSizesPressed = false;
+                VisualizeRAMSizes.ClearValue(Control.BackgroundProperty);
+                VisualizeRAMStuds.ClearValue(Control.BackgroundProperty);
+                VisualizeRAMCamber.ClearValue(Control.BackgroundProperty);
+                button.Background = Brushes.LightSteelBlue;
+                Keyboard.ClearFocus();
+            }
+            if (button.Name == "VisualizeRAMSizes")
+            {
+                IsReactionsPressed = false;
+                IsStudCountsPressed = false;
+                IsCamberValuesPressed = false;
+                IsBeamSizesPressed = true;
+                VisualizeRAMReactions.ClearValue(Control.BackgroundProperty);
+                VisualizeRAMStuds.ClearValue(Control.BackgroundProperty);
+                VisualizeRAMCamber.ClearValue(Control.BackgroundProperty);
+                button.Background = Brushes.LightSteelBlue;
+                Keyboard.ClearFocus();
+            }
+            if (button.Name == "VisualizeRAMStuds")
+            {
+                IsReactionsPressed = false;
+                IsStudCountsPressed = true;
+                IsCamberValuesPressed = false;
+                IsBeamSizesPressed = false;
+                VisualizeRAMReactions.ClearValue(Control.BackgroundProperty);
+                VisualizeRAMSizes.ClearValue(Control.BackgroundProperty);
+                VisualizeRAMCamber.ClearValue(Control.BackgroundProperty);
+                button.Background = Brushes.LightSteelBlue;
+                Keyboard.ClearFocus();
+            }
+            if (button.Name == "VisualizeRAMCamber")
+            {
+                IsReactionsPressed = false;
+                IsStudCountsPressed = false;
+                IsCamberValuesPressed = true;
+                IsBeamSizesPressed = false;
+                VisualizeRAMReactions.ClearValue(Control.BackgroundProperty);
+                VisualizeRAMSizes.ClearValue(Control.BackgroundProperty);
+                VisualizeRAMStuds.ClearValue(Control.BackgroundProperty);
+                button.Background = Brushes.LightSteelBlue;
+                Keyboard.ClearFocus();
+            }
+
         }
     }
 }

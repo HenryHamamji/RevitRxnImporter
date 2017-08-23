@@ -66,3 +66,4 @@ C:\dev\RevitRxnImporter\ResultsVisualizer\bin\Debug\ModelCompare.dll
 C:\dev\RevitRxnImporter\ResultsVisualizer\bin\Debug\RAMModel.dll
 C:\dev\RevitRxnImporter\ResultsVisualizer\bin\Debug\ModelCompare.pdb
 C:\dev\RevitRxnImporter\ResultsVisualizer\bin\Debug\RAMModel.pdb
+C:\dev\RevitRxnImporter\ResultsVisualizer\bin\Debug\Newtonsoft.Json.dll

@@ -48,7 +48,7 @@ namespace RevitReactionImporter
         public bool BeamCamberValuesImported { get; set; }
         public bool BeamSizesImported { get; set; }
         public ResultsVisualizer.ParameterUpdater _updater { get; set; }
-
+        public VisualizationHistory VisualizationHistory { get; set; }
         public ControlInterfaceViewModel(ControlInterfaceView view, Document doc,
             RevitReactionImporterApp rria, string projectId)
         {
@@ -225,9 +225,11 @@ namespace RevitReactionImporter
             {
                 ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
             }
+            VisualizationHistory = LoadVisualizationHistoryFromDisk();
+
             ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser, isImportModeSingle, singleLevelId);
             Results = results;
-            ResultsAnnotator.FillInBeamParameterValues(_document, results, annotationType);
+            ResultsAnnotator.FillInBeamParameterValues(_document, results, annotationType, VisualizationHistory, BeamReactionsImported);
             var resultsAnnotator = new ResultsAnnotator(_document, results, annotationType);
             resultsAnnotator.AddReactionTags(_document, results);
             //System.Windows.Forms.MessageBox.Show("Mapped Beam Count= " + results.MappedRevitBeams.Count.ToString());
@@ -235,6 +237,7 @@ namespace RevitReactionImporter
             Logger.LocalLog();
             BeamReactionsImported = true;
             SaveLevelMappingHistoryToDisk();
+            SaveVisualizationHistoryToDisk();
         }
 
         public void ImportStudCounts()
@@ -275,7 +278,7 @@ namespace RevitReactionImporter
             Results = results;
             var dict = _ramModel.ParseStudFile(RAMModelStudsFilePath);
             _ramModel.MapStudCountsToRAMBeams(dict, _ramModel.RamBeams);
-            ResultsAnnotator.FillInBeamParameterValues(_document, results, annotationType);
+            ResultsAnnotator.FillInBeamParameterValues(_document, results, annotationType, VisualizationHistory, BeamReactionsImported);
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
             BeamStudCountsImported = true;
@@ -319,7 +322,7 @@ namespace RevitReactionImporter
             }
             ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser, isImportModeSingle, singleLevelId);
             Results = results;
-            ResultsAnnotator.FillInBeamParameterValues(_document, results, annotationType);
+            ResultsAnnotator.FillInBeamParameterValues(_document, results, annotationType, VisualizationHistory, BeamReactionsImported);
             var logger = new Logger(_projectId, results);
             Logger.LocalLog();
             BeamCamberValuesImported = true;
@@ -668,7 +671,7 @@ namespace RevitReactionImporter
 
         public void VisualizeData(string annotationToVisualize)
         {
-
+            
             var viewType = _document.ActiveView.ViewType;
             if(viewType.ToString() != "EngineeringPlan")
             {
@@ -676,13 +679,16 @@ namespace RevitReactionImporter
                 return;
             }
 
-            ResultsVisualizer resultsVisualizer = new ResultsVisualizer(_document, BeamReactionsImported, BeamStudCountsImported, BeamCamberValuesImported, BeamSizesImported);
+            ResultsVisualizer resultsVisualizer = new ResultsVisualizer(_document, BeamReactionsImported, BeamStudCountsImported, BeamCamberValuesImported, BeamSizesImported, annotationToVisualize);
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
             // Update Model Beam List.
             var modelBeamList = ModelCompare.FilterOutNonRAMBeamsFromRevitBeamList(_analyticalModel.StructuralMembers.Beams);
             modelBeamList = ModelCompare.FilterRevitBeamListByType(modelBeamList);
             Results.ModelBeamList = modelBeamList;
-            resultsVisualizer.ColorMembers(_analyticalModel, annotationToVisualize, Results.MappedRevitBeams, Results.ModelBeamList);
+            var unMappedBeams = resultsVisualizer.GetUnMappedBeams(Results.MappedRevitBeams, Results.ModelBeamList);
+            resultsVisualizer.UpdateVisulationHistoryWithUnMappedMembers(annotationToVisualize, unMappedBeams, VisualizationHistory);
+            SaveVisualizationHistoryToDisk();
+            resultsVisualizer.ColorMembers(_analyticalModel, annotationToVisualize, Results.MappedRevitBeams, Results.ModelBeamList, VisualizationHistory);
             resultsVisualizer.VisualizationTrigger(Results.UnMappedBeamList, _updater, annotationToVisualize);
 
         }
@@ -724,7 +730,8 @@ namespace RevitReactionImporter
                 System.Windows.Forms.MessageBox.Show("No RAM data imported. Import RAM data in order to visualize import results.");
                 return;
             }
-            _updater = new ResultsVisualizer.ParameterUpdater(new Guid("{E305C880-2918-4FB0-8062-EE1FA70FABD6}"));
+            VisualizationHistory = LoadVisualizationHistoryFromDisk();
+            _updater = new ResultsVisualizer.ParameterUpdater(new Guid("{E305C880-2918-4FB0-8062-EE1FA70FABD6}"), VisualizationHistory, _projectId);
             UpdaterRegistry.RegisterUpdater(_updater, true);
 
             var annotationTypeSelectionForVisualization = new AnnotationTypeSelectionForVisualization(_view, _updater);
@@ -751,6 +758,79 @@ namespace RevitReactionImporter
         {
             RAMModelCamberFilePath = filePath;
         }
+
+
+        private static string GetVisualizationHistoryFile(string projectId)
+        {
+            var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var dir = System.IO.Path.Combine(folder, @"RevitRxnImporter\visualization_history");
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            return System.IO.Path.Combine(dir, string.Format("Project-{0}_visualization_history.txt", projectId));
+        }
+
+        public VisualizationHistory LoadVisualizationHistoryFromDisk()
+        {
+            string fullPath = GetVisualizationHistoryFile(_projectId);
+
+            if (!File.Exists(fullPath))
+                return new VisualizationHistory();
+
+            var text = File.ReadAllText(fullPath);
+
+            VisualizationHistory visualizationHistory;
+
+            try
+            {
+                visualizationHistory = JsonConvert.DeserializeObject<VisualizationHistory>(text);
+            }
+            catch
+            {
+                return new VisualizationHistory();
+            }
+
+            if(visualizationHistory.BeamVisualizationStatuses.Count !=0)
+            {
+                foreach (var beam in Results.ModelBeamList)
+                {
+                    int beamId = beam.ElementId;
+                    var beamVizStatus = visualizationHistory.BeamVisualizationStatuses.First(bvs => bvs.BeamId == beamId);
+                    beam.ReactionsVisualizationStatus = beamVizStatus.Reactions;
+                    beam.StudcountVisualizationStatus = beamVizStatus.Studcount;
+                    beam.CamberSizeVisualizationStatus = beamVizStatus.CamberSize;
+                    beam.BeamSizeVisualizationStatus = beamVizStatus.BeamSize;
+                }
+            }
+
+
+            VisualizationHistory = visualizationHistory;
+
+            return visualizationHistory;
+        }
+
+        public void SaveVisualizationHistoryToDisk()
+        {
+            EnsureVisualizationHistoryDirectoryExists();
+
+            string fullPath = GetVisualizationHistoryFile(_projectId);
+
+            //var history = new VisualizationHistory();
+            var histJson = JsonConvert.SerializeObject(VisualizationHistory, Formatting.Indented);
+
+            System.IO.File.WriteAllText(fullPath, histJson);
+        }
+
+        private void EnsureVisualizationHistoryDirectoryExists()
+        {
+            var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var dir = System.IO.Path.Combine(folder, "RevitRxnImporter");
+
+            if (Directory.Exists(dir))
+                return;
+
+            Directory.CreateDirectory(dir);
+        }
+
 
     }
 }

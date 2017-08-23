@@ -5,6 +5,14 @@ using System.Linq;
 
 namespace RevitReactionImporter
 {
+    public enum VisualizationStatus
+    {
+        NoDataImported,
+        Unmapped,
+        Mapped,
+        UserDefined
+    }
+
     public class AnalyticalModel
     {
         public ProjectInformation ProjectInfo { get; set; }
@@ -264,11 +272,16 @@ namespace RevitReactionImporter
         public double CutLength { get; set; }
         public double[] TopFlangeNormal { get { return new double[] { 0, 0, 1.0 }; } }
         public double ZOffsetValue { get; set; }
+        public VisualizationStatus ReactionsVisualizationStatus { get; set; }
+        public VisualizationStatus StudcountVisualizationStatus { get; set; }
+        public VisualizationStatus CamberSizeVisualizationStatus { get; set; }
+        public VisualizationStatus BeamSizeVisualizationStatus { get; set; }
 
 
         public Beam()
         {
             IsMappedToRAMBeam = false;
+            
         }
 
         public enum BeamOrientationRelativeToGrid
