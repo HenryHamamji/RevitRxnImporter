@@ -53,11 +53,8 @@ namespace RevitReactionImporter
                 beamVisualizationStatuses.Add(bvs);
             }
             this.BeamVisualizationStatuses = beamVisualizationStatuses;
-
         }
     }
-
-
 
     public class ResultsAnnotator
     {
@@ -70,9 +67,7 @@ namespace RevitReactionImporter
         public ResultsAnnotator(Document document, ModelCompare.Results results, AnnotationType annotationType)
         {
             Results = results;
-
-            _document = document;
-            
+            _document = document;       
         }
 
         // TAGGING
@@ -81,7 +76,6 @@ namespace RevitReactionImporter
             FilteredElementCollector familyCollector
               = new FilteredElementCollector(doc)
                 .OfClass(typeof(Family));
-
             Family family = familyCollector.FirstOrDefault<Element>(
               e => e.Name.Equals(familyName))
                 as Family;
@@ -126,12 +120,10 @@ namespace RevitReactionImporter
                 document.LoadFamily(familyPath, out family);
                 loadFamilyTransaction.Commit();
             }
-
         }
 
         private void AddReactionTagsSingleBeam(Document document, FamilyInstance revitBeamInstance, Beam revitBeam)
         {
-
             double reactionLimit = 14.0; // TODO: un hardcode.
             double startReaction = Double.Parse(revitBeam.StartReactionTotal);
             double endReaction = Double.Parse(revitBeam.EndReactionTotal);
@@ -141,7 +133,6 @@ namespace RevitReactionImporter
             }
             Autodesk.Revit.Creation.Document createDoc = document.Create;
             // Get the start & end reaction values.
-
             // Check if the reactions are equal.
             bool areReactionsEqual = AreReactionsEqual(startReaction, endReaction);
             if(areReactionsEqual)
@@ -167,7 +158,6 @@ namespace RevitReactionImporter
                 {
                     AddEndReactionTag(revitBeam, document, revitBeamInstance, createDoc);
                 }
-
             }
         }
 
@@ -197,8 +187,8 @@ namespace RevitReactionImporter
             var startLocation = new XYZ(locX, locY, locZ);
             IndependentTag startTag = createDoc.NewTag(document.ActiveView, revitBeamInstance, false, TagMode.TM_ADDBY_CATEGORY, TagOrientation.Horizontal, startLocation);
             startTag.ChangeTypeId(new ElementId(StartReactionTagId));
-
         }
+
         static int GetFamilySymbolId(Document doc, BuiltInCategory bic, string tagName)
         {
             FilteredElementCollector collector = GetFamilySymbols(doc, bic);
@@ -215,14 +205,13 @@ namespace RevitReactionImporter
             return GetElementsOfType(doc,
               typeof(FamilySymbol), bic);
         }
+
         static FilteredElementCollector GetElementsOfType(Document doc,Type type, BuiltInCategory bic)
         {
             FilteredElementCollector collector
               = new FilteredElementCollector(doc);
-
             collector.OfCategory(bic);
             collector.OfClass(type);
-
             return collector;
         }
 
@@ -383,13 +372,8 @@ namespace RevitReactionImporter
                     beamVizStatus.BeamSize = VisualizationStatus.Mapped;
                     continue;
                 }
-                //else throw new Exception("Need to debug: Annotation type not recognized.");
             }
-
-            
-
         }
-
 
         public static void AnnotateStudCounts(Document document, ModelCompare.Results results, VisualizationHistory visualizationHistory)
         {
@@ -417,7 +401,6 @@ namespace RevitReactionImporter
             }
             annotateStudCountsTransaction.Commit();
             UpdateVisualizationHistoryWithMappedBeams(beamIds, visualizationHistory, annotationType);
-
         }
 
         public static void AnnotateCamberValues(Document document, ModelCompare.Results results, VisualizationHistory visualizationHistory)
@@ -446,7 +429,6 @@ namespace RevitReactionImporter
             }
             annotateCamberValuesTransaction.Commit();
             UpdateVisualizationHistoryWithMappedBeams(beamIds, visualizationHistory, annotationType);
-
         }
 
         // TODO:
@@ -468,18 +450,12 @@ namespace RevitReactionImporter
                 {
                     continue;
                 }
-
-
             }
         }
 
-
-
-
-
     }
 
-        public class ResultsVisualizer
+    public class ResultsVisualizer
     {
         private Document _document = null;
         public Dictionary<ColorMapCategories, Color> ColorMap { get; set; }
@@ -499,10 +475,8 @@ namespace RevitReactionImporter
             ColorMap.Add(ColorMapCategories.Null, new Color(210, 0, 0)); // RED
             ColorMap.Add(ColorMapCategories.UserInput, new Color(0, 0, 230)); // BLUE
             ColorMap.Add(ColorMapCategories.RAMImport, new Color(0, 190, 0)); // GREEN
-
             ColorMap.Add(ColorMapCategories.SameSizeBeam, new Color(0, 190, 0)); // GREEN
             ColorMap.Add(ColorMapCategories.DifferentSizeBeam, new Color(255, 128, 0)); // ORANGE
-
         }
 
         public ResultsVisualizer(Document document, bool beamReactionsImported, bool beamStudCountsImported, bool beamCamberValuesImported, bool beamSizesImported, string annotationToVisualize)
@@ -524,7 +498,6 @@ namespace RevitReactionImporter
             AnnotationToVisualize = annotationToVisualize;
         }
 
-
         public enum ColorMapCategories
         {
             Null,
@@ -543,7 +516,6 @@ namespace RevitReactionImporter
                 {
                     unMappedBeams.Add(modelBeam);
                 }
-
             }
             return unMappedBeams;
         }
@@ -640,8 +612,6 @@ namespace RevitReactionImporter
 
         private void ColorMembersBasedOnData(OverrideGraphicSettings ogs, List<Beam> modelBeams,List<Beam> wrongSizedBeams, List<Beam> rightSizedBeams, string annotationToVisualize, VisualizationHistory visualizationHistory)
         {
-            //ChooseAnnotationToVisualizeDataImported(annotationToVisualize, wrongSizedBeams, rightSizedBeams);
-
             if (annotationToVisualize == "VisualizeRAMSizes")
             {
                 // Color Un-mapped Beams in Red.
@@ -899,16 +869,6 @@ namespace RevitReactionImporter
         public void ColorMembers(AnalyticalModel model, string annotationToVisualize, List<Beam> mappedRevitBeams, List<Beam> modelBeams, VisualizationHistory visualizationHistory)
         {
             var unMappedBeams = UnMappedBeams;
-            //if (IsRelevantAnnotationDataImported(annotationToVisualize))
-            //{
-            //    unMappedBeams = GetUnMappedBeams(mappedRevitBeams, modelBeams);
-            //    mappedBeams = mappedRevitBeams;
-            //}
-            //else
-            //{
-            //    unMappedBeams = modelBeams;
-            //}
-
             var nullBeams = new List<Beam>();
             var userInputBeams = new List<Beam>();
             var wrongSizedBeams = new List<Beam>();
@@ -955,7 +915,7 @@ namespace RevitReactionImporter
             }
             if (annotationToVisualize == "VisualizeRAMSizes")
             {
-                //parameterToTrack = revitBeamForParam.LookupParameter("Number of studs"); ;
+                // TODO:
             }
             if (annotationToVisualize == "VisualizeRAMStuds")
             {
@@ -974,8 +934,6 @@ namespace RevitReactionImporter
                 UpdaterRegistry.AddTrigger(updater.GetUpdaterId(), _document,
                     beamsToTrack, Element.GetChangeTypeParameter(parameterToTrack2));
             }
-
-
         }
 
         // STUDS.
@@ -1023,8 +981,6 @@ namespace RevitReactionImporter
         {
             foreach (var revitBeam in mappedBeams)
             {
-                //ElementId beamId = new ElementId(beam.ElementId);
-                //var revitBeam = _document.GetElement(beamId) as FamilyInstance;
                 var revitBeamSize = revitBeam.Size;
                 var ramBeamSize = revitBeam.RAMSize;
 
@@ -1037,9 +993,8 @@ namespace RevitReactionImporter
                     rightSizedBeams.Add(revitBeam);
                 }
             }
-
-
         }
+
         public void ResetVisualsInActiveView(List<Beam> modelBeams)
         {
             var ogs = new OverrideGraphicSettings();
@@ -1049,30 +1004,9 @@ namespace RevitReactionImporter
                 var reset = new Transaction(_document, "Reset One Element");
                 reset.Start();
                 _document.ActiveView.SetElementOverrides(new ElementId(elem.ElementId), ogs);
-                //_document.ActiveView.DisplayStyle = DisplayStyle.Shading;
                 reset.Commit();
             }
         }
-        //public class StudParameterUpdater : ParameterUpdater
-        //{
-        //    private UpdaterId _uid;
-        //    private UpdaterData UpdaterData { get; set; }
-
-        //    public StudParameterUpdater(Guid guid, VisualizationHistory visualizationHistory, string projectId) : base(guid, visualizationHistory, projectId)
-        //    {
-        //        _uid = new UpdaterId(new AddInId(
-        //            new Guid("46e366ec-491c-4fad-906d-51c00f43c9c8")), // addin id
-        //            guid); // updater id
-
-        //        VisualizationHistory = visualizationHistory;
-        //        ProjectId = projectId;
-        //        var beamInstanceParamterModifedHandler = new BeamInstanceParamterModifedHandler();
-        //        beamInstanceParamterModifedHandler.ParamUpdater = this;
-        //        beamInstanceParameterHasBeenModified = ExternalEvent.Create(beamInstanceParamterModifedHandler);
-        //        ModifiedElementIds = new List<int>();
-        //    }
-
-        //}
 
         public class ParameterUpdater : IUpdater
         {
@@ -1105,19 +1039,12 @@ namespace RevitReactionImporter
                 beamInstanceParameterHasBeenModified = ExternalEvent.Create(beamInstanceParamterModifedHandler);
                 ModifiedElementIds = new List<int>();
                 ElementIdTriggerMapping = new Dictionary<int, AnnotationType>();
-                //AnnotationToVisualize = annotationToVisualize;
-
             }
 
             public void GetModifiedElementIds(ElementId modifiedElementId)
             {
-                //foreach (var elementId in modifiedElementIds)
-                //{
-                    
-                    int elementIdInt = modifiedElementId.IntegerValue;
-                    ModifiedElementIds.Add(elementIdInt);
-                //}
-                
+                int elementIdInt = modifiedElementId.IntegerValue;
+                ModifiedElementIds.Add(elementIdInt);       
             }
 
             public void UpdateUserDefinedVisualization()
@@ -1154,12 +1081,6 @@ namespace RevitReactionImporter
             public void UpdateVisualizationHistoryWithNewUserDefinedParam()
             {
                 var bvses = VisualizationHistory.BeamVisualizationStatuses;
-                //foreach (int id in ModifiedElementIds)
-                //{
-                //    var beamVizStatus = VisualizationHistory.BeamVisualizationStatuses.First(bvs => bvs.BeamId == id);
-                //    beamVizStatus.Reactions = VisualizationStatus.UserDefined;
-                //}
-
                 foreach(var kvp in ElementIdTriggerMapping)
                 {
                     var beamVizStatus = VisualizationHistory.BeamVisualizationStatuses.First(bvs => bvs.BeamId == kvp.Key);
@@ -1226,8 +1147,6 @@ namespace RevitReactionImporter
                     beamInstanceParameterHasBeenModified.Raise();
                 }
                 else MessageBox.Show("BeamInstanceParameterHasBeenModified event handler is null");
-
-                //MessageBox.Show("DMU Working");
             }
 
             public string GetAdditionalInformation()
@@ -1262,7 +1181,6 @@ namespace RevitReactionImporter
 
             public void StopTracking()
             {
-                //RemoveAllTriggers();
                 CleanUpdaterRegistry();
                 this._uid.Dispose();
             }
@@ -1294,13 +1212,8 @@ namespace RevitReactionImporter
 
                 if (Directory.Exists(dir))
                     return;
-
                 Directory.CreateDirectory(dir);
             }
-
         }
-
-
-
     }
 }

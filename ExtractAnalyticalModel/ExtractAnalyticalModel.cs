@@ -140,20 +140,11 @@
                     foreach (var beam in beamList)
                     {
                         project.StructuralMembers.Beams.Add(beam);
-                        //System.Windows.Forms.MessageBox.Show(beam.StartReactionTotal);
-                        //System.Windows.Forms.MessageBox.Show(beam.EndReactionTotal);
-
                     }
 
                 }
                 catch (Exception e) { }
             }
-            //string testReaction = project.StructuralMembers.Beams[0].StartReactionTotal;
-            //System.Windows.Forms.MessageBox.Show(project.StructuralMembers.Beams[0].StartReactionTotal);
-            //System.Windows.Forms.MessageBox.Show("RAM Reaction import button was clicked");
-
-            //System.Windows.Forms.MessageBox.Show("Analytical Model Extracted");
-
             beamInstancedCollectorTransaction.Commit();
             return project;
         }
@@ -181,10 +172,6 @@
             beam.ElementLevel = GetElementLevel(doc, beamInstance.Id);
             beam.Size = beamInstance.Name;
             beam.ElementLevelId = GetElementLevelId(doc, beamInstance.Id);
-           // beam.StartReactionTotal = beamInstance.LookupParameter("Start Reaction - Total") != null ? beamInstance.LookupParameter("Start Reaction - Total").AsValueString(): "";
-           // beam.EndReactionTotal = beamInstance.LookupParameter("End Reaction - Total") != null ? beamInstance.LookupParameter("End Reaction - Total").AsValueString() : "";
-           // Parameter endReactionTotalParameter = beamInstance.LookupParameter("End Reaction - Total");
-            //endReactionTotalParameter.SetValueString("45");
             // Beam Material Properties
             var beamInstanceMaterial = beamInstance.get_Parameter(BuiltInParameter.STRUCTURAL_MATERIAL_PARAM);
             var beamInstanceMaterialId = doc.GetElement(beamInstanceMaterial.AsElementId()) as Material;
@@ -360,7 +347,6 @@
                 level = levelElement.Id.IntegerValue;
 
             }
-
             return level;
         }
 
@@ -405,7 +391,6 @@
             var baseLevelGlobal = column.Document.GetElement(column.LookupParameter("Base Level").AsElementId()) as Level;
             start[2] = (locPoint.Point.Z + baseLevelGlobal.Elevation) * 12.0;
 
-            // a bit of a heck. To be improved at a later date
             var columnSymbol = column.Symbol;
 
             // http://thebuildingcoder.typepad.com/blog/2009/06/revit-library-shape-type-catalogue-parameters.html

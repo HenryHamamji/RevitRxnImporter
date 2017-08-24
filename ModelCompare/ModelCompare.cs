@@ -50,9 +50,6 @@ namespace RevitReactionImporter
                 ModelBeamList = new List<Beam>();
                 UnMappedBeamList = new List<Beam>();
                 RevitBeamToRAMBeamMapping = new Dictionary<Beam, RAMModel.RAMBeam>();
-                //RAMMappingResultsByFloor = ramMappingResultsByFloor;
-                //RevitMappingResultsByFloor = revitMappingResultsByFloor;
-                //, Dictionary<string, string> ramMappingResultsByFloor, Dictionary<string, string> revitMappingResultsByFloor
             }
         }
 
@@ -61,7 +58,6 @@ namespace RevitReactionImporter
             StoriesRAM = ramModel.Stories;
             Beams = ramModel.RamBeams;
             RevitLevelInfo = revitModel.LevelInfo;
-            //LevelsRevit = revitModel.LevelInfo.Levels;
             LevelNameMapping = new Dictionary<int, string>();
             LevelElevationMapping = new Dictionary<int, string>();
             LevelOrderMapping = new Dictionary<int, string>();
@@ -135,14 +131,12 @@ namespace RevitReactionImporter
                     if (CompareLevelSpacings(ramLevelSpacing, revitLevelSpacing))
                     {
                         ramModel.Stories[i].MapRevitLevelToThis = true;
-                        //revitModel.LevelInfo.Levels[i].MapRAMLayoutTypeToThis = true;
                         revitSpacingsMappingStatus[revitLevelSpacingName] = true;
 
                     }
                     else
                     {
                         ramModel.Stories[i].MapRevitLevelToThis = false;
-                        //revitModel.LevelInfo.Levels[i].MapRAMLayoutTypeToThis = false;
                         revitSpacingsMappingStatus[revitLevelSpacingName] = true;
 
 
@@ -196,7 +190,7 @@ namespace RevitReactionImporter
         {
             var levelInfo = revitModel.LevelInfo;
             double errorTolerance = levelInfo.LevelsRevitSpacings.Count * 1.0; // Allow a 1 foot discrepancy at each level.
-            // temp.
+            
             ramModel.Stories.RemoveAll(s => s.Height < 4);
 
             if (levelInfo.LevelsRevitSpacings.Count < ramModel.Stories.Count) // Not all RAM Levels will be mapped.
@@ -215,7 +209,6 @@ namespace RevitReactionImporter
 
                     indexesToRemoveToTotalErrorDict[potentialIndexesToRemoveList] = totalError;
                 }
-                //FilterStoryList(ramModel.Stories);
                 int numSolutions = 0;
                 var indexesToRemove = new List<int>();
                 foreach (var key in indexesToRemoveToTotalErrorDict.Keys)
@@ -245,7 +238,6 @@ namespace RevitReactionImporter
 
             else if (levelInfo.LevelsRevitSpacings.Count > ramModel.Stories.Count) // Not all Revit Levels will be mapped.
             {
-                // TODO: Remove extra revit Levels.
                 // Only consider levels with beams hosted on them.
                 var revitLevelsWithBeams = GetRevitLevelsWithBeams(revitModel);
                 revitModel.LevelInfo.Levels = revitLevelsWithBeams;
@@ -657,7 +649,6 @@ namespace RevitReactionImporter
                 string layoutTypeByName = levelNameMappingDict[revitLevelId];
                 string layoutTypeByElevation = levelElevationMappingDict[revitLevelId];
                 string layoutTypeByOrder = levelOrderMappingDict[revitLevelId];
-                //string layoutTypeBySpacing = levelSpacingMappingDict[revitLevelId];
 
                 var allEqual = new[] { layoutTypeByName, layoutTypeByElevation, layoutTypeByOrder }.Distinct().Count() == 1;
                 var allNotEqual = new[] { layoutTypeByName, layoutTypeByElevation, layoutTypeByOrder }.Distinct().Count() == 3;
@@ -709,8 +700,6 @@ namespace RevitReactionImporter
 
             int letteredGridIndex = -1;
             int numberedGridIndex = -1;
-            //var letteredGrid = grids.First(item => item.Name == "A");
-            //var numberedGrid = grids.First(item => item.Name == "1" || item.Name == "01");
 
             var letteredGrid = gridData.LetteredGrids[0];
             var numberedGrid = gridData.NumberedGrids[0];
@@ -746,8 +735,6 @@ namespace RevitReactionImporter
 
             referencePoint[letteredGridIndex] = letteredGrid.Origin[letteredGridIndex] * 12.0;
             referencePoint[numberedGridIndex] = numberedGrid.Origin[numberedGridIndex] * 12.0;
-            //referencePoint[0] = gridData.Grids.First(item => item.Name == "A").Origin[1]*12.0;
-            //referencePoint[1] = gridData.Grids.First(item => item.Name == "1").Origin[0]*12.0;
             referencePoint[2] = 0.0;
             return referencePoint;
         }
@@ -835,8 +822,6 @@ namespace RevitReactionImporter
             }
             if (grids.Count > 1)
             {
-                //var locationA = grids.First(item => item.Name == gridName1 || item.Name == "01").Origin[coordinateInt];
-                //var locationB = grids.First(item => item.Name == gridName2 || item.Name == "02").Origin[coordinateInt];
                 var locationA = grids[0].Origin[coordinateInt];
                 var locationB = grids[1].Origin[coordinateInt];
 
@@ -934,7 +919,6 @@ namespace RevitReactionImporter
 
         public static List<Beam> GetUnMappedBeams(List<Beam> mappedRevitBeams, List<Beam> modelBeams)
         {
-            //var unMappedBeams = new List<Beam>();
             var unMappedBeams = modelBeams.Where(p => !mappedRevitBeams.Any(p2 => p2.ElementId == p.ElementId)).ToList();
             return unMappedBeams;
         }
@@ -1030,11 +1014,6 @@ namespace RevitReactionImporter
             {
                 foreach (var layoutType in ramBeamToLayoutMapping.Keys)
                 {
-                    //if(!levelMappingDict.Values.Contains(layoutType.Substring(12, layoutType.Length - 12)))
-                    //{
-                    //    continue;
-                    //    // this means that there are beams on at least 1 layout type that was not associated with a revit level.
-                    //}
                     int revitLevelId = GetRevitLevelIdFromRAMLayoutType(levelMappingDictToUse, layoutType);
                     string revitLevelName = GetRevitLevelNameFromId(revitLevelId, revitModel.LevelInfo.Levels);
                     revitLevelToRAMLevelMappingResults[revitLevelName] = layoutType;
@@ -1054,8 +1033,6 @@ namespace RevitReactionImporter
                             }
                             if (ComparePoints(ramBeam.StartPoint, revitBeam.StartPoint, tolerance) && ComparePoints(ramBeam.EndPoint, revitBeam.EndPoint, tolerance))
                             {
-                                //revitBeam.StartReactionTotal = ramBeam.StartTotalReactionPositive.ToString();
-                               // revitBeam.EndReactionTotal = ramBeam.EndTotalReactionPositive.ToString();
                                 numMappedBeamsPerFloor[layoutType] += 1;
                                 revitBeam.IsMappedToRAMBeam = true;
                                 revitBeam.ToleranceForSuccessFulMapping = tolerance;
@@ -1067,8 +1044,6 @@ namespace RevitReactionImporter
                             }
                             if (ComparePoints(ramBeam.StartPoint, revitBeam.EndPoint, tolerance) && ComparePoints(ramBeam.EndPoint, revitBeam.StartPoint, tolerance))
                             {
-                                //revitBeam.StartReactionTotal = ramBeam.EndTotalReactionPositive.ToString();
-                                //revitBeam.EndReactionTotal = ramBeam.StartTotalReactionPositive.ToString();
                                 numMappedBeamsPerFloor[layoutType] += 1;
                                 revitBeam.IsMappedToRAMBeam = true;
                                 revitBeam.ToleranceForSuccessFulMapping = tolerance;
@@ -1167,8 +1142,6 @@ namespace RevitReactionImporter
         public static double[] MapReferencePoints(double[] ramReferencePoint, double[] revitReferencePoint)
         {
             var offset = new double[3];
-            //offset[1] = revitReferencePoint[0] - ramReferencePoint[0];
-            //offset[0] = revitReferencePoint[1] - ramReferencePoint[1];
             offset[0] = revitReferencePoint[0] - ramReferencePoint[0];
             offset[1] = revitReferencePoint[1] - ramReferencePoint[1];
             offset[2] = revitReferencePoint[2] - ramReferencePoint[2];
@@ -1259,14 +1232,6 @@ namespace RevitReactionImporter
 
         public static bool ComparePoints(double[] point1, double[] point2, double tolerance)
         {
-            //double toleranceX = tolerances[Beam.BeamOrientationRelativeToGrid.ParallelToVerticalGrids];
-            //double toleranceY = tolerances[Beam.BeamOrientationRelativeToGrid.ParallelToHorizontalGrids];
-            //double miniumTolerance = 14.0; // inches.
-            //double bufferTolerance = 2.0; // inches.
-            //toleranceY = Math.Max(miniumTolerance, toleranceY);
-            //toleranceX = Math.Max(miniumTolerance, toleranceX);
-            //toleranceY = 24.0;
-            //toleranceX = 24.0;
             if (Math.Abs(point1[0] - point2[0]) < tolerance && Math.Abs(point1[1] - point2[1]) < tolerance)
             {
                 return true;
@@ -1303,8 +1268,5 @@ namespace RevitReactionImporter
 
             return filteredRevitBeamList;
         }
-
-
-
     }
 }

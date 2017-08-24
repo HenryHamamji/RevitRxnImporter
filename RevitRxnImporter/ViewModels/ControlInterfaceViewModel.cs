@@ -20,7 +20,6 @@ namespace RevitReactionImporter
         private RevitReactionImporterApp _rria;
         public string _projectId = "";
 
-        //private readonly JsonSerializerSettings jsonSettings;
         private AnalyticalModel _analyticalModel = null;
         private RAMModel _ramModel = null;
         private ModelCompare _modelCompare = null;
@@ -73,8 +72,6 @@ namespace RevitReactionImporter
             LevelMappingView.ViewModel = LevelMappingViewModel;
      
             var mappingHistory = LoadMappingHistoryFromDisk();
-
-
         }
 
         public void DocumentClosed()
@@ -271,7 +268,6 @@ namespace RevitReactionImporter
             RAMModel _ramModel = RAMModel.DeserializeRAMModel(UserSetDesignCode);
             _analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
 
-
             if (!LevelMappingViewModel.IsLevelMappingSetByUser)
             {
                 ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
@@ -335,7 +331,6 @@ namespace RevitReactionImporter
             BeamCamberValuesImported = true;
             SaveLevelMappingHistoryToDisk();
             SaveVisualizationHistoryToDisk();
-
         }
 
         public void ImportBeamSizes()
@@ -370,10 +365,8 @@ namespace RevitReactionImporter
             {
                 ShowLevelMappingPane(_analyticalModel.LevelInfo, _ramModel.Stories, RAMFiles);
             }
-            //ModelCompare.Results results = ModelCompare.CompareModels(_ramModel, _analyticalModel, LevelMappingViewModel.LevelMappingFromUser);
             BeamSizesImported = true;
             SaveLevelMappingHistoryToDisk();
-
         }
 
 
@@ -459,22 +452,6 @@ namespace RevitReactionImporter
 
             RAMFiles = files;
         }
-
-        //private void LoadRAMMetaDataFileHistoryFromDisk()
-        //{
-        //    string fullPath = GetMetaDataFile(_projectId);
-
-        //    if (!File.Exists(fullPath))
-        //        return;
-
-        //    var text = File.ReadAllLines(fullPath);
-
-        //    RAMModelMetaDataFilePath = text[0];
-        //    RAMModelReactionsFilePath = text[1];
-        //    RAMModelStudsFilePath = text[2];
-        //    RAMModelCamberFilePath = text[3];
-
-        //}
 
         private void LoadRAMMetaDataFileHistoryFromDisk()
         {
@@ -670,12 +647,6 @@ namespace RevitReactionImporter
             clearAnnotationsMain.Show();
         }
 
-        //internal void ShowSelectDataInputWindow()
-        //{
-        //    var annotationTypeSelectionForVisualization = new AnnotationTypeSelectionForVisualization(_view);
-        //    annotationTypeSelectionForVisualization.Show();
-        //}
-
         public void ResetVisualization()
         {
             var viewType = _document.ActiveView.ViewType;
@@ -697,7 +668,6 @@ namespace RevitReactionImporter
 
             ResultsVisualizer resultsVisualizer = new ResultsVisualizer(_document);
             resultsVisualizer.ResetVisualsInActiveView(beamsToReset);
-
         }
 
         public void VisualizeData(string annotationToVisualize)
@@ -720,19 +690,13 @@ namespace RevitReactionImporter
             _updater.AnnotationToVisualize = annotationToVisualize;
             var unMappedBeams = resultsVisualizer.GetUnMappedBeamsForVisualization(VisualizationHistory, Results.ModelBeamList, annotationToVisualize);
             resultsVisualizer.GetUserDefinedBeamsForVisualization(VisualizationHistory, Results.ModelBeamList, annotationToVisualize);
-            //SaveVisualizationHistoryToDisk(); // TODO: not required???
             resultsVisualizer.ColorMembers(_analyticalModel, annotationToVisualize, Results.MappedRevitBeams, Results.ModelBeamList, VisualizationHistory); // TODO: loop through vh.
             resultsVisualizer.VisualizationTrigger(Results.ModelBeamList, _updater, annotationToVisualize, _document.ActiveView);
 
         }
 
-
-
         internal void ShowLevelMappingPane(LevelInfo revitLevelInfo, List<RAMModel.Story> ramStories, List<string> filePaths)
         {
-            //LevelMappingView LevelMappingView = new LevelMappingView();
-            //LevelMappingViewModel = new LevelMappingViewModel(LevelMappingView, _document, _projectId);
-            //LevelMappingView.ViewModel = LevelMappingViewModel;
             LevelMappingViewModel.PopulateRevitLevelsAndRAMFloorLayoutTypesOptions(revitLevelInfo, ramStories);
             LevelMappingViewModel.PopulateLevelMapping(LevelMappingViewModel.LoadMappingHistoryFromDisk());
             LevelMappingView.SetupWindowSize();
@@ -763,8 +727,7 @@ namespace RevitReactionImporter
                 System.Windows.Forms.MessageBox.Show("No RAM data imported. Import RAM data in order to visualize import results.");
                 return;
             }
-
-            
+         
             VisualizationHistory = LoadVisualizationHistoryFromDisk();
             _updater = new ResultsVisualizer.ParameterUpdater(new Guid("{E305C880-2918-4FB0-8062-EE1FA70FABD6}"), VisualizationHistory, _projectId, _document, AnnotationToVisualize);
             UpdaterRegistry.RegisterUpdater(_updater, true);
@@ -820,12 +783,10 @@ namespace RevitReactionImporter
         public VisualizationHistory LoadVisualizationHistoryFromDisk()
         {
             string fullPath = GetVisualizationHistoryFile(_projectId);
-
             if (!File.Exists(fullPath))
                 return GenerateInitialDefaultHistory();
 
             var text = File.ReadAllText(fullPath);
-
             VisualizationHistory visualizationHistory;
 
             try
@@ -855,12 +816,8 @@ namespace RevitReactionImporter
         public void SaveVisualizationHistoryToDisk()
         {
             EnsureVisualizationHistoryDirectoryExists();
-
             string fullPath = GetVisualizationHistoryFile(_projectId);
-
-            //var history = new VisualizationHistory();
             var histJson = JsonConvert.SerializeObject(VisualizationHistory, Formatting.Indented, new StringEnumConverter());
-
             System.IO.File.WriteAllText(fullPath, histJson);
         }
 

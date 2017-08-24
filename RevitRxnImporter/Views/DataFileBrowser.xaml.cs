@@ -139,8 +139,7 @@ namespace RevitReactionImporter
                     }
                     txtEditorRAMModel.Text = fileName;
                     RAMModelMetaDataFilePath = fileName;
-                    //Settings1.Default.RAMModelFilePathSetting = fileName;
-                    //Settings1.Default.Save();
+
                 }
                 else if(button.Name == "btnRAMReactionsFile")
                 {
@@ -151,8 +150,6 @@ namespace RevitReactionImporter
                     }
                     txtEditorRAMReactions.Text = fileName;
                     RAMModelReactionsFilePath = fileName;
-                    //Settings1.Default.RAMReactionsFilePathSetting = fileName;
-                    //Settings1.Default.Save();
                 }
                 else if (button.Name == "btnRAMStudsFile")
                 {
@@ -163,8 +160,6 @@ namespace RevitReactionImporter
                     }
                     txtEditorRAMStuds.Text = fileName;
                     RAMModelStudsFilePath = fileName;
-                   // Settings1.Default.RAMStudsFilePathSetting = fileName;
-                    //Settings1.Default.Save();
                 }
                 else if (button.Name == "btnRAMCamberFile")
                 {
@@ -176,7 +171,6 @@ namespace RevitReactionImporter
                     txtEditorRAMCamber.Text = fileName;
                     RAMModelCamberFilePath = fileName;
                 }
-
                 else
                 {
                     throw new Exception("Button name is not recognized");
@@ -191,7 +185,7 @@ namespace RevitReactionImporter
             Excel.Application excel = new Excel.Application();
             Excel.Workbook wb = excel.Workbooks.Open(ramModelFilePath);
             Excel.Worksheet excelSheet = wb.ActiveSheet;
-            //Read the first cell
+            //Read the first cell.
             string fileCategory = excelSheet.Cells[1, 1].Value.ToString();
             wb.Close();
             return fileCategory.Contains(fileCategoryIdentifier);
@@ -222,17 +216,13 @@ namespace RevitReactionImporter
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
             return System.IO.Path.Combine(dir, string.Format("Project-{0}_metadata.csv", projectId));
-
-            //return System.IO.Path.Combine(dir, string.Format("metadata.txt"));
         }
 
         private void LoadRAMMetaDataFileHistoryFromDisk()
         {
             string fullPath = GetMetaDataFile(ProjectId);
-
             if (!File.Exists(fullPath))
                 return;
-
             var text = File.ReadAllLines(fullPath);
             for(int i=0; i < text.Length; i++)
             {
@@ -261,8 +251,6 @@ namespace RevitReactionImporter
             }
         }
 
-
-
         private void OnOpenFileDialogIsTrue(string buttonName)
         {
             if (assignDataFilesEvent != null)
@@ -270,8 +258,6 @@ namespace RevitReactionImporter
             else
                 MessageBox.Show("AssignDataFilesEvent event handler is null");
         }
-
-
 
     }
 }

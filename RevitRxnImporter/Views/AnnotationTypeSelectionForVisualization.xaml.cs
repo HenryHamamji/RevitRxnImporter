@@ -38,7 +38,6 @@ namespace RevitReactionImporter
             annotationTypeForVisualizationSelected = ExternalEvent.Create(selectAnnotationToVisualizeHandler);
 
             var visualizationTaskEndedHandler = new VisualizationTaskEndedHandler();
-            //visualizationTaskEndedHandler.AnnotationTypeSelectionForVisualization = this;
             visualizationTaskEndedHandler._parameterUpdater = parameterUpdater;
             visualizationTaskEnded = ExternalEvent.Create(visualizationTaskEndedHandler);
             IsReactionsPressed = false;
@@ -56,7 +55,6 @@ namespace RevitReactionImporter
             AnnotationToVisualize = button.Name;
             if (annotationTypeForVisualizationSelected != null)
             {
-                //Close();
                 annotationTypeForVisualizationSelected.Raise();
             }
             else

@@ -23,14 +23,10 @@ namespace RevitReactionImporter
         private RevitReactionImporterApp _rria;
         private string ProjectId { get; set; }
 
-        //private readonly JsonSerializerSettings jsonSettings;
         private AnalyticalModel _analyticalModel = null;
         private RAMModel _ramModel = null;
-        //private ControlInterfaceViewModel ControlInterfaceViewModel { get; set;}
         private LevelMappingView _view = null; // TODO: replace this connection with data binding
-        //private LevelMappingView _view { get { return _view; } }
         private Document _document;
-        //public AnalyticalModel AnalyticalModel { get { return _analyticalModel; } }
         public AnalyticalModel AnalyticalModel { get; set; }
         public RAMModel RAMModel { get { return _ramModel; } }
         public ObservableCollection<string> RevitLevelNames { get; private set; }
@@ -44,15 +40,7 @@ namespace RevitReactionImporter
         public LevelMappingViewModel(LevelMappingView view, Document doc, string projectId, bool beamReactionsImported, bool beamStudCountsImported, bool beamCamberValuesImported, bool beamSizesImported)
         {
             RevitLevelNames = new ObservableCollection<string>();
-            //if(_analyticalModel!=null)
-            //{
-            //    RevitLevelNames = PopulateRevitLevels(_analyticalModel.LevelInfo);
-
-            //}
-
-            //_rria = rria;
             _view = view;
-            //_view.ViewModel = this;
             _document = doc;
             ProjectId = projectId;
             LevelMappingFromUser = new Dictionary<int, string>();
@@ -96,7 +84,6 @@ namespace RevitReactionImporter
                 return revitLevelNames;
         }
 
-
         void CreateRevitLevelEntries(string elemName)
         {
             var dataTemplate = new DataTemplate();
@@ -104,14 +91,11 @@ namespace RevitReactionImporter
             var sp = new FrameworkElementFactory(typeof(StackPanel));
             sp.Name = "Revit Level Listings";
             sp.SetValue(StackPanel.OrientationProperty, System.Windows.Controls.Orientation.Vertical);
-
             var text = new TextBlock();
             text.SetValue(TextBlock.TextProperty, elemName);
             text.SetValue(TextBlock.TextWrappingProperty, TextWrapping.Wrap);
             text.SetValue(TextBlock.MarginProperty, new Thickness(5, 14, 5, 14));
-
             dataTemplate.VisualTree = sp;
-
             _view.RevitLevelTextBlocks.Children.Add(text);
 
         }
@@ -124,7 +108,6 @@ namespace RevitReactionImporter
             foreach (var ramFloorLayoutType in ramStories)
             {
                 combo.Items.Add(ramFloorLayoutType.LayoutType);
-
             }
 
             combo.Padding = new Thickness(1, 5, 1, 5);
@@ -137,10 +120,10 @@ namespace RevitReactionImporter
 
         public void PopulateLevelMapping(MappingHistory levelMappingHistory)
         {
-            // check if set by user.
+            // Check if set by user.
             if(IsLevelMappingSetByUser)
             {
-                //if yes, then load from history.
+                //If yes, then load from history.
                 LevelMappingFromUser = levelMappingHistory.LevelMappingFromUser;
                 SetValueOfRAMFloorLayoutTypeComboBoxesFromUser();
             }
@@ -150,11 +133,7 @@ namespace RevitReactionImporter
                 //if not set by user then load from algorithm.
                 //if algorithm was able to map then load that.
                 // if algorithm could not map, then leave the mapping blank.
-
-                //SetValueOfRAMFloorLayoutTypeComboBoxesFromAlgorithm(filePaths);
             }
-
-
         }
 
         public void SetValueOfRAMFloorLayoutTypeComboBoxesFromUser()
@@ -171,26 +150,6 @@ namespace RevitReactionImporter
                 ramFloorLayoutTypeComboBox.SelectedValue = selectedValue;
             }
         }
-
-        //public void SetValueOfRAMFloorLayoutTypeComboBoxesFromAlgorithm(List<string> filePaths)
-        //{
-        //    RAMModel.ExecutePythonScript(filePaths);
-        //    RAMModel ramModel = RAMModel.DeserializeRAMModel();
-        //    var analyticalModel = ExtractAnalyticalModel.ExtractFromRevitDocument(_document);
-
-        //    ModelCompare.Results results = ModelCompare.CompareModels(ramModel, analyticalModel, LevelMappingFromUser);
-
-        //    for (int i = 0; i < _view.RevitLevelTextBlocks.Children.Count; i++)
-        //    {
-        //        var revitLevelStackPanelItem = (System.Windows.Controls.TextBlock)_view.RevitLevelTextBlocks.Children[i];
-        //        string revitLevelName = revitLevelStackPanelItem.Text;
-        //        int revitLevelId = GetRevitLevelIdFromName(revitLevelName, analyticalModel.LevelInfo);
-        //        var ramFloorLayoutTypes = _view.RevitLevelsComboBoxes.Children;
-        //        var ramFloorLayoutTypeComboBox = (System.Windows.Controls.ComboBox)ramFloorLayoutTypes[i];
-        //        string selectedValue = results.LevelMapping[revitLevelId];
-        //        ramFloorLayoutTypeComboBox.SelectedValue = selectedValue;
-        //    }
-        //}
 
         public void SetLevelMappingFromUser()
         {
@@ -226,14 +185,11 @@ namespace RevitReactionImporter
         public MappingHistory LoadMappingHistoryFromDisk()
         {
             string fullPath = GetLevelMappingHistoryFile(ProjectId);
-
             if (!File.Exists(fullPath))
                 return new MappingHistory(false, LevelMappingFromUser, false, false, false, false);
 
             var text = File.ReadAllText(fullPath);
-
             MappingHistory levelMappingHistory;
-
             try
             {
                 levelMappingHistory = JsonConvert.DeserializeObject<MappingHistory>(text);
@@ -242,19 +198,15 @@ namespace RevitReactionImporter
             {
                 return new MappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser, BeamReactionsImported, BeamStudCountsImported, BeamCamberValuesImported, BeamSizesImported);
             }
-
             return levelMappingHistory;
         }
 
         public void SaveLevelMappingHistoryToDisk()
         {
             EnsureLevelMappingHistoryDirectoryExists();
-
             string fullPath = GetLevelMappingHistoryFile(ProjectId);
-
             var history = new MappingHistory(IsLevelMappingSetByUser, LevelMappingFromUser, BeamReactionsImported, BeamStudCountsImported, BeamCamberValuesImported, BeamSizesImported);
             var histJson = JsonConvert.SerializeObject(history, Formatting.Indented);
-
             System.IO.File.WriteAllText(fullPath, histJson);
         }
 
@@ -262,10 +214,8 @@ namespace RevitReactionImporter
         {
             var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var dir = System.IO.Path.Combine(folder, "RevitRxnImporter");
-
             if (Directory.Exists(dir))
                 return;
-
             Directory.CreateDirectory(dir);
         }
 

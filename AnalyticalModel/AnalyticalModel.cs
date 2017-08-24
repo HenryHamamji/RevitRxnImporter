@@ -224,15 +224,10 @@ namespace RevitReactionImporter
         public WideFlange()
         {
         }
-
-
     }
 
     public class Column : WideFlange
     {
-        //public double Length { get; set; }
-        //public string BaseConnection { get; set; }
-        //public string TopConnection { get; set; }
         public string BaseConnectionParameter { get; set; }
         public string TopConnectionParameter { get; set; }
         public double[] BasePoint { get; set; }

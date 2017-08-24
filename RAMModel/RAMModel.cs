@@ -145,8 +145,6 @@ namespace RevitReactionImporter
             var referencePoint = new double[3];
             int letteredGridIndex = -1;
             int numberedGridIndex = -1;
-            //var letteredGrid = grids.First(item => item.Name == "A");
-            //var numberedGrid = grids.First(item => item.Name == "1");
 
             var letteredGrid = letteredGrids[0];
             var numberedGrid = numberedGrids[0];
@@ -183,9 +181,6 @@ namespace RevitReactionImporter
 
             referencePoint[letteredGridIndex] = letteredGrid.Location;
             referencePoint[numberedGridIndex] = numberedGrid.Location;
-
-            //referencePoint[0] = grids.First(item => item.Name == "A").Location;
-            //referencePoint[1] = grids.First(item => item.Name == "1").Location;
             referencePoint[2] = 0.0;
             return referencePoint;
         }
@@ -231,7 +226,7 @@ namespace RevitReactionImporter
 
             process.Close();
 
-            // write the output we got from python app 
+            // Write the output we got from python app.
             Console.WriteLine("Value received from script: " + myString);
             System.Threading.Thread.Sleep(2000);
 
@@ -289,7 +284,7 @@ namespace RevitReactionImporter
             List<double> loadFactors = ChooseLoadFactorsBasedOnDesignCode(designCode);
             var ramModel = new RAMModel(designCode);
 
-            // TODO: Beam Data in its own function
+            // TODO: Beam Data in its own function.
             string path = @"C:\dev\RAM Reaction Importer\RAM-Reaction-Importer\beamData.txt";
             string beamDataString = "";
             Char lineDelimiter = ';';
@@ -302,7 +297,6 @@ namespace RevitReactionImporter
             }
             String[] allBeamData = beamDataString.Split(lineDelimiter);
             allBeamData = allBeamData.Take(allBeamData.Length - 1).ToArray();
-            //var id = 1;
             foreach (var singleBeamData in allBeamData)
             {
                 bool isCantilevered = false;
@@ -404,9 +398,6 @@ namespace RevitReactionImporter
 
         public static void ClassifyGridDirectionalities(List<RAMGrid> grids, List<RAMGrid> numberedGrids, List<RAMGrid> letteredGrids)
         {
-            //var letteredGrids = new List<RAMGrid>();
-           //var numberedGrids = new List<RAMGrid>();
-
             foreach (var grid in grids)
             {
                 if(grid.GridTypeNaming == RAMGrid.GridTypeNamingClassification.Lettered)
@@ -509,7 +500,7 @@ namespace RevitReactionImporter
         // STUDS
         public List<RAMBeam> MapStudCountsToRAMBeams(Dictionary<string, Dictionary<int, int>> layoutTypeToBeamStudCount, List<RAMBeam> ramBeams)
         {
-            // loop over RAMBeamList and find matching beams in the stud file parser
+            // Loop over RAMBeamList and find matching beams in the stud file parser
             // beamList and assign the stud count.
             for (int j = 0; j < layoutTypeToBeamStudCount.Keys.Count; j++)
             {
@@ -581,13 +572,11 @@ namespace RevitReactionImporter
                     if (beamIds.Contains("Floor Type:"))
                     {
                         string layoutType = beamIds.Substring(12, beamIds.Length - 12);
-                        //System.Console.WriteLine(rowIndex + "," + layoutType);
                         layoutTypeRowIndexes.Add(layoutType, rowIndex);
                     }
                     if (beamIds.Contains("*"))
                     {
                         lastRowIndex = rowIndex;
-                        //System.Console.WriteLine(lastRowIndex);
                     }
                 }
             }
@@ -748,7 +737,6 @@ namespace RevitReactionImporter
                 {
                     var layoutTypeFromCamberFileUnTrimmed = beamsFromCamberFile[j].FloorLayoutType;
                     string layoutTypeFromCamberFile = layoutTypeFromCamberFileUnTrimmed.Trim();
-
                     if (layoutTypeFromCamberFile == ramBeamFloorLayoutType)
                     {
                         var beamIdFromCamberFile = beamsFromCamberFile[j].Id;
@@ -757,13 +745,10 @@ namespace RevitReactionImporter
                             ramBeams[i].Camber = beamsFromCamberFile[j].Camber;
                         }
                     }
-
                 }
             }
             return ramBeams;
         }
-
-
     }
 
     public enum DesignCode

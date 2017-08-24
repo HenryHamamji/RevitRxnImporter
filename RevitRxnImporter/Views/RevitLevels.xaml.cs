@@ -32,8 +32,6 @@ namespace RevitReactionImporter
             InitializeComponent();
             RevitLevelListBoxes.ItemsSource = RevitLevelNames;
             PopulateRevitLevels(clearAnnotationsMain);
-
-
         }
 
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -43,7 +41,6 @@ namespace RevitReactionImporter
             {
                RevitLevelListBoxes.SelectedItems.Remove(item);
             }
-
             foreach (string item in e.AddedItems)
             {
                 RevitLevelListBoxes.SelectedItems.Add(item);
@@ -56,16 +53,10 @@ namespace RevitReactionImporter
             foreach (var revitLevel in revitLevelInfo.Levels)
             {
                 RevitLevelNames.Add(revitLevel.Name);
-
             }
-            //double userControlMultiple = 14.0;
-            //clearAnnotationsMain.Height = (revitLevelInfo.Levels.Count * multiple) + 25.0;
-            //this.Height = (revitLevelInfo.Levels.Count * userControlMultiple) + 5.0;
-            // RevitLevelListBoxes.Height = revitLevelInfo.Levels.Count * userControlMultiple;
             clearAnnotationsMain.Height = 300;
             this.Height = 260;
             RevitLevelListBoxes.Height = 180;
-
         }
 
         public ObservableCollection<string> GetSelectedRevitLevels()
@@ -76,7 +67,6 @@ namespace RevitReactionImporter
                 string listitemcontents_str = RevitLevelListBoxes.SelectedItems[i].ToString();
                 selectedRevitLevels.Add(listitemcontents_str);
             }
-
             return selectedRevitLevels;
         }
 
@@ -91,14 +81,6 @@ namespace RevitReactionImporter
             ClearAnnotationsMain.RevitLevelNamesSelected = SelectedRevitLevelNames;
             ClearAnnotationsMain.Close();
             ClearAnnotationsMain.ClearSelectedAnnotations();
-
         }
-
-
-
-
-
-
-
     }
 }

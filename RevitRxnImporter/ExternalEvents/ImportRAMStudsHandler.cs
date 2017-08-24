@@ -11,7 +11,7 @@ namespace RevitReactionImporter
             if (View.ViewModel == null)
                 return;
 
-            View.ViewModel.ImportStudCounts();//View.ViewModel.RAMModelStudsFilePath);
+            View.ViewModel.ImportStudCounts();
         }
 
         public override string GetName()
