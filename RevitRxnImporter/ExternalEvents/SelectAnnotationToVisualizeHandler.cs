@@ -12,7 +12,7 @@ namespace RevitReactionImporter
             if (ControlInterfaceView.ViewModel == null)
                 return;
             ControlInterfaceView.ViewModel.VisualizeData(AnnotationTypeSelectionForVisualization.AnnotationToVisualize);
-            
+            ControlInterfaceView.ViewModel.AnnotationToVisualize = AnnotationTypeSelectionForVisualization.AnnotationToVisualize;
 
         }
 

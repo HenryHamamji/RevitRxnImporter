@@ -50,7 +50,6 @@ namespace RevitReactionImporter
 
         public void OnAnnotationToVisualizeClick(object sender, RoutedEventArgs e)
         {
-            //OnVisualizationTaskEnded(sender, e);
             ControlInterfaceView.ViewModel.LoadVisualizationHistoryFromDisk();
             var button = sender as System.Windows.Controls.Button;
             UpdatePressed(button);

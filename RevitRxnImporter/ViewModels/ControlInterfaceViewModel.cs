@@ -50,6 +50,7 @@ namespace RevitReactionImporter
         public bool BeamSizesImported { get; set; }
         public ResultsVisualizer.ParameterUpdater _updater { get; set; }
         public VisualizationHistory VisualizationHistory { get; set; }
+        public string AnnotationToVisualize { get; set; }
         public ControlInterfaceViewModel(ControlInterfaceView view, Document doc,
             RevitReactionImporterApp rria, string projectId)
         {
@@ -716,6 +717,7 @@ namespace RevitReactionImporter
             modelBeamList = ModelCompare.FilterRevitBeamListByType(modelBeamList);
             Results.ModelBeamList = modelBeamList;
             VisualizationHistory = LoadVisualizationHistoryFromDisk();
+            _updater.AnnotationToVisualize = annotationToVisualize;
             var unMappedBeams = resultsVisualizer.GetUnMappedBeamsForVisualization(VisualizationHistory, Results.ModelBeamList, annotationToVisualize);
             resultsVisualizer.GetUserDefinedBeamsForVisualization(VisualizationHistory, Results.ModelBeamList, annotationToVisualize);
             //SaveVisualizationHistoryToDisk(); // TODO: not required???
@@ -764,7 +766,7 @@ namespace RevitReactionImporter
 
             
             VisualizationHistory = LoadVisualizationHistoryFromDisk();
-            _updater = new ResultsVisualizer.ParameterUpdater(new Guid("{E305C880-2918-4FB0-8062-EE1FA70FABD6}"), VisualizationHistory, _projectId);
+            _updater = new ResultsVisualizer.ParameterUpdater(new Guid("{E305C880-2918-4FB0-8062-EE1FA70FABD6}"), VisualizationHistory, _projectId, _document, AnnotationToVisualize);
             UpdaterRegistry.RegisterUpdater(_updater, true);
 
             var annotationTypeSelectionForVisualization = new AnnotationTypeSelectionForVisualization(_view, _updater);

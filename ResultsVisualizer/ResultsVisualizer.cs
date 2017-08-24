@@ -951,7 +951,7 @@ namespace RevitReactionImporter
             if (annotationToVisualize == "VisualizeRAMReactions")
             {
                 parameterToTrack1 = revitBeamForParam.LookupParameter("Start Reaction - Total");
-                parameterToTrack2 = revitBeamForParam.LookupParameter("End Reaction - Total"); ;
+                parameterToTrack2 = revitBeamForParam.LookupParameter("End Reaction - Total");
             }
             if (annotationToVisualize == "VisualizeRAMSizes")
             {
@@ -1053,78 +1053,174 @@ namespace RevitReactionImporter
                 reset.Commit();
             }
         }
-        public class StudParameterUpdater : ParameterUpdater
-        {
-            private UpdaterId _uid;
-            private UpdaterData UpdaterData { get; set; }
+        //public class StudParameterUpdater : ParameterUpdater
+        //{
+        //    private UpdaterId _uid;
+        //    private UpdaterData UpdaterData { get; set; }
 
-            public StudParameterUpdater(Guid guid, VisualizationHistory visualizationHistory, string projectId) : base(guid, visualizationHistory, projectId)
-            {
-                _uid = new UpdaterId(new AddInId(
-                    new Guid("46e366ec-491c-4fad-906d-51c00f43c9c8")), // addin id
-                    guid); // updater id
+        //    public StudParameterUpdater(Guid guid, VisualizationHistory visualizationHistory, string projectId) : base(guid, visualizationHistory, projectId)
+        //    {
+        //        _uid = new UpdaterId(new AddInId(
+        //            new Guid("46e366ec-491c-4fad-906d-51c00f43c9c8")), // addin id
+        //            guid); // updater id
 
-                VisualizationHistory = visualizationHistory;
-                ProjectId = projectId;
-                var beamInstanceParamterModifedHandler = new BeamInstanceParamterModifedHandler();
-                beamInstanceParamterModifedHandler.ParamUpdater = this;
-                beamInstanceParameterHasBeenModified = ExternalEvent.Create(beamInstanceParamterModifedHandler);
-                ModifiedElementIds = new List<int>();
-            }
+        //        VisualizationHistory = visualizationHistory;
+        //        ProjectId = projectId;
+        //        var beamInstanceParamterModifedHandler = new BeamInstanceParamterModifedHandler();
+        //        beamInstanceParamterModifedHandler.ParamUpdater = this;
+        //        beamInstanceParameterHasBeenModified = ExternalEvent.Create(beamInstanceParamterModifedHandler);
+        //        ModifiedElementIds = new List<int>();
+        //    }
 
-        }
+        //}
 
         public class ParameterUpdater : IUpdater
         {
-            private UpdaterId _uid;
+            public enum AnnotationType
+            {
+                Reaction,
+                StudCount,
+                CamberSize
+            }
+            public string AnnotationToVisualize { get; set; }
+            public Document Document { get; set; }
+            public UpdaterId _uid;
             public List<int> ModifiedElementIds { get; set; }
             public ExternalEvent beamInstanceParameterHasBeenModified;
             public VisualizationHistory VisualizationHistory { get; set; }
-            private UpdaterData UpdaterData { get; set; }
+            public UpdaterData UpdaterData { get; set; }
             public string ProjectId { get; set; }
+            public Dictionary<int, AnnotationType> ElementIdTriggerMapping { get; set; }
 
-            public ParameterUpdater(Guid guid, VisualizationHistory visualizationHistory, string projectId)
+            public ParameterUpdater(Guid guid, VisualizationHistory visualizationHistory, string projectId, Document document, string annotationToVisualize)
             {
                 _uid = new UpdaterId(new AddInId(
                     new Guid("46e366ec-491c-4fad-906d-51c00f43c9c8")), // addin id
                     guid); // updater id
-
+                Document = document;
                 VisualizationHistory = visualizationHistory;
                 ProjectId = projectId;
                 var beamInstanceParamterModifedHandler = new BeamInstanceParamterModifedHandler();
                 beamInstanceParamterModifedHandler.ParamUpdater = this;
                 beamInstanceParameterHasBeenModified = ExternalEvent.Create(beamInstanceParamterModifedHandler);
                 ModifiedElementIds = new List<int>();
+                ElementIdTriggerMapping = new Dictionary<int, AnnotationType>();
+                //AnnotationToVisualize = annotationToVisualize;
+
             }
 
-            public void GetModifiedElementIds(List<ElementId> modifiedElementIds)
+            public void GetModifiedElementIds(ElementId modifiedElementId)
             {
-                foreach (var elementId in modifiedElementIds)
-                {
+                //foreach (var elementId in modifiedElementIds)
+                //{
                     
-                    int elementIdInt = elementId.IntegerValue;
+                    int elementIdInt = modifiedElementId.IntegerValue;
                     ModifiedElementIds.Add(elementIdInt);
-                }
+                //}
                 
+            }
+
+            public void UpdateUserDefinedVisualization()
+            {
+                if(AnnotationToVisualize == "VisualizeRAMReactions" && ElementIdTriggerMapping.Values.ToList().First() == AnnotationType.Reaction)
+                {
+                    ColorElementAsUserDefined(ElementIdTriggerMapping.Keys.ToList().First());
+                }
+                else if (AnnotationToVisualize == "VisualizeRAMStuds" && ElementIdTriggerMapping.Values.ToList().First() == AnnotationType.StudCount)
+                {
+                    ColorElementAsUserDefined(ElementIdTriggerMapping.Keys.ToList().First());
+                }
+                else if (AnnotationToVisualize == "VisualizeRAMCamber" && ElementIdTriggerMapping.Values.ToList().First() == AnnotationType.CamberSize)
+                {
+                    ColorElementAsUserDefined(ElementIdTriggerMapping.Keys.ToList().First());
+                }
+            }
+
+            private void ColorElementAsUserDefined(int elementId)
+            {
+                var projectPatterns = new FilteredElementCollector(Document);
+                projectPatterns.OfClass(typeof(FillPatternElement));
+                var patternIds = (IList<ElementId>)projectPatterns.ToElementIds();
+                var ogs = new OverrideGraphicSettings();
+                ogs.SetProjectionLineWeight(10);
+                Color userInputColor = new Autodesk.Revit.DB.Color(0, 0, 230);
+                ogs.SetProjectionLineColor(userInputColor);
+                var colorUserDefinedBeam = new Transaction(Document, "Color User Defined Beam");
+                colorUserDefinedBeam.Start();
+                Document.ActiveView.SetElementOverrides(new ElementId(elementId), ogs);
+                colorUserDefinedBeam.Commit();
             }
 
             public void UpdateVisualizationHistoryWithNewUserDefinedParam()
             {
                 var bvses = VisualizationHistory.BeamVisualizationStatuses;
-                foreach (int id in ModifiedElementIds)
+                //foreach (int id in ModifiedElementIds)
+                //{
+                //    var beamVizStatus = VisualizationHistory.BeamVisualizationStatuses.First(bvs => bvs.BeamId == id);
+                //    beamVizStatus.Reactions = VisualizationStatus.UserDefined;
+                //}
+
+                foreach(var kvp in ElementIdTriggerMapping)
                 {
-                    var beamVizStatus = VisualizationHistory.BeamVisualizationStatuses.First(bvs => bvs.BeamId == id);
-                    beamVizStatus.Reactions = VisualizationStatus.UserDefined;
+                    var beamVizStatus = VisualizationHistory.BeamVisualizationStatuses.First(bvs => bvs.BeamId == kvp.Key);
+                    if(kvp.Value == AnnotationType.Reaction)
+                    {
+                        beamVizStatus.Reactions = VisualizationStatus.UserDefined;
+                    }
+                    else if (kvp.Value == AnnotationType.StudCount)
+                    {
+                        beamVizStatus.Studcount = VisualizationStatus.UserDefined;
+                    }
+                    else if (kvp.Value == AnnotationType.CamberSize)
+                    {
+                        beamVizStatus.CamberSize = VisualizationStatus.UserDefined;
+                    }
                 }
                 SaveVisualizationHistoryToDisk();
+            }
+
+            private Dictionary<int, AnnotationType> DetermineWhichTriggerWasHit(UpdaterData data)
+            {
+                Dictionary<int, AnnotationType> dict = new Dictionary<int, AnnotationType>();
+                var lastModifiedElementId = data.GetModifiedElementIds().ToList().Last();
+                int lastModifiedElementIdInt = lastModifiedElementId.IntegerValue;
+
+                var lastModifiedElement = Document.GetElement(lastModifiedElementId);
+                var startReactionParam = lastModifiedElement.LookupParameter("Start Reaction - Total");
+                var endReactionParam = lastModifiedElement.LookupParameter("End Reaction - Total");
+                var studCountParam = lastModifiedElement.LookupParameter("Number of studs");
+                var camberSizeParam = lastModifiedElement.LookupParameter("Camber Size");
+
+                bool startReactionChanged = data.IsChangeTriggered(lastModifiedElementId, Element.GetChangeTypeParameter(startReactionParam));
+                bool endReactionChanged = data.IsChangeTriggered(lastModifiedElementId, Element.GetChangeTypeParameter(endReactionParam));
+                bool studCountChanged = data.IsChangeTriggered(lastModifiedElementId, Element.GetChangeTypeParameter(studCountParam));
+                bool camberSizeChanged = data.IsChangeTriggered(lastModifiedElementId, Element.GetChangeTypeParameter(camberSizeParam));
+                if(startReactionChanged)
+                {
+                    dict.Add(lastModifiedElementIdInt, AnnotationType.Reaction);
+                }
+                else if (endReactionChanged)
+                {
+                    dict.Add(lastModifiedElementIdInt, AnnotationType.Reaction);
+                }
+                else if (studCountChanged)
+                {
+                    dict.Add(lastModifiedElementIdInt, AnnotationType.StudCount);
+                }
+                else if (camberSizeChanged)
+                {
+                    dict.Add(lastModifiedElementIdInt, AnnotationType.CamberSize);
+                }
+                ElementIdTriggerMapping = dict;
+                return dict;
             }
 
             public void Execute(UpdaterData data)
             {
                 UpdaterData = data;
-                var modifiedElementIds = data.GetModifiedElementIds().ToList();
+                var modifiedElementIds = data.GetModifiedElementIds().ToList().Last();
                 GetModifiedElementIds(modifiedElementIds);
-
+                DetermineWhichTriggerWasHit(data);
                 if (beamInstanceParameterHasBeenModified != null)
                 {
                     beamInstanceParameterHasBeenModified.Raise();
@@ -1166,7 +1262,7 @@ namespace RevitReactionImporter
 
             public void StopTracking()
             {
-                RemoveAllTriggers();
+                //RemoveAllTriggers();
                 CleanUpdaterRegistry();
                 this._uid.Dispose();
             }

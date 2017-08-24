@@ -12,6 +12,7 @@ namespace RevitReactionImporter
                 return;
 
             ParamUpdater.UpdateVisualizationHistoryWithNewUserDefinedParam();
+            ParamUpdater.UpdateUserDefinedVisualization();
         }
 
         public override string GetName()
