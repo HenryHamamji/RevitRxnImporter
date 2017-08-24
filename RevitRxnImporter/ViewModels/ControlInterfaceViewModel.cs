@@ -526,6 +526,30 @@ namespace RevitReactionImporter
             beamsToReset = FilterOutBeamsToResetByInputDataType(clearAnnotationsMain);
             beamsToReset = FilterOutBeamsToResetByLevels(beamsToReset, clearAnnotationsMain);
             ResetBeamsParametersBySelectedAnnotations(clearAnnotationsMain, beamsToReset);
+            UpdateVisualizationHistoryFileOnClearAnnotations(beamsToReset, clearAnnotationsMain);
+        }
+
+        private void UpdateVisualizationHistoryFileOnClearAnnotations(List<Beam> beamsToReset, ClearAnnotationsMain clearAnnotationsMain)
+        {
+            var bvses = VisualizationHistory.BeamVisualizationStatuses;
+            foreach(var beam in beamsToReset)
+            {
+                var beamVizStatus = VisualizationHistory.BeamVisualizationStatuses.First(bvs => bvs.BeamId == beam.ElementId);
+                if (clearAnnotationsMain.IsReactionsPressed)
+                {
+                    beamVizStatus.Reactions = VisualizationStatus.Unmapped;
+                }
+                if (clearAnnotationsMain.IsStudCountsPressed)
+                {
+                    beamVizStatus.Studcount = VisualizationStatus.Unmapped;
+                }
+                if (clearAnnotationsMain.IsCamberValuesPressed)
+                {
+                    beamVizStatus.CamberSize = VisualizationStatus.Unmapped;
+                }
+            }
+            SaveVisualizationHistoryToDisk();
+
         }
 
         public List<Beam> FilterOutBeamsToResetByInputDataType(ClearAnnotationsMain clearAnnotationsMain)
@@ -579,7 +603,6 @@ namespace RevitReactionImporter
                 {
                     beam.LookupParameter("Start Reaction - Total").SetValueString("0");
                     beam.LookupParameter("End Reaction - Total").SetValueString("0");
-                    //TODO: Delete reaction tags.
                 }
 
                 if (clearAnnotationsMain.IsStudCountsPressed)
@@ -642,7 +665,7 @@ namespace RevitReactionImporter
                 return;
             }
 
-            ClearAnnotationsMain clearAnnotationsMain = new ClearAnnotationsMain(_analyticalModel.LevelInfo, _view);
+            ClearAnnotationsMain clearAnnotationsMain = new ClearAnnotationsMain(_analyticalModel.LevelInfo, _view, VisualizationHistory);
             clearAnnotationsMain.Show();
         }
 

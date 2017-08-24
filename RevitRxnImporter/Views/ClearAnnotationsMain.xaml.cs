@@ -27,11 +27,12 @@ namespace RevitReactionImporter
         public ObservableCollection<string> RevitLevelNamesSelected { get; set; }
         private ControlInterfaceView ControlInterfaceView { get; set; }
         private ExternalEvent clearDataEvent;
-
-        public ClearAnnotationsMain(LevelInfo levelInfo, ControlInterfaceView view)
+        public VisualizationHistory VisualizationHistory { get; set; }
+        public ClearAnnotationsMain(LevelInfo levelInfo, ControlInterfaceView view, VisualizationHistory vh)
         {
             ControlInterfaceView = view;
             LevelInfo = levelInfo;
+            VisualizationHistory = vh;
             InitializeComponent();
             this.ContentHolder.Content = new DataInputSelectionForClearData(this);
 
