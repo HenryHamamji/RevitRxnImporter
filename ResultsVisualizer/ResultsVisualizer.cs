@@ -1227,7 +1227,7 @@ namespace RevitReactionImporter
                 }
                 else MessageBox.Show("BeamInstanceParameterHasBeenModified event handler is null");
 
-                MessageBox.Show("DMU Working");
+                //MessageBox.Show("DMU Working");
             }
 
             public string GetAdditionalInformation()
