@@ -978,96 +978,6 @@ namespace RevitReactionImporter
 
         }
 
-        //public void ChooseAnnotationToVisualizeDataImported(string annotationToVisualize, List<Beam> wrongSizedBeams, List<Beam> rightSizedBeams, List<Beam> mappedBeams, VisualizationHistory visualizationHistory)
-        //{
-        //    if (annotationToVisualize == "VisualizeRAMReactions")
-        //    {
-        //        CategorizeReactionValues(visualizationHistory);
-        //    }
-        //    if (annotationToVisualize == "VisualizeRAMSizes")
-        //    {
-        //        CategorizeSizeValues(wrongSizedBeams, rightSizedBeams, mappedBeams);
-        //    }
-        //    if (annotationToVisualize == "VisualizeRAMStuds")
-        //    {
-        //        CategorizeStudCountValues(visualizationHistory);
-
-        //    }
-        //    if (annotationToVisualize == "VisualizeRAMCamber")
-        //    {
-        //        CategorizeCamberValues(visualizationHistory);
-        //    }
-        //}
-
-        //public void ChooseAnnotationToVisualizeDataNotImported(List<Beam> nullBeams, List<Beam> userInputBeams, string annotationToVisualize, List<Beam> modelBeams)
-        //{
-        //    if (annotationToVisualize == "VisualizeRAMReactions")
-        //    {
-        //        CategorizeReactionValuesNoData(modelBeams, nullBeams, userInputBeams);
-        //    }
-        //    if (annotationToVisualize == "VisualizeRAMSizes")
-        //    {
-        //        return;
-        //    }
-        //    if (annotationToVisualize == "VisualizeRAMStuds")
-        //    {
-        //        CategorizeStudCountValuesNoData(nullBeams, userInputBeams);
-
-        //    }
-        //    if (annotationToVisualize == "VisualizeRAMCamber")
-        //    {
-        //        CategorizeCamberValuesNoData(nullBeams, userInputBeams);
-        //    }
-        //}
-
-            // REACTIONS.
-        //    public void CategorizeReactionValues(VisualizationHistory visualizationHistory)
-        //{
-        //    foreach (var beam in unMappedBeams)
-        //    {
-        //        ElementId beamId = new ElementId(beam.ElementId);
-        //        var revitBeam = _document.GetElement(beamId) as FamilyInstance;
-        //        var startReactionTotalParameter = revitBeam.LookupParameter("Start Reaction - Total");
-        //        var endReactionTotalParameter = revitBeam.LookupParameter("End Reaction - Total");
-
-        //        bool startRxnParameterHasValue = startReactionTotalParameter.HasValue;
-        //        bool endRxnParameterHasValue = endReactionTotalParameter.HasValue;
-
-        //        if (!startRxnParameterHasValue || !endRxnParameterHasValue)
-        //            {
-        //                nullBeams.Add(beam);
-        //            }
-        //            else
-        //            {
-        //                userInputBeams.Add(beam);
-        //            }
-        //    }
-        //}
-
-        //public void CategorizeReactionValuesNoData(List<Beam>  modelBeams, List<Beam> nullBeams, List<Beam> userInputBeams)
-        //{
-        //    foreach (var beam in unMappedBeams)
-        //    {
-        //        ElementId beamId = new ElementId(beam.ElementId);
-        //        var revitBeam = _document.GetElement(beamId) as FamilyInstance;
-        //        var startReactionTotalParameter = revitBeam.LookupParameter("Start Reaction - Total");
-        //        var endReactionTotalParameter = revitBeam.LookupParameter("End Reaction - Total");
-
-        //        bool startRxnParameterHasValue = startReactionTotalParameter.HasValue;
-        //        bool endRxnParameterHasValue = endReactionTotalParameter.HasValue;
-
-        //        if (!startRxnParameterHasValue || !endRxnParameterHasValue)
-        //        {
-        //            nullBeams.Add(beam);
-        //        }
-        //        else
-        //        {
-        //            userInputBeams.Add(beam);
-        //        }
-        //    }
-        //}
-
-
         // STUDS.
         public void CategorizeStudCountValues(List<Beam> unMappedBeams, List<Beam> nullBeams, List<Beam> userInputBeams)
         {
@@ -1143,22 +1053,32 @@ namespace RevitReactionImporter
                 reset.Commit();
             }
         }
-
-        // CLEAR DATA.
-        public void ClearSelectedAnnotations()
+        public class StudParameterUpdater : ParameterUpdater
         {
+            private UpdaterId _uid;
+            private UpdaterData UpdaterData { get; set; }
+
+            public StudParameterUpdater(Guid guid, VisualizationHistory visualizationHistory, string projectId) : base(guid, visualizationHistory, projectId)
+            {
+                _uid = new UpdaterId(new AddInId(
+                    new Guid("46e366ec-491c-4fad-906d-51c00f43c9c8")), // addin id
+                    guid); // updater id
+
+                VisualizationHistory = visualizationHistory;
+                ProjectId = projectId;
+                var beamInstanceParamterModifedHandler = new BeamInstanceParamterModifedHandler();
+                beamInstanceParamterModifedHandler.ParamUpdater = this;
+                beamInstanceParameterHasBeenModified = ExternalEvent.Create(beamInstanceParamterModifedHandler);
+                ModifiedElementIds = new List<int>();
+            }
 
         }
-        //public string GetAnnotationToVisualize()
-        //{
-        //    return AnnotationToVisualize;
-        //}
 
         public class ParameterUpdater : IUpdater
         {
-            public UpdaterId _uid;
+            private UpdaterId _uid;
             public List<int> ModifiedElementIds { get; set; }
-            private ExternalEvent beamInstanceParameterHasBeenModified;
+            public ExternalEvent beamInstanceParameterHasBeenModified;
             public VisualizationHistory VisualizationHistory { get; set; }
             private UpdaterData UpdaterData { get; set; }
             public string ProjectId { get; set; }
@@ -1216,7 +1136,7 @@ namespace RevitReactionImporter
 
             public string GetAdditionalInformation()
             {
-                return "N/A";
+                return this.ToString();
             }
 
             public ChangePriority GetChangePriority()
@@ -1231,7 +1151,7 @@ namespace RevitReactionImporter
 
             public string GetUpdaterName()
             {
-                return "ParameterUpdater";
+                return this.ToString();
             }
 
             public void CleanUpdaterRegistry()
